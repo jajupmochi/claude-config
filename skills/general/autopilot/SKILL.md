@@ -8,9 +8,10 @@ tags: [autopilot, autonomous, daily-driver, autorun, scheduling, project-managem
 
 # autopilot — intake & setup
 
-You configure and install the **autopilot** daily autonomous project-driver. Design + every sub-tool
-spec: `docs/autopilot/README.md`. The per-run prompt (what the timer feeds a fresh `claude -p` autorun
-session): `docs/autopilot/PROMPT.md`. Scripts: `tooling/autopilot/`.
+You configure and install the **autopilot** daily autonomous project-driver. This skill is
+self-contained: the per-run prompt is `PROMPT.md` and all scripts are under `scripts/`, both bundled
+beside this file (so the live copy under `~/.claude/skills/autopilot/` runs without the source repo).
+Full design + every sub-tool spec: `docs/autopilot/README.md` in the claude-config repo.
 
 ## Intake flow (do this in order)
 
@@ -27,23 +28,32 @@ session): `docs/autopilot/PROMPT.md`. Scripts: `tooling/autopilot/`.
 4. **On confirm, install:**
    - Write config: `~/.claude/autopilot/<proj>/config.yaml` (role/scope, time, floor, model, repo).
    - Seed the plan root under the project's `docs/<plan-root>/` (per the neobanker structure) if absent.
-   - Install timers: `bash tooling/autopilot/install.sh <proj>` → systemd `--user` units
+   - Install timers: `bash scripts/install.sh <proj>` (from this skill's dir) → systemd `--user` units
      `autopilot-daily` (run time), `autopilot-watch` (every 10 min), `autopilot-summary`.
    - Confirm with `systemctl --user list-timers 'autopilot-*'`.
+5. **Offer the first planning pass NOW (ask y/n).** The first timer fire may be hours away, so ask:
+   "Do the first planning pass now?" If **yes**, do it in this session — run the `<startup_sequence>`
+   *Perceive* step (read the project's docs + code + recent `git log`), CREATE the long-term plan under
+   the plan root (`docs/<plan-root>/planning/`), then present the **first-run contract** output: a
+   markdown-table overview of the plan (one row per phase/MVP — goal · effort estimate · status) **and a
+   clickable link to the full plan doc**, so the user can approve the whole plan at a glance. If **no**,
+   the first timer fire produces the same table + link unattended.
 
 ## What it then does (autonomously, no human input)
 
-Each day the timer runs `tooling/autopilot/run.sh <proj>`, which loops a **fresh** `claude -p`
-**autorun** session seeded with `PROMPT.md` until the **≥30-min floor** (`floor.py`, agent-independent)
-is met and the current unit is committed + review-gate-passed. It then re-plans, updates formal time
-estimates, writes a per-run doc, and emits an in-session markdown-table summary (with the 7-day concat
-rule). The **watchdog** (`watch.py`) detects stuck/crashed/paused sessions and self-heals (Ralph-loop),
-recording problems→fixes to the playbook.
+Each day the timer runs the installed `run.sh` (`~/.claude/autopilot/bin/run.sh <proj>`), which loops a
+**fresh** `claude -p` **autorun** session seeded with `PROMPT.md` until the **≥30-min floor** (`floor.py`,
+agent-independent) is met and the current unit is committed + review-gate-passed. It then re-plans,
+updates formal time estimates, writes a per-run doc, and emits an in-session markdown-table summary (with
+the 7-day concat rule) — **the first run leads with a plan-overview table + a link to the full plan doc
+for approval.** The **watchdog** (`watch.py`) detects stuck/crashed/paused sessions and self-heals
+(Ralph-loop), recording problems→fixes to the playbook. run.sh keeps a background heartbeat fresh during
+each long `claude -p` call so the watchdog never false-positives a healthy long run as stuck.
 
 ## Manage
 - Pause: `systemctl --user disable --now autopilot-daily.timer`
 - Status: `systemctl --user list-timers 'autopilot-*'` · run-state under `~/.claude/autopilot/<proj>/`
-- Run once now (test): `bash tooling/autopilot/run.sh <proj>`
+- Run once now (test): `bash ~/.claude/autopilot/bin/run.sh <proj>`
 
 ## Guarantees it relies on
 review-gate (mandatory on every code turn) · code discipline (minimal module/change/impact, modular,

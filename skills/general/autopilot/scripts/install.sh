@@ -14,7 +14,7 @@ BIN="$HOME/.claude/autopilot/bin"; UNIT="$HOME/.config/systemd/user"
 
 mkdir -p "$BIN" "$UNIT"
 cp "$HERE"/*.py "$HERE/run.sh" "$BIN/" && chmod +x "$BIN"/*.sh "$BIN"/*.py
-cp "$HERE/../../docs/autopilot/PROMPT.md" "$BIN/PROMPT.md" 2>/dev/null || true
+cp "$HERE/../PROMPT.md" "$BIN/PROMPT.md" 2>/dev/null || true
 
 val(){ "$PY" -c "import yaml;print((yaml.safe_load(open('$CFG')) or {}).get('$1','') or '$2')"; }
 RUN_TIME="$(val run_time 03:00)"; WATCH_MIN="$(val watch_min 10)"; FLOOR="$(val floor_min 30)"

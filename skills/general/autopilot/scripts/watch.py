@@ -36,6 +36,9 @@ def main(argv: list[str]) -> int:
         print(__doc__)
         return 2
     proj = argv[1]
+    if "/" in proj or ".." in proj or not proj:   # guard against path escape (defensive)
+        print("invalid proj", file=sys.stderr)
+        return 2
     d = os.path.join(BASE, proj)
     if not os.path.isdir(d):
         return 0
@@ -49,9 +52,13 @@ def main(argv: list[str]) -> int:
         return 0  # healthy or finished
     _log(d, f"STUCK: heartbeat age {age/60:.1f} min, no fresh done-marker")
     _record_problem(d, "stuck", f"heartbeat age {age/60:.1f}min")
-    # TODO(recovery, first deploy): kill wedged session; re-spawn fresh `claude -p` with
-    #   docs/autopilot/PROMPT.md + tail of playbook.jsonl appended (Ralph-loop); for the
-    #   /goal-needs-"继续" pause, re-issue a "继续" continuation. Then update done-marker.
+    # NOTE: run.sh keeps the heartbeat fresh every ~2 min DURING each claude -p call, so a healthy
+    #   long run no longer trips STUCK_AFTER_S (the gui-design review's false-positive risk is fixed
+    #   at the source). RECOVERY PREREQUISITE: before wiring the kill+respawn below, also confirm no
+    #   live `claude` process for this run (pgrep) so recovery never kills a healthy session.
+    # TODO(recovery, first deploy): kill the wedged session; re-spawn a fresh `claude -p` with
+    #   PROMPT.md + the tail of playbook.jsonl appended (Ralph-loop); for the /goal-needs-"继续"
+    #   pause, re-issue a "继续" continuation; then update the done-marker.
     # Escalation: count failures; after ESCALATE_AFTER, notify (WorkNRoll notify-send/Telegram).
     return 0
 

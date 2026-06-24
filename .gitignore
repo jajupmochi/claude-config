@@ -13,6 +13,7 @@ Thumbs.db
 .claude/projects/
 .claude/cache/
 .claude/sessions/
+.claude-sessions/
 
 # Remember plugin scratch
 .remember/

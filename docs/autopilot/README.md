@@ -14,13 +14,13 @@ finder, and the `neobanker-agent/docs` documentation convention.
 | Component | Form | Role |
 |---|---|---|
 | **`/autopilot` intake** | skill (`skills/general/autopilot/`) | asks requirements + daily time + min-duration → **summarize & confirm** + offer optimization → writes config + installs timers |
-| **daily driver** | `tooling/autopilot/run.sh` + `autopilot-daily.{service,timer}` | system-level systemd --user timer (Persistent) → spawns a **fresh `claude -p` autorun** session seeded with `PROMPT.md` |
-| **min-duration tracker** | `tooling/autopilot/floor.py` (record + CLI) | enforces the ≥30 min floor **without the agent's judgment** (timestamp record + `floor.py check`) |
+| **daily driver** | `skills/general/autopilot/scripts/run.sh` + `autopilot-daily.{service,timer}` | system-level systemd --user timer (Persistent) → spawns a **fresh `claude -p` autorun** session seeded with `PROMPT.md` |
+| **min-duration tracker** | `skills/general/autopilot/scripts/floor.py` (record + CLI) | enforces the ≥30 min floor **without the agent's judgment** (timestamp record + `floor.py check`) |
 | **watchdog** | `autopilot-watch.{service,timer}` + `watch.py` | every ~10 min: detect stuck/crash/pause, recover (Ralph-loop), or notify; feeds the **playbook** |
 | **problem-playbook** | skill + `playbook/` docs | collected problems → proven fixes, reused by the watchdog + the run prompt |
 | **plan-reevaluator** | invoked in-run (`<reflect_and_replan>`) + `replan.py` helper | post-run re-plan, web research, archive old plans |
-| **time-estimator** | `tooling/autopilot/estimate.py` + `time/` docs | formal PERT + agent-rounds + Monte-Carlo + data calibration; team-reportable doc |
-| **summary-concat** | `tooling/autopilot/summary.py` + a separate timer | in-session md-table summary + 7-day concat rule; dodges the 7-day limit |
+| **time-estimator** | `skills/general/autopilot/scripts/estimate.py` + `time/` docs | formal PERT + agent-rounds + Monte-Carlo + data calibration; team-reportable doc |
+| **summary-concat** | `skills/general/autopilot/scripts/summary.py` + a separate timer | in-session md-table summary + 7-day concat rule; dodges the 7-day limit |
 | **docs** | `docs/autopilot/` + the per-project plan root | this design + the prompt + per-run/plan/time/playbook docs |
 
 ## 2. Daily execution (system-level, crash-proof)
@@ -31,7 +31,7 @@ session close, crash, and shutdown (Persistent → a missed run fires at next bo
 ```
 autopilot-daily.timer  (OnCalendar=<user time>, Persistent=true)
   -> autopilot-daily.service (oneshot)
-     -> tooling/autopilot/run.sh
+     -> skills/general/autopilot/scripts/run.sh
         1. floor.py start                     # record run start time
         2. loop:
              claude -p --model <m> --dangerously-skip-permissions \
@@ -68,13 +68,20 @@ than 5 min, faster than 15). Plus a **daily post-window check** (e.g., start+90 
 happened and completed.
 
 Each tick `watch.py`:
-1. Reads the run's done-marker + heartbeat (run.sh/PROMPT update a heartbeat file each step).
+1. Reads the run's done-marker + heartbeat. `run.sh` writes the heartbeat at each attempt **and** runs a
+   background loop refreshing it every ~2 min *during* the (possibly long) `claude -p` call, so the
+   heartbeat is a true liveness signal — `STUCK_AFTER_S = 20 min` (≈2 ticks) never false-positives a
+   healthy long run (the fix for the gui-design review's heartbeat-during-attempt bug). The proj arg is
+   also path-guarded (`/`/`..` rejected) so it can't escape `~/.claude/autopilot/`.
 2. **Detect**: no heartbeat for >2 ticks → stuck; service dead but no done-marker → crashed/closed;
    known pause signatures (tool-content-leak pause, `/goal` not auto-continuing on mobile → needs a
    "继续") → paused.
-3. **Recover (Ralph-loop):** kill the wedged session if needed, then **re-spawn a fresh `claude -p`
-   reinjecting `PROMPT.md` into a clean context**, with the accumulated `playbook/` learnings appended
-   so it doesn't repeat the failure. For the `/goal`-needs-继续 case, re-issue a "继续" continuation.
+3. **Recover (Ralph-loop) — marked TODO, wired on first real deployment** (it spawns live sessions, so it
+   must not run during build/test): kill the wedged session if needed, then **re-spawn a fresh `claude -p`
+   reinjecting `PROMPT.md` into a clean context**, with the accumulated `playbook/` learnings appended so
+   it doesn't repeat the failure. For the `/goal`-needs-继续 case, re-issue a "继续" continuation.
+   **Prerequisite before wiring:** confirm no live `claude` process for this run (`pgrep`) so recovery
+   never kills a healthy session.
 4. **Learn:** append `{problem signature, context, fix that worked}` to `playbook/`. Reuse next time.
 5. **Escalate:** if N recovery attempts fail, write a clear in-session note + a notification (WorkNRoll
    `notify-send`/Telegram path) for the human. Always collect the problem either way.
@@ -151,7 +158,11 @@ Reliability: [self-healing LLM agents (arXiv 2605.06737)](https://arxiv.org/abs/
 Internal: `neobanker-agent/docs` (structure), WorkNRoll (`2026.06.11_worknroll`, timers), [`../ai-code-review/`](../ai-code-review/README.md) (review-gate), [[autoresearch-toolfinder]].
 
 ## 12. Status
-Design + prompt complete (this doc + `PROMPT.md`). Implementation is scaffolded in
-`skills/general/autopilot/` + `tooling/autopilot/` (intake skill, `run.sh`, `floor.py`, `watch.py`,
-`estimate.py`, summary + systemd unit templates); the per-project plan root is created by `/autopilot`
-intake on first run. Build status tracked in this folder's commits.
+Design + prompt complete (this doc + `PROMPT.md`). The skill is **self-contained** under
+`skills/general/autopilot/`: `SKILL.md` (intake), `PROMPT.md` (the per-run prompt), and `scripts/`
+(`run.sh`, `floor.py`, `watch.py`, `estimate.py`, `summary.py`, `install.sh`, `test_watch.py` +
+systemd unit templates). It installs to `~/.claude/skills/autopilot/` so `/autopilot` is usable in any
+session, and `install.sh` copies the scripts to the stable `~/.claude/autopilot/bin/` path. The
+per-project plan root is created by `/autopilot` intake (the first planning pass can be run at install
+time, on confirmation). `floor.py` / `estimate.py` / `watch.py` are tested (`test_watch.py`); recovery
+(kill+respawn) stays a marked TODO until first real deployment. Build status tracked in this folder's commits.
