@@ -135,6 +135,27 @@ Always archive the superseded plan to `_archive/<date>-plan.md` (never overwrite
 `brainstorm/` · `images/` · **+ autopilot:** `planning/`, `daily-runs/<date>.md`, `time/`, `playbook/`.
 Bilingual (`*.md` + `*.en.md`) for human-facing docs.
 
+### 8.1 Stamping generated run artifacts  — `stamp.py`
+
+The plan and every doc a run produces (daily-run, time/estimate, playbook, comparison, summary) are
+regenerated over the timer's long life, so each carries a **date+version stamp** maintained by the
+`stamp.py` helper (NOT by the agent's memory — deterministic, front-end-readable):
+
+- **Frontmatter stamp** (YAML keys; other keys preserved): `autopilot_doc` (`plan|daily-run|time|playbook|
+  comparison|summary`) · `version` (semver — new `0.1.0`, locked plan `1.0.0`; PATCH small / MINOR
+  structural / MAJOR rewrite) · `created` (set once) · `updated` (= run date). `stamp.py apply <file>
+  --type <T> [--bump patch|minor|major]`.
+- **Filename date** for **point-in-time** artifacts (`stamp.py newname <type>`): `daily-runs/<date>.md`,
+  `time/estimate-<date>.md`, `comparison/<topic>-<date>.md`, `_archive/plan-<date>-v<version>.md`
+  (`_HHMM` suffix if several the same day). **Rolling** docs that stay one file — live `plan.md`,
+  `playbook.*`, `changelog.md` — keep a stable name + frontmatter stamp only (no date in the filename).
+- **Back-fill:** each run starts with `stamp.py check <plan-root>/{planning,daily-runs,time,playbook,
+  comparison}`; anything flagged `no-stamp` / `no-date-in-name` is stamped (created back-filled from the
+  filename date or mtime) and renamed — so a file a prior run left unstamped is fixed on the next run.
+
+Tested by `test_stamp.py`. Driven from `PROMPT.md` `<stamping>` + `<reflect_and_replan>` (plan re-eval
+bumps `version`, logs the reason in the change-log, archives the superseded version with its dated name).
+
 ## 9. Intake (`/autopilot`)
 
 On invocation: ask (1) the long-term work/requirements, (2) daily auto-run time, (3) min duration/run,
@@ -160,9 +181,10 @@ Internal: `neobanker-agent/docs` (structure), WorkNRoll (`2026.06.11_worknroll`,
 ## 12. Status
 Design + prompt complete (this doc + `PROMPT.md`). The skill is **self-contained** under
 `skills/general/autopilot/`: `SKILL.md` (intake), `PROMPT.md` (the per-run prompt), and `scripts/`
-(`run.sh`, `floor.py`, `watch.py`, `estimate.py`, `summary.py`, `install.sh`, `test_watch.py` +
-systemd unit templates). It installs to `~/.claude/skills/autopilot/` so `/autopilot` is usable in any
-session, and `install.sh` copies the scripts to the stable `~/.claude/autopilot/bin/` path. The
-per-project plan root is created by `/autopilot` intake (the first planning pass can be run at install
-time, on confirmation). `floor.py` / `estimate.py` / `watch.py` are tested (`test_watch.py`); recovery
-(kill+respawn) stays a marked TODO until first real deployment. Build status tracked in this folder's commits.
+(`run.sh`, `floor.py`, `watch.py`, `estimate.py`, `summary.py`, `stamp.py`, `install.sh`, `test_watch.py`,
+`test_stamp.py` + systemd unit templates). It installs to `~/.claude/skills/autopilot/` so `/autopilot`
+is usable in any session, and `install.sh` copies the scripts to the stable `~/.claude/autopilot/bin/`
+path. The per-project plan root is created by `/autopilot` intake (the first planning pass can be run at
+install time, on confirmation). `floor.py` / `estimate.py` / `watch.py` / `stamp.py` are tested
+(`test_watch.py`, `test_stamp.py`); recovery (kill+respawn) stays a marked TODO until first real
+deployment. Build status tracked in this folder's commits.

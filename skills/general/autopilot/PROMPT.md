@@ -45,7 +45,8 @@ improvement, or documentation. Quality and durability over raw speed.
    - If you need external signal (SOTA methods, competitor features, reusable OSS/plugins), use the
      `autoresearch-toolfinder` skill and/or web search — do not guess.
 2. **Load or create the plan.** If no long-term plan exists, CREATE one (see `<long_term_plan>`).
-   Otherwise load it + the most recent daily-progress entry + the current time estimates.
+   Otherwise load it + the most recent daily-progress entry + the current time estimates. Then run the
+   stamp back-fill check (see `<stamping>`) and fix any artifact a prior run left unstamped/undated.
    **First-run contract:** when you CREATE the plan (i.e. this is run #1), the in-session summary MUST
    lead with a markdown-table overview of the long-term plan (phases/MVPs × goal × effort-estimate ×
    status) AND a clickable link to the full plan doc under `planning/`, so the user can approve the
@@ -122,6 +123,29 @@ Update project time/effort estimates with the autopilot estimator (see design do
   7 days; once it exceeds 7 days, archive the concatenated block to a doc and, in the new summary,
   give a one-line summary of the prior 7-day block plus a link.
 </documentation_and_summary>
+
+<stamping>  <!-- every generated artifact carries a date+version stamp; stamp.py makes it deterministic -->
+The long-term plan and every doc a run produces (daily-run, time/estimate, playbook, **comparison**,
+summary) are regenerated over the timer's long life, so each MUST carry a date+version stamp, and every
+**point-in-time** artifact MUST also carry the date in its filename. Use the `stamp.py` helper (installed
+at `~/.claude/autopilot/bin/stamp.py`; source `scripts/stamp.py`) — never hand-maintain stamps. (Commands
+below abbreviate it as `stamp.py`; invoke it as `python3 ~/.claude/autopilot/bin/stamp.py`.)
+- **Frontmatter stamp** (YAML keys; other keys preserved): `autopilot_doc` (plan|daily-run|time|playbook|
+  comparison|summary) · `version` (semver — new doc `0.1.0`, plan locked/approved `1.0.0`; PATCH = small
+  edit, MINOR = structural/section change, MAJOR = rewrite) · `created` (set once) · `updated` (= run
+  date). Apply with `stamp.py apply <file> --type <T> [--bump patch|minor|major]`.
+- **Filename date** for point-in-time artifacts — get the name from `stamp.py newname <type>`:
+  `daily-runs/<YYYY-MM-DD>.md` · `time/estimate-<YYYY-MM-DD>.md` · `comparison/<topic>-<YYYY-MM-DD>.md` ·
+  archived plans `_archive/plan-<YYYY-MM-DD>-v<version>.md` (append `_HHMM` if several the same day).
+  **Rolling** docs that stay one file — the live `plan.md`, `playbook.*`, `changelog.md` — keep a stable
+  name and rely on the frontmatter stamp only (do NOT date their filename).
+- **Back-fill rule:** at run start, `stamp.py check <plan-root>/{planning,daily-runs,time,playbook,comparison}`;
+  for every file it flags (`no-stamp` / `no-date-in-name`), add the stamp (created back-filled from the
+  filename date or mtime) and rename to the dated form — so any artifact a prior run left unstamped gets
+  fixed this run.
+- On every plan re-evaluation (`<reflect_and_replan>`): bump the plan's `version`, record the bump + reason
+  in the plan change-log, and archive the superseded version under `_archive/` with its dated name.
+</stamping>
 
 <resilience>  <!-- works with the autopilot watchdog + problem-playbook -->
 - If you hit a recoverable problem (stuck tool, a known bug, a missing login, a paused state), consult
