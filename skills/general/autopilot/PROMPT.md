@@ -13,7 +13,7 @@ explicit Perceive→Reason→Act→Reflect loop, instructions separated from ses
 ## [ROLE & SCOPE]  — edit this block each session; it is intentionally a standalone paragraph
 
 ```
-[从现在开始，你将作为一个完整的网页端设计和部署的工程师，不仅包含 web 端，还包含除了 liulian-python 以外的其他所有功能，对 liulian 这个项目进行全面的设计和部署]
+[ROLE & SCOPE — filled from config.yaml `role_scope` at install time; or edit here. Example: "Act as a full-stack web design + deployment engineer and drive the entire <your-project> forward — all features (optionally excluding <a-subpackage>), including the web app."]
 ```
 
 ---
