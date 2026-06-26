@@ -13,18 +13,15 @@ watch = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(watch)
 
 
-def _setup(tmp, proj, hb_age=None, done_age=None):
+def _setup(tmp, proj, hb_age=None, done_age=None, err_age=None):
     d = os.path.join(tmp, proj)
     os.makedirs(d, exist_ok=True)
     now = time.time()
-    if hb_age is not None:
-        p = os.path.join(d, "heartbeat")
-        open(p, "w").write("x")
-        os.utime(p, (now - hb_age, now - hb_age))
-    if done_age is not None:
-        p = os.path.join(d, "last-done")
-        open(p, "w").write("x")
-        os.utime(p, (now - done_age, now - done_age))
+    for name, age in (("heartbeat", hb_age), ("last-done", done_age), ("last-error", err_age)):
+        if age is not None:
+            p = os.path.join(d, name)
+            open(p, "w").write("x")
+            os.utime(p, (now - age, now - age))
     return d
 
 
@@ -48,8 +45,20 @@ def run():
         assert watch.main(["watch", "p4"]) == 0
         assert not os.path.exists(os.path.join(d4, "watch.log")), "fresh done = finished, not stuck"
 
+        # 6. FAILED/EMPTY run: last-error fresh + newer than last-done -> flagged loudly (not "stuck")
+        d5 = _setup(tmp, "p5", hb_age=watch.STUCK_AFTER_S + 60, done_age=3600, err_age=60)
+        assert watch.main(["watch", "p5"]) == 0
+        log5 = os.path.join(d5, "watch.log")
+        assert os.path.exists(log5) and "FAILED/EMPTY RUN" in open(log5).read(), "fresh last-error must flag failed run"
+        assert os.path.exists(os.path.join(d5, "playbook.jsonl")), "failed run must record a problem"
+
+        # 7. recovered: an OLD last-error followed by a FRESH last-done -> NOT flagged
+        d6 = _setup(tmp, "p6", hb_age=watch.STUCK_AFTER_S + 60, done_age=60, err_age=7200)
+        assert watch.main(["watch", "p6"]) == 0
+        assert not os.path.exists(os.path.join(d6, "watch.log")), "old error + fresh done = healthy, no flag"
+
         assert watch.main(["watch", "../etc"]) == 2, "proj guard must reject path escape"
-    print("watch.py: all 5 tests PASS")
+    print("watch.py: all 7 tests PASS")
     return 0
 
 

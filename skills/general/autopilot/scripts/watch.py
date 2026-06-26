@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """autopilot watch.py <proj> — watchdog (Ralph-loop). Runs every ~10 min (systemd timer).
 
-Detects a stuck / crashed / paused daily run and self-heals; records every problem + the fix
-that worked into the playbook for reuse. See docs/autopilot/README.md §4.
+Detects a stuck / crashed / paused / failed-empty daily run and self-heals; records every problem +
+the fix that worked into the playbook for reuse. See docs/autopilot/README.md §4.
 
 SCAFFOLD: detection + problem-recording + escalation hook are implemented. The recovery action
 ("kill the wedged session, re-spawn a FRESH `claude -p` reinjecting PROMPT.md + accumulated
@@ -44,6 +44,19 @@ def main(argv: list[str]) -> int:
         return 0
     hb = os.path.join(d, "heartbeat")
     done = os.path.join(d, "last-done")
+    err = os.path.join(d, "last-error")
+    # FAILED / EMPTY RUN: run.sh writes last-error (and exits non-zero) whenever a run ends WITHOUT
+    # meeting the floor — claude-not-found, 3× fast-fail abort, or attempt-cap. If last-error is newer
+    # than last-done, the most recent run produced nothing. This is the silent "fake-completion" class
+    # (the empty 0-min runs from 2026-06-26); surface it loudly instead of mislabelling it "stuck".
+    if os.path.exists(err):
+        done_t = os.path.getmtime(done) if os.path.exists(done) else 0.0
+        err_age = time.time() - os.path.getmtime(err)
+        if os.path.getmtime(err) >= done_t and err_age < 26 * 3600:
+            _log(d, f"FAILED/EMPTY RUN: last-error {err_age / 3600:.1f}h ago (newer than last-done) — floor not met")
+            _record_problem(d, "failed_run", f"last-error {err_age / 3600:.1f}h ago, newer than last-done")
+            # Escalation/notify uses the same marked-TODO path as recovery below.
+            return 0
     if not os.path.exists(hb):
         return 0  # no active run to watch
     age = time.time() - os.path.getmtime(hb)

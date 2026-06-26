@@ -32,15 +32,18 @@ session close, crash, and shutdown (Persistent → a missed run fires at next bo
 autopilot-daily.timer  (OnCalendar=<user time>, Persistent=true)
   -> autopilot-daily.service (oneshot)
      -> skills/general/autopilot/scripts/run.sh
+        0. export full PATH (~/.local/bin + node/git…) + resolve $CLAUDE_BIN   # systemd --user uses a
+           if claude unresolvable: write last-error + exit 127   # FAIL LOUD — never fake a "done"
         1. floor.py start                     # record run start time
         2. loop:
-             claude -p --model <m> --dangerously-skip-permissions \
+             "$CLAUDE_BIN" -p --model <m> --dangerously-skip-permissions \
                --append-system-prompt "$(cat PROMPT.md with [ROLE&SCOPE] filled)"  \
                "Continue the autopilot run."   # FRESH session (not --resume; resume of a giant
                                                # transcript times out — WorkNRoll finding)
-             if floor.py check == not-met AND work remains: continue loop (next item)
-             else: break
-        3. summary.py emit ; watchdog done-marker
+             if floor.py check == met: floor_met=1; break
+             if claude exited non-zero in <15s: count fast-fail; abort after 3   # not 24× silent
+             if attempt >= 24: break
+        3. floor met → write last-done ; else → write last-error + exit 1   # watchdog flags failures
 ```
 
 **Why fresh `claude -p`:** replaying a huge transcript via `--resume` times out (>240 s, WorkNRoll). A
@@ -74,6 +77,10 @@ Each tick `watch.py`:
    healthy long run (the fix for the gui-design review's heartbeat-during-attempt bug). The proj arg is
    also path-guarded (`/`/`..` rejected) so it can't escape `~/.claude/autopilot/`.
 2. **Detect**: no heartbeat for >2 ticks → stuck; service dead but no done-marker → crashed/closed;
+   **`last-error` newer than `last-done` → failed/empty run** — `run.sh` writes `last-error` (+ exits
+   non-zero) whenever a run ends WITHOUT meeting the floor (`claude`-not-found, 3× fast-fail abort, or
+   attempt-cap), so the silent **fake-completion** class (the empty ~1s "0-min" runs of 2026-06-26, caused
+   by systemd's minimal PATH missing `~/.local/bin/claude`) is surfaced instead of mislabelled "stuck";
    known pause signatures (tool-content-leak pause, `/goal` not auto-continuing on mobile → needs a
    "继续") → paused.
 3. **Recover (Ralph-loop) — marked TODO, wired on first real deployment** (it spawns live sessions, so it
