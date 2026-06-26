@@ -1,0 +1,8 @@
+# review-gate config.  Copy to review-gate.conf (next to the hook scripts) to override defaults.
+#
+# block_commit: 0 = `git commit` is free (DEFAULT — the AI review at Stop still runs and surfaces
+#                   findings, it just never blocks committing);
+#               1 = also DENY commits, the same NON-FATAL way as push (denies the commit command but
+#                   the agent continues its other work; you/the user commit manually).
+# Asked once at first autopilot setup; default is 0 (do not block commits).
+block_commit=0

@@ -17,6 +17,9 @@ sid="$(printf '%s' "$IN" | jq -r '.session_id // empty' 2>/dev/null)"; [ -n "$si
 dir="$HOME/.claude/review-state"; log="$dir/$sid.changed"; rnd="$dir/$sid.rounds"; rev="$dir/$sid.reviewed"
 
 [ -s "$log" ] || exit 0
+# stale-flag expiry: a .changed left by a long-dead turn (>12h) must not force a review now — clear it.
+now="$(date +%s)"; mt="$(stat -c %Y "$log" 2>/dev/null || echo "$now")"
+[ $((now - mt)) -gt 43200 ] && { : > "$log"; rm -f "$rnd" "$rev"; exit 0; }
 
 files="$(sort -u "$log" 2>/dev/null | while IFS= read -r f; do
   [ -f "$f" ] || continue

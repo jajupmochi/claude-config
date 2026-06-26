@@ -1,0 +1,11 @@
+# review-gate push-whitelist — one project ROOT path per line; '#' starts a comment.
+#
+# Remote-publishing commands (git push / gh pr create / gh pr merge / gh release create) are
+# HARD-blocked by default. A project listed here is EXEMPT: when the Bash command's cwd is == or
+# under one of these paths, the push is allowed.
+#
+# Commit is NOT gated by this list — commits are free (unless block_commit=1 in review-gate.conf).
+#
+# Add a path when you set up autopilot for a code project you actually intend to push from.
+# Copy this file to push-whitelist.txt (next to the hook scripts) and edit. Example:
+# /home/you/projects/my-code-repo

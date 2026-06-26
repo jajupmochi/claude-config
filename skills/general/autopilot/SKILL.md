@@ -31,6 +31,9 @@ Full design + every sub-tool spec: `docs/autopilot/README.md` in the claude-conf
    - Install timers: `bash scripts/install.sh <proj>` (from this skill's dir) → systemd `--user` units
      `autopilot-daily` (run time), `autopilot-watch` (every 10 min), `autopilot-summary`.
    - Confirm with `systemctl --user list-timers 'autopilot-*'`.
+   - **Review-gate scope (ask — review-gate gates git, see `hooks/review-gate/`):**
+     - **(once, only if `~/.claude/hooks/review-gate/review-gate.conf` is absent)** — "Also block `git commit`? Default **no**: commits stay free (the AI review at Stop still runs and surfaces findings, it just won't block committing); **yes** denies commits the same NON-FATAL way as push." Write `block_commit=0|1` to that conf.
+     - **(this project)** — "Add this project to the **push-whitelist**? `git push` / `gh pr create|merge` are blocked by default (the autopilot red-line is *never push* anyway); whitelist only a code project you actually intend to push from. Pure-docs / low-impact → recommend leaving it blocked." If yes, append the repo root path to `~/.claude/hooks/review-gate/push-whitelist.txt`. A block is non-fatal — the agent keeps working, it just can't push.
 5. **Offer the first planning pass NOW (ask y/n).** The first timer fire may be hours away, so ask:
    "Do the first planning pass now?" If **yes**, do it in this session — run the `<startup_sequence>`
    *Perceive* step (read the project's docs + code + recent `git log`), CREATE the long-term plan under
