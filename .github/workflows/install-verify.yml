@@ -104,7 +104,7 @@ jobs:
     name: Plugin manifest validity
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Validate .claude-plugin/plugin.json structure
         run: |
@@ -130,7 +130,7 @@ jobs:
     name: bin/install.js syntax check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
