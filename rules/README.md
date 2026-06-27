@@ -31,6 +31,8 @@ The `setup/init-claude-config` skill (P8) does this composition automatically ba
 | [`output-brevity`](output-brevity/RULE.md) | personal | All output — keep terse, no end-of-batch recap |
 | [`tool-proactivity`](tool-proactivity/RULE.md) | personal | Installed skills / plugins fire without asking |
 | [`no-reread-files`](no-reread-files/RULE.md) | personal | Trust in-session memory of file contents |
+| [`clickable-links`](clickable-links/RULE.md) | personal | Every commit / file / line / PR / doc / source reference is a FULL clickable link — never a bare hash, partial path, or half URL |
+| [`human-readable-output`](human-readable-output/RULE.md) | personal | User-facing output/docs say it like a human (what · why · effect); no process narration or session-control markers leaking into reports |
 | [`bilingual-docs`](bilingual-docs/RULE.md) | optional | `NAME.md` + `NAME.zh.md` convention for human-facing docs |
 | [`end-of-turn-marker`](end-of-turn-marker/RULE.md) | personal | Every turn ends with `[END:FINAL]` / `[END:WAIT]` / `[END:NEEDS_USER]` on its own line |
 | [`always-on-verification`](always-on-verification/RULE.md) | research-pkg | Before any code / test / results claim, invoke `code-verifier` (artifact authenticity) and/or `research-critic` (inferential soundness) |

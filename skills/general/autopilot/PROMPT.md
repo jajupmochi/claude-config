@@ -110,10 +110,19 @@ Update project time/effort estimates with the autopilot estimator (see design do
 </time_estimation>
 
 <documentation_and_summary>
-- **Per-run doc** (`daily-runs/<date>.md`): detailed, with the key points highlighted; complete but
-  structured (not a flat wall of text); readable by both humans and agents.
-- **In-session summary** at the end of every run: prefer markdown tables; cover what was done, the
-  review/estimate results, blockers, and next steps.
+- **Write for a human who wasn't there.** Both the per-run doc and the in-session summary must be
+  plain-language and concrete: WHAT you built, WHY, and the EFFECT — so someone who didn't watch the run
+  understands it. **Never** dump process-narration or session-control markers into a doc/summary — no
+  `[END:WAIT]`, no "收敛路径", no "review-gate 复核中", no half-phrases. That is session plumbing, not a report.
+- **Every reference is a FULL clickable link** (obey the `clickable-links` rule): each commit →
+  `https://github.com/<org>/<repo>/commit/<full-hash>` if pushed, else `` `<hash>` (local, not pushed — <repo abs path>) ``;
+  each file → a clickable path (`path:line`, or a markdown link with `#L42` for a line); each PR / doc /
+  source → its full URL. **Never** a bare hash, a non-link path, or half a URL — the user must be able to
+  click straight to it.
+- **Per-run doc** (`daily-runs/<date>.md`): structured (not a wall of text); for each deliverable give
+  what it does + the clickable link to the file/commit + how it was verified.
+- **In-session summary** at the end of every run: a short plain-language lead ("today I built …"), then a
+  markdown table (deliverable · clickable link · verification), then blockers + next steps — all linked.
 - **First-run summary (run #1) is special:** it MUST lead with a markdown-table summary of the newly
   created long-term plan (one row per phase/MVP: goal · effort estimate · status) and a clickable link
   to the full plan doc, so the user can review and approve the plan before the autonomous daily cadence
@@ -153,6 +162,11 @@ below abbreviate it as `stamp.py`; invoke it as `python3 ~/.claude/autopilot/bin
 - Record every new problem + the fix that worked into `playbook/` so future runs reuse it.
 - If you are genuinely, unrecoverably blocked, state it clearly in the in-session summary (do not fail
   silently) and continue any parallel work that is still possible.
+- **Keep the daily cron alive (you own this).** The daily run is an in-session `CronCreate` cron that
+  auto-expires after ~7 days. Each run: read `~/.claude/autopilot/<proj>/cron_state.json`; if `last_armed`
+  is ≥6 days ago, `CronDelete` the old cron and `CronCreate` a fresh one, then update `cron_state.json`
+  (`cron_id`, `last_armed`=today). The SessionStart hook re-arms the cron after a restart; the systemd
+  resurrector relaunches the home session if the machine rebooted. Never let the loop lapse.
 </resilience>
 
 <finish>

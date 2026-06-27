@@ -29,21 +29,29 @@ Mirrors WorkNRoll's proven pattern (systemd `--user`, `Persistent=true`, `linger
 session close, crash, and shutdown (Persistent → a missed run fires at next boot):
 
 ```
-autopilot-daily.timer  (OnCalendar=<user time>, Persistent=true)
-  -> autopilot-daily.service (oneshot)
-     -> skills/general/autopilot/scripts/run.sh
-        0. export full PATH (~/.local/bin + node/git…) + resolve $CLAUDE_BIN   # systemd --user uses a
-           if claude unresolvable: write last-error + exit 127   # FAIL LOUD — never fake a "done"
-        1. floor.py start                     # record run start time
-        2. loop:
-             "$CLAUDE_BIN" -p --model <m> --dangerously-skip-permissions \
-               --append-system-prompt "$(cat PROMPT.md with [ROLE&SCOPE] filled)"  \
-               "Continue the autopilot run."   # FRESH session (not --resume; resume of a giant
-                                               # transcript times out — WorkNRoll finding)
-             if floor.py check == met: floor_met=1; break
-             if claude exited non-zero in <15s: count fast-fail; abort after 3   # not 24× silent
-             if attempt >= 24: break
-        3. floor met → write last-done ; else → write last-error + exit 1   # watchdog flags failures
+NEW MODEL (2026-06-27) — the daily run lands in the user's ALWAYS-OPEN session, not a headless spawn:
+
+  Layer 1 — in-session daily cron (the run itself):
+    /autopilot arms a CronCreate cron (e.g. `0 22 * * *`, recurring+durable) IN the user's session and
+    records that session in cron_state.json. It fires daily in THAT session, runs PROMPT.md until the
+    floor.py >=30-min floor, commits each increment (review-gate), re-plans, posts a plain-language,
+    fully-linked summary — visible to the user and on their phone (the session is --remote-control'd).
+
+  Layer 2 — survive the 7-day cap + session restarts:
+    cron_state.json tracks last_armed; the agent SELF-RENEWS the cron before day 6 (CronCreate auto-
+    expires at ~7 days). The SessionStart hook (session_check.sh) re-arms the cron whenever any session
+    starts (cold start / resume / resurrect), and surfaces an unshown failed run.
+
+  Layer 3 — survive a crash / reboot (systemd --user, Persistent):
+    autopilot-resurrect.timer (every 30 min) runs resurrect.sh: if a project's home session died, it
+    relaunches `claude` (the user's flags) in a NAMED tmux session. On start, Layer 2's hook re-arms the
+    cron, so the loop continues in the same kind of watchable session. (Needs `tmux` installed.)
+
+  Watchdog — autopilot-watch.timer runs watch.py: flags any run that ended WITHOUT meeting the floor
+    (last-error newer than last-done) so a silent empty run never passes as success.
+
+  Fallback — the headless run.sh + a daily systemd timer remain available for users with NO always-open
+    session (the original model; opt-in).
 ```
 
 **Why fresh `claude -p`:** replaying a huge transcript via `--resume` times out (>240 s, WorkNRoll). A

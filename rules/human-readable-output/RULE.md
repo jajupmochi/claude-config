@@ -1,0 +1,46 @@
+---
+name: human-readable-output
+description: Write everything the user reads — chat, summaries, committed docs, reports — as plain language a person follows on the first read (what · why · effect). No telegram-style fragments, no process narration, no session-control markers leaking into reports.
+scope: personal
+rationale: The user repeatedly couldn't tell what was actually done from formulaic, fragmented output — terse AI shorthand, internal process narration, and session-control markers (`[END:WAIT]`, "收敛路径") leaking into reports. A summary a person can't decode is worthless. This refines `output-brevity`: stay lean by cutting whole points, not by compressing sentences into cryptic shorthand. On conflict, readability wins.
+---
+
+# human-readable-output
+
+> Say it like a human. Complete sentences, concrete (what · why · effect), understandable on the first read. Never leak internal process narration or session-control markers into anything the user reads.
+
+## Master TOC
+
+- [Rule](#rule)
+- [What to keep out of user-facing text](#what-to-keep-out-of-user-facing-text)
+- [Why](#why)
+- [Companion rules](#companion-rules)
+
+## Rule
+
+Everything the user reads must be plain-language and decodable on the first read:
+
+1. **Complete, natural sentences.** Not telegram-style fragments joined by semicolons, not slash-and-parenthesis phrase piles, not undefined acronyms, not dense walls of text. If a person would have to stop and decode it, rewrite it as a sentence.
+2. **Lead with substance, in human words.** Say WHAT you did, WHY, and the EFFECT, so someone who didn't watch understands: "I added a regression test for the validator; it now catches 9 bad configs (verified by a real run)." Not a checklist of opaque fragments.
+3. **No internal process narration in reports.** Don't narrate the plumbing — "收敛路径", "本回合补强", "review-gate 复核中", "下回合 commit-only", "Stop 评审覆盖". That's how the machinery works, not what got done.
+4. **No session-control markers in docs/summaries.** `[END:WAIT]` / `[END:FINAL]` / `[END:NEEDS_USER]` belong to live turn-control only — they must NEVER appear inside a committed doc or a written report.
+5. **Structured content gets structure.** For options with trade-offs, per-item status, pros/cons, or a multi-step plan, use a TABLE or short separated paragraphs over one cramped run-on. Keep prose to short paragraphs of two to four sentences. Bullet/table cells may be concise, but each must be a self-contained, decodable thought.
+6. **Refines `output-brevity`.** Stay lean by cutting whole points, NOT by compressing sentences into shorthand. On any conflict between brevity and readability, readability wins.
+
+Exceptions that stay as-is: code, identifiers, file paths, commit messages, log lines, machine-facing text.
+
+## What to keep out of user-facing text
+
+| Keep OUT (machinery) | Put IN (the report) |
+|---|---|
+| `[END:WAIT]`, `[END:FINAL]` | (nothing — these are turn-control only) |
+| "收敛路径 / 本回合补强 / 复核中" | "I added a regression test for the validator; it now catches 9 bad configs" |
+| bare status fragments | "what · why · effect", each with a clickable link |
+
+## Why
+
+Output is only useful if the reader understands it and can act on it. Formulaic fragments plus leaked process narration mean the user can't tell what happened — it reads as perfunctory. Plain language, concrete specifics, and working links are the difference between a real report and noise.
+
+## Companion rules
+
+Pairs with [`clickable-links`](../clickable-links/RULE.md) (every reference clickable) and [`output-brevity`](../output-brevity/RULE.md) (terse — but terse AND clear, never terse-and-cryptic).
