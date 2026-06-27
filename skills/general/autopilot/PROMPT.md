@@ -125,6 +125,13 @@ Update project time/effort estimates with the autopilot estimator (see design do
   each file → a clickable path (`path:line`, or a markdown link with `#L42` for a line); each PR / doc /
   source → its full URL. **Never** a bare hash, a non-link path, or half a URL — the user must be able to
   click straight to it.
+- **APIs and UI changes → clickable test links + screenshots** (obey the `design-artifacts` rule). If the
+  run designs/implements API endpoints (FastAPI etc.), list each `METHOD /path — purpose` with a full
+  clickable LOCAL test link (Swagger `http://localhost:<port>/docs#/<tag>/<operationId>`, Storybook
+  `http://localhost:6006/?path=/story/<id>`, state how to start the server) in the daily-run doc AND the
+  summary. If a change is visible in the UI, give the full clickable LOCAL preview URL of the exact
+  changed route AND embed a **screenshot** of the change (capture via browser/playwright, save under the
+  project's `images/`, embed in the doc, reference in the summary; before/after for a modification).
 - **Per-run doc** (`daily-runs/<date>.md`): structured (not a wall of text); for each deliverable give
   what it does + the clickable link to the file/commit + how it was verified.
 - **In-session summary** at the end of every run: a short plain-language lead ("today I built …"), then a
