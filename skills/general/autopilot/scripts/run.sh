@@ -23,6 +23,7 @@ mkdir -p "$BASE/runs"; LOG="$BASE/runs/$(date +%F_%H%M).log"
 
 cfg(){ "$PY" -c "import yaml;print((yaml.safe_load(open('$CFG')) or {}).get('$1','') or '')" 2>/dev/null; }
 REPO="$(cfg repo)"; MODEL="$(cfg model)"; ROLE="$(cfg role_scope)"
+FALLBACK="$(cfg fallback_model)"; [ -n "$FALLBACK" ] || FALLBACK="claude-sonnet-4-6"  # opus overload -> sonnet
 
 # fill the [ROLE & SCOPE] fenced block of the prompt from config
 PROMPT="$(ROLE="$ROLE" "$PY" - "$PROMPT_FILE" <<'PY'
@@ -44,19 +45,28 @@ fi
 rm -f "$BASE/last-error"                                # clear stale failure marker before a real attempt
 "$PY" "$HERE/floor.py" "$PROJ" start; heartbeat
 [ -n "$REPO" ] && cd "$REPO" 2>/dev/null
-attempt=0; floor_met=0; fast_fail=0
+attempt=0; floor_met=0; fast_fail=0; transient=0
 while :; do
   attempt=$((attempt + 1)); heartbeat
   # Keep the heartbeat fresh DURING the (possibly long) claude -p call so the watchdog reads a
   # true liveness signal and never false-positives a healthy long run as "stuck".
   ( while :; do date +%s > "$BASE/heartbeat"; sleep 120; done ) & hb_pid=$!
   t0=$(date +%s)
-  "$CLAUDE_BIN" -p --dangerously-skip-permissions ${MODEL:+--model "$MODEL"} \
+  "$CLAUDE_BIN" -p --dangerously-skip-permissions ${MODEL:+--model "$MODEL"} ${FALLBACK:+--fallback-model "$FALLBACK"} \
     --append-system-prompt "$PROMPT" \
     "autopilot daily run for [$PROJ]. Execute the autopilot directive now (attempt $attempt)." \
     >>"$LOG" 2>&1
   rc=$?; kill "$hb_pid" 2>/dev/null; heartbeat
   "$PY" "$HERE/floor.py" "$PROJ" check && { floor_met=1; break; }   # floor met -> done for today
+  # TRANSIENT server-side throttle (rate-limit / overload — NOT your usage cap, NOT a real failure):
+  # wait with exponential backoff and retry. Never count it as a fast-fail or a floor failure.
+  if "$HERE/is_transient.sh" "$LOG"; then
+    transient=$((transient + 1))
+    [ "$transient" -ge 8 ] && { echo "[run.sh] gave up after 8 transient throttles — watchdog flags RETRYABLE" >>"$LOG"; break; }
+    backoff=$(( 60 * transient )); [ "$backoff" -gt 600 ] && backoff=600
+    echo "[run.sh] transient API throttle — backoff ${backoff}s then retry (transient=$transient/8) $(date -Iseconds)" >>"$LOG"
+    sleep "$backoff"; fast_fail=0; continue
+  fi
   # A real autorun runs for minutes; a <15s non-zero exit = claude failed to launch/auth (not real work).
   # Abort after 3 such fast-fails instead of silently burning all 24 attempts in ~1s and faking success.
   if [ "$rc" -ne 0 ] && [ $(( $(date +%s) - t0 )) -lt 15 ]; then

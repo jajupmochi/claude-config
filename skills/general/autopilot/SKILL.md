@@ -46,11 +46,16 @@ It lives in the user's always-open, phone-remote-controlled session so they can 
      (failed/empty-run detector), `autopilot-summary`, and the global `autopilot-resurrect` (every 30 min,
      relaunches the home session in tmux after a crash/reboot — needs `tmux`).
    - **Arm the daily in-session cron + record the home session.** With `CronCreate`, create a recurring
-     durable cron (schedule from the run time, e.g. `0 22 * * *`; prompt: "autopilot daily run for [<proj>]:
-     read ~/.claude/skills/autopilot/PROMPT.md and execute the directive for <proj> now"). Write
+     durable cron (schedule from the run time, e.g. `0 22 * * *`). Cron **prompt**: "autopilot daily run
+     for [<proj>]: FIRST run `python3 ~/.claude/skills/autopilot/scripts/update_check.py <proj>` (cheap,
+     code-only) — if it prints `UPDATED`, re-run `scripts/install.sh <proj>` and re-arm this cron with the
+     latest config (refreshing `configured_with_version`) BEFORE working; then read
+     ~/.claude/skills/autopilot/PROMPT.md and execute the directive for <proj> now." Write
      `~/.claude/autopilot/<proj>/cron_state.json` with `home_session_id` = THIS session's id, `cron_id`,
-     `last_armed` = today, `schedule`. (The SessionStart hook re-arms it after restarts; you self-renew it
-     before day 6 to dodge the 7-day `CronCreate` cap — see `<resilience>` in PROMPT.md.)
+     `last_armed` = today, `schedule`, and **`configured_with_version`** = the contents of
+     `~/.claude/skills/autopilot/VERSION` (so `update_check.py` can detect a later autopilot update cheaply).
+     (The SessionStart hook re-arms it after restarts; you self-renew before day 6 to dodge the 7-day
+     `CronCreate` cap — see `<resilience>` in PROMPT.md.)
    - Confirm with `systemctl --user list-timers 'autopilot-*'` and `CronList`.
    - **Review-gate scope (ask — review-gate gates git, see `hooks/review-gate/`):**
      - **(once, only if `~/.claude/hooks/review-gate/review-gate.conf` is absent)** — "Also block `git commit`? Default **no**: commits stay free (the AI review at Stop still runs and surfaces findings, it just won't block committing); **yes** denies commits the same NON-FATAL way as push." Write `block_commit=0|1` to that conf.

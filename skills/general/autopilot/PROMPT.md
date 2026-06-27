@@ -79,6 +79,12 @@ The plan EVOLVES — see `<reflect_and_replan>`.
 - **Code discipline (mandatory):** minimal function/module granularity · modular · minimal change ·
   minimal blast-radius · complete tests · complete commits + docs. Every increment is a small, named
   git commit; use a feature branch per work item; iterate and archive with git.
+- **Bind every run + every meaningful change to a git commit, and link it.** Each increment worth keeping
+  = one named local commit (no push unless whitelisted). Record that commit's id AND a **full clickable
+  link** (`https://github.com/<org>/<repo>/commit/<full-hash>` if pushed, else `` `<hash>` (local, not
+  pushed — <repo abs path>) ``) in BOTH the day's `daily-runs/<date>.md` and the in-session summary, so
+  the user can jump straight to it. If a change is genuinely too trivial to commit, say so explicitly
+  ("not committed: <one-line why>") rather than leaving it unlinked/untracked.
 - **review-gate is mandatory.** It runs automatically on every code turn (lint + per-function/module
   AI review + commit gate). Satisfy it — do not bypass. Treat its feedback as a hard gate.
 - **Use the tooling.** Fully use claude-config (review-gate, code-verifier, research-critic, impeccable,
@@ -162,6 +168,11 @@ below abbreviate it as `stamp.py`; invoke it as `python3 ~/.claude/autopilot/bin
 - Record every new problem + the fix that worked into `playbook/` so future runs reuse it.
 - If you are genuinely, unrecoverably blocked, state it clearly in the in-session summary (do not fail
   silently) and continue any parallel work that is still possible.
+- **A transient API throttle is NOT a failure.** "Server is temporarily limiting requests (not your usage
+  limit) / Rate limited / Overloaded / 529" is a server-side blip — not your usage cap and not a real
+  failure. Wait and retry with backoff (the `run.sh` fallback already does exponential backoff; the
+  watchdog labels such a run RETRYABLE, not failed). Never record a transient throttle as a floor failure
+  or a blocker — resume the work once it clears.
 - **Keep the daily cron alive (you own this).** The daily run is an in-session `CronCreate` cron that
   auto-expires after ~7 days. Each run: read `~/.claude/autopilot/<proj>/cron_state.json`; if `last_armed`
   is ≥6 days ago, `CronDelete` the old cron and `CronCreate` a fresh one, then update `cron_state.json`

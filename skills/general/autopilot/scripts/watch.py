@@ -53,9 +53,19 @@ def main(argv: list[str]) -> int:
         done_t = os.path.getmtime(done) if os.path.exists(done) else 0.0
         err_age = time.time() - os.path.getmtime(err)
         if os.path.getmtime(err) >= done_t and err_age < 26 * 3600:
-            _log(d, f"FAILED/EMPTY RUN: last-error {err_age / 3600:.1f}h ago (newer than last-done) — floor not met")
-            _record_problem(d, "failed_run", f"last-error {err_age / 3600:.1f}h ago, newer than last-done")
-            # Escalation/notify uses the same marked-TODO path as recovery below.
+            kind, sig = "FAILED/EMPTY RUN", "failed_run"
+            # A TRANSIENT server-side throttle (rate-limit / overload) is RETRYABLE, not a real failure —
+            # classify it via the shared is_transient.sh against the newest run log so it's labelled right.
+            import glob
+            import subprocess
+            logs = sorted(glob.glob(os.path.join(d, "runs", "*.log")), key=os.path.getmtime)
+            it = os.path.join(os.path.dirname(os.path.abspath(__file__)), "is_transient.sh")
+            if logs and os.path.exists(it) and subprocess.run(
+                ["bash", it, logs[-1]], capture_output=True
+            ).returncode == 0:
+                kind, sig = "RETRYABLE RUN (transient API throttle — rate-limit/overload, not a real failure)", "failed_run_retryable"
+            _log(d, f"{kind}: last-error {err_age / 3600:.1f}h ago (newer than last-done) — floor not met")
+            _record_problem(d, sig, f"last-error {err_age / 3600:.1f}h ago")
             return 0
     if not os.path.exists(hb):
         return 0  # no active run to watch
