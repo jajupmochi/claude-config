@@ -5,4 +5,4 @@
 log="${1:?usage: is_transient.sh <logfile>}"
 [ -f "$log" ] || exit 1
 tail -10 "$log" 2>/dev/null | grep -qiE \
-  'temporarily limiting requests|rate.?limit|overloaded_error|[Oo]verloaded|server is (temporarily )?(busy|overloaded)|status code 529|HTTP 529|\b529\b'
+  'temporarily limiting requests|rate.?limit|overloaded_error|\bOverloaded\b|server is (temporarily )?(busy|overloaded)|status code 529|HTTP 529'

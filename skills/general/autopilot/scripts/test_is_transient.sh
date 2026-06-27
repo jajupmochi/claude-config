@@ -18,6 +18,12 @@ printf 'run.sh: line 40: claude: command not found\n' > "$T/c.log"; bash "$IT" "
 # a clean run -> NOT transient
 printf 'committed dbfee54 to dev\nBUILD SUCCESS\n' > "$T/d.log"; bash "$IT" "$T/d.log"; chk "clean run -> NOT transient" "$?" "1"
 
+# coincidental "529" (e.g. a count) must NOT false-positive (tightened regex)
+printf 'Ran 529 checks, all passed\nBUILD SUCCESS\n' > "$T/e.log"; bash "$IT" "$T/e.log"; chk "coincidental 529 -> NOT transient" "$?" "1"
+
+# the API's capital "Overloaded" error -> transient
+printf 'API Error: Overloaded\n' > "$T/f.log"; bash "$IT" "$T/f.log"; chk "Overloaded (API) -> transient" "$?" "0"
+
 # missing file -> NOT transient (exit 1, no crash)
 bash "$IT" "$T/nope.log"; chk "missing log -> NOT transient" "$?" "1"
 
