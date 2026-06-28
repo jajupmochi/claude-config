@@ -112,15 +112,17 @@ fi
 
 reason="$reason
 
-**Present your review IN CHINESE** (unless the project is English-language), as its OWN clearly-fenced
-block — open with a marker line \`━━━━━━ review-gate 审查 ━━━━━━\` and close with a matching line — so it
-does NOT sprawl as raw text after your summary. Use **bold-keyed bullets**, one per changed function/
-module: the file + unit in **bold**, then \`维度 — 结论\`. e.g.:
+**Present your review IN CHINESE** (unless the project is English-language), in its OWN \`---\`-fenced
+block (a \`---\` rule, then \`**review-gate 审查**\` on its own line, then a \`---\` rule, then the bullets,
+then a closing \`---\` rule) — NOT a long \`━\` string, NOT raw text sprawling after your summary. Use
+**bold-keyed bullets**, one per changed function/module: the file + unit in **bold**, then \`维度 — 结论\`. e.g.:
 \`\`\`md
-━━━━━━ review-gate 审查 ━━━━━━
+---
+**review-gate 审查**
+---
 - **track.sh / parse_input()**：logic — OK
 - **foo.py / load()**：test-gap — 问题:空输入无测试 → 待修
-━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 \`\`\`
 先修真实问题再收尾。(review-gate 每个改代码的回合都跑,不可跳过。)"
 
