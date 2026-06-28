@@ -39,19 +39,24 @@ try:
     d = json.load(open(sys.argv[1]))
 except Exception:
     d = {}
-print(d.get("home_session_id","") , "||", d.get("last_armed","") , "||", d.get("cron_id","") , "||", d.get("schedule","0 22 * * *"))
+print(d.get("home_session_id","") , "||", d.get("last_armed","") , "||", d.get("cron_id","") , "||", d.get("schedule","0 22 * * *") , "||", d.get("configured_with_version",""))
 PY
 )"
   home="$(printf '%s' "$vals" | awk -F' \\|\\| ' '{print $1}')"
   last_armed="$(printf '%s' "$vals" | awk -F' \\|\\| ' '{print $2}')"
   cron_id="$(printf '%s' "$vals" | awk -F' \\|\\| ' '{print $3}')"
   sched="$(printf '%s' "$vals" | awk -F' \\|\\| ' '{print $4}')"
+  cfgver="$(printf '%s' "$vals" | awk -F' \\|\\| ' '{print $5}')"
 
   # Only act for the project whose home session is THIS session (if we know both ids). If home is
   # unknown (e.g. first setup not done yet) we still surface it so /autopilot setup can record it.
   if [ -n "$home" ] && [ -n "$SID" ] && [ "$home" != "$SID" ]; then
     continue
   fi
+
+  # autopilot updated since this cron was armed? (configured_with_version != installed VERSION) -> re-arm
+  curver="$(cat "$HOME/.claude/skills/autopilot/VERSION" 2>/dev/null | head -1 | tr -d ' ')"
+  verstale="no"; [ -n "$curver" ] && [ "$cfgver" != "$curver" ] && verstale="yes"
 
   # days since last_armed (>=6 => renew to dodge the 7-day cap)
   renew="unknown"
@@ -71,7 +76,7 @@ PY
     echo "[AUTOPILOT SELF-HEAL | ${TODAY}] (re-arm the in-session daily cron so it survives restarts + the 7-day cap)"
     emitted=1
   fi
-  echo "ACTION (autopilot '${proj}'): run CronList. If NO cron with schedule '${sched}' for this project is listed (new/restarted session), OR cron_state says renew=${renew}, then: CronDelete the old cron '${cron_id}' if it still exists, CronCreate a recurring durable cron (schedule '${sched}', prompt: \"autopilot daily run for [${proj}]: read ~/.claude/skills/autopilot/PROMPT.md and execute the directive for ${proj} now\"), and write ${state} with home_session_id=${SID:-<this session>}, cron_id=<new id>, last_armed=${TODAY}, schedule=${sched}. If the cron is already alive and renew=ok, do nothing."
+  echo "ACTION (autopilot '${proj}'): run CronList. If NO cron with schedule '${sched}' for this project is listed (new/restarted session), OR renew=${renew}, OR verstale=${verstale} (autopilot updated: cron_state configured_with_version='${cfgver}' != installed VERSION='${curver}'), then: CronDelete the old cron '${cron_id}' if it still exists, CronCreate a recurring durable cron (schedule '${sched}', prompt: \"autopilot daily run for [${proj}]: read ~/.claude/skills/autopilot/PROMPT.md and execute the directive for ${proj} now\"), and write ${state} with home_session_id=${SID:-<this session>}, cron_id=<new id>, last_armed=${TODAY}, schedule=${sched}, configured_with_version='${curver}'. If the cron is alive AND renew=ok AND verstale=no, do nothing."
 done
 
 # Surface the most recent finished/failed run that the user has not seen yet, per project.

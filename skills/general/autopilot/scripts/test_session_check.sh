@@ -35,6 +35,18 @@ printf '{"home_session_id":"sid-1","last_armed":"%s"}' "$fresh" > "$A/cron_state
 : > "$A/last-done"; sleep 1; : > "$A/last-error"
 out="$(run_sc sid-1)"
 chk "failed run -> NOTE surfaced"        "$out" "did NOT finish"
+rm -f "$A/last-error"
+
+# 5. autopilot updated (configured_with_version != installed VERSION) -> ACTION says verstale=yes
+mkdir -p "$T/.claude/skills/autopilot"; printf 'v-new\n' > "$T/.claude/skills/autopilot/VERSION"
+printf '{"home_session_id":"sid-1","last_armed":"%s","cron_id":"c1","schedule":"0 22 * * *","configured_with_version":"v-old"}' "$fresh" > "$A/cron_state.json"
+out="$(run_sc sid-1)"
+chk "version mismatch -> verstale=yes"   "$out" "verstale=yes"
+
+# 6. matching version -> verstale=no
+printf '{"home_session_id":"sid-1","last_armed":"%s","cron_id":"c1","schedule":"0 22 * * *","configured_with_version":"v-new"}' "$fresh" > "$A/cron_state.json"
+out="$(run_sc sid-1)"
+chk "version match -> verstale=no"       "$out" "verstale=no"
 
 rm -rf "$T"
 if [ "$fail" -eq 0 ]; then echo "session_check.sh: all $pass checks PASS"; else echo "session_check.sh: $fail FAIL / $pass pass"; fi

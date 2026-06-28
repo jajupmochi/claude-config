@@ -38,6 +38,14 @@ improvement, or documentation. Quality and durability over raw speed.
 </mission>
 
 <startup_sequence>  <!-- Perceive → Reason -->
+0. **Self-update check FIRST (cheap, code-only — do this before anything else).** Run
+   `python3 ~/.claude/skills/autopilot/scripts/update_check.py <proj>`. If it prints `UPDATED` (or
+   `unknown`), autopilot changed since this timer was armed → run
+   `bash ~/.claude/skills/autopilot/scripts/install.sh <proj>`, then re-arm the daily cron (`CronDelete`
+   the old id from `cron_state.json`, `CronCreate` a fresh recurring durable cron with this SAME prompt
+   text), and write `cron_state.json` `configured_with_version` = the contents of
+   `~/.claude/skills/autopilot/VERSION`. Then continue. This is how an already-armed cron picks up new
+   autopilot behaviour (new rules, new output format) without needing the session restarted.
 1. **Perceive.** Read the current reality before acting:
    - The project's own docs and code; recent `git log`; this session's and prior sessions' relevant
      design + discussion; the autopilot workspace docs (long-term plan, latest daily-progress,
@@ -125,17 +133,27 @@ Update project time/effort estimates with the autopilot estimator (see design do
   each file → a clickable path (`path:line`, or a markdown link with `#L42` for a line); each PR / doc /
   source → its full URL. **Never** a bare hash, a non-link path, or half a URL — the user must be able to
   click straight to it.
-- **APIs and UI changes → clickable test links + screenshots** (obey the `design-artifacts` rule). If the
-  run designs/implements API endpoints (FastAPI etc.), list each `METHOD /path — purpose` with a full
-  clickable LOCAL test link (Swagger `http://localhost:<port>/docs#/<tag>/<operationId>`, Storybook
-  `http://localhost:6006/?path=/story/<id>`, state how to start the server) in the daily-run doc AND the
-  summary. If a change is visible in the UI, give the full clickable LOCAL preview URL of the exact
-  changed route AND embed a **screenshot** of the change (capture via browser/playwright, save under the
-  project's `images/`, embed in the doc, reference in the summary; before/after for a modification).
+- **APIs and UI changes → clickable test links + screenshots — MANDATORY this run if you touched any API
+  or UI (not optional).** Do NOT just describe them. If the run designs/implements API endpoints (FastAPI
+  etc.), you MUST list each `METHOD /path — purpose` with a full clickable LOCAL test link (Swagger
+  `http://localhost:<port>/docs#/<tag>/<operationId>`, Storybook `http://localhost:6006/?path=/story/<id>`,
+  state how to start the server) in the daily-run doc AND the summary. If a change is visible in the UI,
+  you MUST give the full clickable LOCAL preview URL of the exact changed route AND **start the app, take
+  a screenshot** of the change (browser/playwright), save it under the project's `images/`, embed it in
+  the doc (`![...](images/<name>.png)`), and reference it (with the link) in the summary — before/after
+  for a modification. This run had API/frontend work and produced none of this; that is the bug to fix.
 - **Per-run doc** (`daily-runs/<date>.md`): structured (not a wall of text); for each deliverable give
   what it does + the clickable link to the file/commit + how it was verified.
-- **In-session summary** at the end of every run: a short plain-language lead ("today I built …"), then a
-  markdown table (deliverable · clickable link · verification), then blockers + next steps — all linked.
+- **In-session summary — format is MANDATORY (this is what the user reads, often on their phone):**
+  - **In Chinese**, unless the project itself is English-language.
+  - **Set it off top AND bottom** with a distinctive full-width marker so it is instantly grabbable while
+    scrolling — open with a line like `━━━━━━━━━━ 📊 本轮小结 ━━━━━━━━━━` and close with a matching
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`. (A bare `---` is not enough; the summary must stand out from the
+    tool-call narration above and below it.)
+  - **Lead with a one-line at-a-glance** ("今日净产出：…"), then a **markdown table** (交付 · 可点链接 · 验证)
+    and/or **bold-keyed bullets** (bold the key point like a heading, detail on the next line). Key points
+    pop; detail present but secondary. Include the API/UI links + screenshots from the rule above and a
+    clickable link for every commit. Blockers + next steps at the end, all linked.
 - **First-run summary (run #1) is special:** it MUST lead with a markdown-table summary of the newly
   created long-term plan (one row per phase/MVP: goal · effort estimate · status) and a clickable link
   to the full plan doc, so the user can review and approve the plan before the autonomous daily cadence

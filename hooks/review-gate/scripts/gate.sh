@@ -112,13 +112,17 @@ fi
 
 reason="$reason
 
-**Then present your review as a markdown list in your reply**, e.g.:
+**Present your review IN CHINESE** (unless the project is English-language), as its OWN clearly-fenced
+block — open with a marker line \`━━━━━━ review-gate 审查 ━━━━━━\` and close with a matching line — so it
+does NOT sprawl as raw text after your summary. Use **bold-keyed bullets**, one per changed function/
+module: the file + unit in **bold**, then \`维度 — 结论\`. e.g.:
 \`\`\`md
-- track.sh / parse_input(): logic — OK
-- gate.sh / lint loop: security — no secrets; ok
-- foo.py / load(): test-gap — ISSUE: no test for empty input
+━━━━━━ review-gate 审查 ━━━━━━
+- **track.sh / parse_input()**：logic — OK
+- **foo.py / load()**：test-gap — 问题:空输入无测试 → 待修
+━━━━━━━━━━━━━━━━━━━━━━━━━━
 \`\`\`
-Fix real issues, then finish. (review-gate runs on every code-changing turn and is not skipped.)"
+先修真实问题再收尾。(review-gate 每个改代码的回合都跑,不可跳过。)"
 
 printf '%s' "$reason" | jq -Rs '{decision:"block", reason:.}' 2>/dev/null || exit 0
 exit 0
