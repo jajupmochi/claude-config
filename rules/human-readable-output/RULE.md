@@ -26,16 +26,16 @@ Everything the user reads must be plain-language and decodable on the first read
 4. **No session-control markers in docs/summaries.** `[END:WAIT]` / `[END:FINAL]` / `[END:NEEDS_USER]` belong to live turn-control only — they must NEVER appear inside a committed doc or a written report.
 5. **Structured content gets structure.** For options with trade-offs, per-item status, pros/cons, or a multi-step plan, use a TABLE or short separated paragraphs over one cramped run-on. Keep prose to short paragraphs of two to four sentences. Bullet/table cells may be concise, but each must be a self-contained, decodable thought.
 6. **Refines `output-brevity`.** Stay lean by cutting whole points, NOT by compressing sentences into shorthand. On any conflict between brevity and readability, readability wins.
-7. **Fence the final summary top AND bottom with a THICK `━` bar — bar and keyword each on their OWN line.** Put a bounded run of `━` (long enough to be a clear bar, ~20–30 chars — NOT endless) on its own line, the keyword on its own line, another `━` bar on its own line; then the content; then a closing `━` bar:
+7. **Fence the final summary top AND bottom with a THICK `━` bar — bar and keyword each on their OWN line.** Put a bounded run of `━` (~14–16 chars — must fit ONE line on a phone; a 24-char bar already wrapped) on its own line, the keyword on its own line, another `━` bar on its own line; then the content; then a closing `━` bar:
 
     ```
-    ━━━━━━━━━━━━━━━━━━━━━━━━
+    ━━━━━━━━━━━━━━━━
     📊 本轮小结
-    ━━━━━━━━━━━━━━━━━━━━━━━━
+    ━━━━━━━━━━━━━━━━
 
     …content…
 
-    ━━━━━━━━━━━━━━━━━━━━━━━━
+    ━━━━━━━━━━━━━━━━
     ```
 
    The thick `━` bar is far more grabbable than a thin `---`. The reason the bar and keyword go on SEPARATE lines (not inline as `━━━ 本轮小结 ━━━`): an inline bar makes one very long logical line that wraps badly on a phone, burying the keyword mid-wrap. On its own line, a bounded bar stays clean and the keyword stands alone. The same applies to any auto-running post-summary output (e.g. a review-gate review): give it its own `━`-fenced block, don't let it sprawl as raw text.

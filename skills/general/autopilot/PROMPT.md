@@ -124,10 +124,17 @@ Update project time/effort estimates with the autopilot estimator (see design do
 </time_estimation>
 
 <documentation_and_summary>
-- **Write for a human who wasn't there.** Both the per-run doc and the in-session summary must be
-  plain-language and concrete: WHAT you built, WHY, and the EFFECT — so someone who didn't watch the run
-  understands it. **Never** dump process-narration or session-control markers into a doc/summary — no
-  `[END:WAIT]`, no "收敛路径", no "review-gate 复核中", no half-phrases. That is session plumbing, not a report.
+- **Write for a human who wasn't there — ALL user-facing output this run, the progress notes AND the final
+  summary, not just the docs.** Plain-language and concrete: WHAT you built, WHY, and the EFFECT, in
+  **complete sentences a person follows on the first read**. Do NOT write dense telegram shorthand — no
+  semicolon-joined fragment piles (e.g. "三库 dev/clean；契约已取；floor 已起"), no undefined slash-phrase
+  stacks. Each point must be a self-contained, decodable thought. **Never** dump process-narration or
+  session-control markers into a doc/summary — no `[END:WAIT]`, no "收敛路径", no "review-gate 复核中", no half-phrases.
+- **Explain every marker/shorthand the first time it appears in a message — in EVERY message, even if you
+  named it earlier.** Milestone/slice codes (`M6`, `切片2`, `slice1`), run numbers (`#6`), subagent ids
+  (`a49fd2a1…`), abbreviations, codenames — each gets a 2–4 word inline gloss of what it IS, in the SAME
+  message. The user reads on a phone and has forgotten what these mean; never assume recall. (Exempt:
+  standard identifiers inside code / paths / commit hashes.)
 - **Every reference is a FULL clickable link** (obey the `clickable-links` rule): each commit →
   `https://github.com/<org>/<repo>/commit/<full-hash>` if pushed, else `` `<hash>` (local, not pushed — <repo abs path>) ``;
   each file → a clickable path (`path:line`, or a markdown link with `#L42` for a line); each PR / doc /
@@ -147,9 +154,9 @@ Update project time/effort estimates with the autopilot estimator (see design do
 - **In-session summary — format is MANDATORY (this is what the user reads, often on their phone):**
   - **In Chinese**, unless the project itself is English-language.
   - **Fence it top AND bottom with a THICK `━` bar — bar and keyword each on their OWN line.** A bounded
-    `━` bar (~20–30 chars, NOT endless) on its own line, then `📊 本轮小结` on its own line, then a `━` bar
-    on its own line; then content; then a closing `━` bar. Bar + keyword on SEPARATE lines (NOT inline
-    `━━━ 本轮小结 ━━━`, which wraps badly on a phone) keeps it clean. Must stand out from the tool-call narration.
+    `━` bar (~14–16 chars — must fit ONE line on a phone; 24 already wrapped) on its own line, then
+    `📊 本轮小结` on its own line, then a `━` bar on its own line; then content; then a closing `━` bar.
+    Bar + keyword on SEPARATE lines (NOT inline `━━━ 本轮小结 ━━━`, which wraps badly on a phone) keeps it clean.
   - **Lead with a one-line at-a-glance** ("今日净产出：…"), then a **markdown table** (交付 · 可点链接 · 验证)
     and/or **bold-keyed bullets** (bold the key point like a heading, detail on the next line). Key points
     pop; detail present but secondary. Include the API/UI links + screenshots from the rule above and a
