@@ -26,19 +26,19 @@ Everything the user reads must be plain-language and decodable on the first read
 4. **No session-control markers in docs/summaries.** `[END:WAIT]` / `[END:FINAL]` / `[END:NEEDS_USER]` belong to live turn-control only — they must NEVER appear inside a committed doc or a written report.
 5. **Structured content gets structure.** For options with trade-offs, per-item status, pros/cons, or a multi-step plan, use a TABLE or short separated paragraphs over one cramped run-on. Keep prose to short paragraphs of two to four sentences. Bullet/table cells may be concise, but each must be a self-contained, decodable thought.
 6. **Refines `output-brevity`.** Stay lean by cutting whole points, NOT by compressing sentences into shorthand. On any conflict between brevity and readability, readability wins.
-7. **Fence the final summary top AND bottom — with markdown `---` rules, NOT a long string of `━` characters.** A long run of box-drawing characters renders as one over-long line that wraps badly on a phone. Instead, OPEN with a 3-line header (a rule, the keyword on its own line, a rule) and CLOSE with a single rule at the very bottom:
+7. **Fence the final summary top AND bottom with a THICK `━` bar — bar and keyword each on their OWN line.** Put a bounded run of `━` (long enough to be a clear bar, ~20–30 chars — NOT endless) on its own line, the keyword on its own line, another `━` bar on its own line; then the content; then a closing `━` bar:
 
     ```
-    ---
-    **📊 本轮小结**
-    ---
+    ━━━━━━━━━━━━━━━━━━━━━━━━
+    📊 本轮小结
+    ━━━━━━━━━━━━━━━━━━━━━━━━
 
     …content…
 
-    ---
+    ━━━━━━━━━━━━━━━━━━━━━━━━
     ```
 
-   `---` renders as a thin responsive line (good on mobile); the keyword stands alone and grabbable. Both ends fenced so the eye lands on the summary without reading. The same applies to any auto-running post-summary output (e.g. a review-gate review): give it its own `---`-fenced block, don't let it sprawl as raw text.
+   The thick `━` bar is far more grabbable than a thin `---`. The reason the bar and keyword go on SEPARATE lines (not inline as `━━━ 本轮小结 ━━━`): an inline bar makes one very long logical line that wraps badly on a phone, burying the keyword mid-wrap. On its own line, a bounded bar stays clean and the keyword stands alone. The same applies to any auto-running post-summary output (e.g. a review-gate review): give it its own `━`-fenced block, don't let it sprawl as raw text.
 8. **Make the key points pop; keep details secondary but present.** Lead a complex summary with a one-line at-a-glance (or a 2–3 item mini-TOC), then a **table** or **bold-keyed nested bullets**: bold the key point like a heading, put the detail on the next line / in a sub-bullet. The reader should grasp the headline at a glance and still find the detail underneath. Don't bury the point in a wall of text.
 9. **Explain every marker/shorthand at least once, every output.** Whenever you use a label, code, or shorthand the reader might not remember — `H1`/`H46`, an experiment tag, a codename, an abbreviation, `a/b/c` option keys, a one-letter flag — give a brief inline gloss of what it means **in that same output**, even if you (or they) defined it before. The reader has forgotten; never assume recall. (Exempt: standard identifiers in code/paths/commits.)
 10. **Tables must actually render as tables — put a blank line before AND after.** A markdown table that is glued to the line above it (no blank line) renders as raw `| … | … |` text instead of a table in many clients (incl. the Claude Code terminal). Always leave a blank line before the header row and after the last row, keep a proper separator row (`|---|---|`), and never nest a table inside a blockquote (`>`) or a list item — those also break rendering.

@@ -146,10 +146,10 @@ Update project time/effort estimates with the autopilot estimator (see design do
   what it does + the clickable link to the file/commit + how it was verified.
 - **In-session summary — format is MANDATORY (this is what the user reads, often on their phone):**
   - **In Chinese**, unless the project itself is English-language.
-  - **Fence it top AND bottom with markdown `---` rules** (NOT a long `━` string — that wraps badly on a
-    phone). Open with a 3-line header — a `---` rule, then `**📊 本轮小结**` on its own line, then a `---`
-    rule — and close with a `---` rule at the very bottom. The summary must stand out from the tool-call
-    narration above and below.
+  - **Fence it top AND bottom with a THICK `━` bar — bar and keyword each on their OWN line.** A bounded
+    `━` bar (~20–30 chars, NOT endless) on its own line, then `📊 本轮小结` on its own line, then a `━` bar
+    on its own line; then content; then a closing `━` bar. Bar + keyword on SEPARATE lines (NOT inline
+    `━━━ 本轮小结 ━━━`, which wraps badly on a phone) keeps it clean. Must stand out from the tool-call narration.
   - **Lead with a one-line at-a-glance** ("今日净产出：…"), then a **markdown table** (交付 · 可点链接 · 验证)
     and/or **bold-keyed bullets** (bold the key point like a heading, detail on the next line). Key points
     pop; detail present but secondary. Include the API/UI links + screenshots from the rule above and a

@@ -50,6 +50,7 @@ Read these first rather than re-deriving:
 - One commit per logically distinct change. Don't split inventory updates from the content change they describe.
 - One commit per phase during the initial build (P1 commit, P2 commit, ...).
 - Don't commit unless the user explicitly asks.
+- **Never put a `https://claude.ai/code/session_<id>` URL in a commit message or PR body.** This repo is **public**; that link is account-scoped (nobody else can open it), so it only leaks a private session id into public history as clutter. Keep the `Co-Authored-By:` attribution line if used, but drop the `Claude-Session:` trailer and any PR-body session line.
 
 ## Out of scope
 
