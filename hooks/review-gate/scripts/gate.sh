@@ -89,19 +89,20 @@ reason="## review-gate: automatic review of this turn's code
 
 **Changed files:** $flist
 
-**Review forms and tools:**
-- **Lint / static analysis** (tools: \`ruff\` / \`shellcheck\` where present):$lint_md
-- **Logic & edge cases** (form: manual reasoning) — off-by-one, error handling, does it do what was asked.
-- **Security** (form: pattern + reasoning) — injection, secrets/keys, unsafe exec/eval, path traversal, OWASP.
-- **Fake-run / over-claims** (tool: \`code-verifier\` skill) — invoke it on any \"it works / tests pass / results show X\" claim.
-- **Test-gap** (form: coverage reasoning) — are the changed units covered by tests?
-- **Minimal change / blast-radius** (form: diff scope) — is the change minimal? does it avoid touching unrelated code or hot paths?
-- **Modularity** (form: structure) — minimal function/module granularity, reusable, not a conflated block.
-- **Commit & doc completeness** (form: hygiene) — small named commit(s); docstrings/docs updated for what changed."
+**Review forms and tools** (numbered so each is identifiable):
+
+1. **Lint / static analysis** (tools: \`ruff\` / \`shellcheck\` where present):$lint_md
+2. **Logic & edge cases** (form: manual reasoning) — off-by-one, error handling, does it do what was asked.
+3. **Security** (form: pattern + reasoning) — injection, secrets/keys, unsafe exec/eval, path traversal, OWASP.
+4. **Fake-run / over-claims** (tool: \`code-verifier\` skill) — invoke it on any \"it works / tests pass / results show X\" claim.
+5. **Test-gap** (form: coverage reasoning) — are the changed units covered by tests?
+6. **Minimal change / blast-radius** (form: diff scope) — is the change minimal? does it avoid touching unrelated code or hot paths?
+7. **Modularity** (form: structure) — minimal function/module granularity, reusable, not a conflated block.
+8. **Commit & doc completeness** (form: hygiene) — small named commit(s); docstrings/docs updated for what changed."
 
 if [ "$has_module" = "yes" ]; then
   reason="$reason
-- **Per-function/module AI review** (DEFAULT ON) — a minimal function/module changed this turn; review EACH changed function/module individually (correctness, contract/inputs-outputs, side effects)."
+9. **Per-function/module AI review** (DEFAULT ON) — a minimal function/module changed this turn; review EACH changed function/module individually (correctness, contract/inputs-outputs, side effects)."
 fi
 
 if [ "$lint_fail" -ne 0 ]; then
@@ -115,8 +116,9 @@ reason="$reason
 **Present your review IN CHINESE** (unless the project is English-language), in its OWN block fenced by a
 THICK \`━\` bar — a bounded \`━\` bar on its own line, then \`**review-gate 审查**\` on its own line, then a
 \`━\` bar, then the bullets, then a closing \`━\` bar — NOT inline \`━━━ kw ━━━\` (wraps badly on a phone),
-NOT raw text sprawling after your summary. Use **bold-keyed bullets**, one per changed function/module:
-the file + unit in **bold**, then \`维度 — 结论\`. e.g.:
+NOT raw text sprawling after your summary. Use **bold-keyed bullets**, one per changed function/module
+(the file + unit in **bold**, then \`维度 — 结论\`); if there are **more than 3**, NUMBER them \`1. 2. 3. …\`
+so each is identifiable. e.g.:
 \`\`\`md
 ━━━━━━━━━━━━━━━━
 **review-gate 审查**

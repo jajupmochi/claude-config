@@ -151,9 +151,11 @@ Update project time/effort estimates with the autopilot estimator (see design do
   `http://localhost:<port>/docs#/<tag>/<operationId>`, Storybook `http://localhost:6006/?path=/story/<id>`,
   state how to start the server) in the daily-run doc AND the summary. If a change is visible in the UI,
   you MUST give the full clickable LOCAL preview URL of the exact changed route AND **start the app, take
-  a screenshot** of the change (browser/playwright), save it under the project's `images/`, embed it in
-  the doc (`![...](images/<name>.png)`), and reference it (with the link) in the summary — before/after
-  for a modification. This run had API/frontend work and produced none of this; that is the bug to fix.
+  a screenshot** of the change (browser/playwright), save it under the project's `images/`. Embed it in
+  the doc with a repo-relative path (`![...](images/<name>.png)` — renders on GitHub); in the summary give
+  a **clickable ABSOLUTE path to the PNG** (`/media/.../images/<name>.png`) so the user can open and SEE it
+  — NEVER a bare relative filename like `images/<name>.png` (it neither displays nor opens on a phone).
+  Before/after for a modification. This run had API/frontend work and produced none of this; that is the bug to fix.
 - **Per-run doc** (`daily-runs/<date>.md`): structured (not a wall of text); for each deliverable give
   what it does + the clickable link to the file/commit + how it was verified.
 - **In-session summary — format is MANDATORY (this is what the user reads, often on their phone):**
@@ -166,6 +168,11 @@ Update project time/effort estimates with the autopilot estimator (see design do
     and/or **bold-keyed bullets** (bold the key point like a heading, detail on the next line). Key points
     pop; detail present but secondary. Include the API/UI links + screenshots from the rule above and a
     clickable link for every commit. Blockers + next steps at the end, all linked.
+  - **Markdown must RENDER, not show as raw source.** Put a blank line before AND after every table and
+    every list — a `- bullet` / `1.` list glued directly under a `**bold heading**` line (no blank line)
+    renders as raw "code" on a phone (this is exactly what broke the "遇到的限制 / 下一步" section). And any
+    flat list with **more than 3 items MUST be numbered `1. 2. 3. …`** (not `-` dashes), numbering any
+    nested level that also exceeds 3, so each point is identifiable.
 - **First-run summary (run #1) is special:** it MUST lead with a markdown-table summary of the newly
   created long-term plan (one row per phase/MVP: goal · effort estimate · status) and a clickable link
   to the full plan doc, so the user can review and approve the plan before the autonomous daily cadence
