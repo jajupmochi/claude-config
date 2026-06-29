@@ -137,9 +137,14 @@ Update project time/effort estimates with the autopilot estimator (see design do
   standard identifiers inside code / paths / commit hashes.)
 - **Every reference is a FULL clickable link** (obey the `clickable-links` rule): each commit →
   `https://github.com/<org>/<repo>/commit/<full-hash>` if pushed, else `` `<hash>` (local, not pushed — <repo abs path>) ``;
-  each file → a clickable path (`path:line`, or a markdown link with `#L42` for a line); each PR / doc /
-  source → its full URL. **Never** a bare hash, a non-link path, or half a URL — the user must be able to
-  click straight to it.
+  each PR / doc / source → its full URL. **Never** a bare hash, a non-link path, or half a URL.
+- **File links in the in-session summary MUST be ABSOLUTE paths** (the user reads it in the app, often on a
+  phone — a relative path has no cwd to resolve against, so it does NOT click). Use the **absolute** path
+  from `/` (e.g. `/media/.../<repo>/docs/autopilot/daily-runs/<date>.md`, optionally `:line`), or a
+  markdown link whose **target is that absolute path** — NEVER a relative one like
+  `[daily-runs/<date>.md](<repo>/docs/autopilot/daily-runs/<date>.md)`. You already have the absolute
+  path (you created the file with it); reuse it. (Repo-relative markdown links are fine ONLY inside a
+  committed doc that lives in the repo, not in the chat summary.)
 - **APIs and UI changes → clickable test links + screenshots — MANDATORY this run if you touched any API
   or UI (not optional).** Do NOT just describe them. If the run designs/implements API endpoints (FastAPI
   etc.), you MUST list each `METHOD /path — purpose` with a full clickable LOCAL test link (Swagger

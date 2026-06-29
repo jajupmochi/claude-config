@@ -26,8 +26,8 @@ Whenever you mention a commit, a file, a line, a PR/issue, a doc, or an external
   - Pushed to a remote: `https://github.com/<org>/<repo>/commit/<full-40-char-hash>` (full hash, not the short form).
   - Local-only / not pushed: write `` `<hash>` (local, not pushed — in <repo-abs-path>) `` — never a bare hash with no location.
 - **File** — a path the reader can click:
-  - In chat (terminal): an **absolute** path, optionally `path:line` (the harness makes `file:line` clickable). Not a bare relative `scripts/x.py` with no anchor.
-  - In a committed Markdown doc: a real markdown link `[x.py](relative/or/abs/path)`; for a specific line use `path#L42`.
+  - In chat / any in-session summary (terminal OR phone app): an **absolute** path from `/`, optionally `path:line` (the harness makes an absolute `file:line` clickable). **NEVER a relative path** like `scripts/x.py`, and **never a markdown link with a relative target** like `[doc.md](sub/dir/doc.md)` — the app has no cwd to resolve it against, so it does NOT click. This holds even when the thing you're linking is a doc: the in-session summary is chat, not the committed doc, so its links must be absolute.
+  - In a committed Markdown doc (a file that lives in the repo): a real markdown link with a **repo-relative** target `[x.py](relative/path)` is fine there — it resolves on GitHub / in the repo; for a specific line use `path#L42`.
   - Pushed code: `https://github.com/<org>/<repo>/blob/<branch-or-sha>/<path>#L42` when you want the reader to see it on the web.
 - **Line / range** — append `#L42` (or `#L42-L60`) to a file link; in chat use `path:42`.
 - **PR / issue** — full URL: `https://github.com/<org>/<repo>/pull/<n>` (not just "PR #5").
@@ -44,6 +44,7 @@ References are only useful if the reader can ACT on them. A bare hash, a non-lin
 |---|---|
 | `commit c6141ac` | `` `c6141ac` (local, not pushed — in `/abs/repo`) `` or `https://github.com/org/repo/commit/c6141ac…` |
 | `scripts/validate_config.py` (plain text) | `[validate_config.py](…/scripts/validate_config.py)` or `/abs/.../scripts/validate_config.py:1` |
+| `[daily-runs/2026-06-29.md](<repo>/docs/…/daily-runs/2026-06-29.md)` (relative target — dead in chat / on phone) | `[daily-runs/2026-06-29.md](/media/…/<repo>/docs/…/daily-runs/2026-06-29.md)` (absolute target — clicks) |
 | "PR #5" | `https://github.com/org/repo/pull/5` |
 | "see their careers page" | the full posting URL |
 | a URL cut to fit a line | the whole URL, even if long |
