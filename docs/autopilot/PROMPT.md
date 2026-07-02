@@ -151,10 +151,14 @@ Update project time/effort estimates with the autopilot estimator (see design do
   `http://localhost:<port>/docs#/<tag>/<operationId>`, Storybook `http://localhost:6006/?path=/story/<id>`,
   state how to start the server) in the daily-run doc AND the summary. If a change is visible in the UI,
   you MUST give the full clickable LOCAL preview URL of the exact changed route AND **start the app, take
-  a screenshot** of the change (browser/playwright), save it under the project's `images/`. Embed it in
-  the doc with a repo-relative path (`![...](images/<name>.png)` — renders on GitHub); in the summary give
-  a **clickable ABSOLUTE path to the PNG** (`/media/.../images/<name>.png`) so the user can open and SEE it
-  — NEVER a bare relative filename like `images/<name>.png` (it neither displays nor opens on a phone).
+  a screenshot** of the change **to a FILE on disk** — Playwright `browser_take_screenshot` with a path (or
+  `save_to_disk`); do NOT use claude-in-chrome inline screenshots (they come back inline, are NOT saved to
+  disk, so there's no file to link/commit and they don't render on the user's end — this is exactly why a
+  past run's screenshots were invisible). Save under the project's `images/`. Embed it in the doc with a
+  repo-relative path (`![...](images/<name>.png)` — renders on GitHub); in the summary give a **clickable
+  ABSOLUTE path to the PNG** (`/media/.../images/<name>.png`) AND **actually deliver it with `SendUserFile`**
+  so it surfaces WITH the summary (a mid-run send gets scrolled past; an un-pushed repo has no GitHub image
+  URL — the local file + SendUserFile is the only way the user SEES it). NEVER a bare relative filename.
   Before/after for a modification. This run had API/frontend work and produced none of this; that is the bug to fix.
 - **Per-run doc** (`daily-runs/<date>.md`): structured (not a wall of text); for each deliverable give
   what it does + the clickable link to the file/commit + how it was verified.

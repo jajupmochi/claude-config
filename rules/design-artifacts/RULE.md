@@ -35,9 +35,10 @@ Put the list in the doc and the summary; never just say "added N endpoints" with
 If a frontend/backend change is visible in the UI:
 
 1. **Live preview link** — the full clickable LOCAL URL of the exact route/page that changed: `http://localhost:<port>/<route>` (state how to start it, e.g. `npm run dev`). In the doc AND the summary.
-2. **Screenshot** — capture the changed UI with the browser / playwright tools and save it under the repo's images/ folder. Then surface it in BOTH places, but differently:
-   - **In the committed doc**: embed it inline with a repo-relative path (`![...](images/<name>.png)`) — that renders on GitHub / in the repo.
-   - **In the in-session summary (chat / phone)**: do NOT use a bare relative filename like `images/foo.png`, and do NOT rely on an inline `![](relative)` — the app has no cwd to resolve a relative image, so it shows nothing. Give a **clickable ABSOLUTE path to the PNG** (`/abs/.../images/<name>.png`) so the user taps to open and SEE it. (If you inline-embed in chat at all, the target must be the absolute path.)
+2. **Screenshot** — it has to become a real FILE and actually reach the user:
+   - **Capture to a FILE on disk** — Playwright `browser_take_screenshot` with a path (or any tool's `save_to_disk`). Do NOT rely on **claude-in-chrome inline screenshots**: those come back inline in the tool result, are NOT written to disk, so there is no file to link or commit AND they do not render on the user's end (this exact trap made a run's screenshots invisible). Save under the repo's `images/` folder.
+   - **In the committed doc**: embed inline with a repo-relative path (`![...](images/<name>.png)`) — renders on GitHub / in the repo.
+   - **In the in-session summary (chat / phone)**: never a bare relative filename or a relative `![](…)` (no cwd to resolve → shows nothing). Give a **clickable ABSOLUTE path to the PNG** (`/abs/.../images/<name>.png`) AND **actually deliver the image with `SendUserFile`** so it surfaces WITH the summary — don't count on a mid-run send the user scrolled past, and note that an un-pushed repo has no working GitHub image URL, so the local file + `SendUserFile` is the only way they SEE it.
    - Before/after when the change is a modification. The user must be able to SEE the difference without running anything.
 
 ## Companion rules
