@@ -26,6 +26,12 @@ chk "push cwd-under-wl -> allow" "$(ec 'git push' "$WL/sub/dir")"         0
 chk "gh pr create not-wl -> deny" "$(ec 'gh pr create -B main' /tmp)"     2
 chk "gh pr merge wl -> allow"   "$(ec 'gh pr merge 1 --squash' "$WL")"    0
 
+# one-shot push override: user-authorized single push WITHOUT whitelisting
+touch "$HD/allow-push-once"
+chk "push not-wl + token -> allow"      "$(ec 'git push origin main' /tmp)"   0
+chk "token consumed after one push"     "$([ -f "$HD/allow-push-once" ] && echo present || echo gone)" gone
+chk "push not-wl after consume -> deny" "$(ec 'git push origin main' /tmp)"   2
+
 # block_commit=1 (opted in)
 printf 'block_commit=1\n' > "$HD/review-gate.conf"
 chk "commit deny (opt-in)"      "$(ec 'git commit -m x' /tmp)"            2

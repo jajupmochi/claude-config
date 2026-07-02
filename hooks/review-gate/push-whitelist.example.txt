@@ -9,3 +9,10 @@
 # Add a path when you set up autopilot for a code project you actually intend to push from.
 # Copy this file to push-whitelist.txt (next to the hook scripts) and edit. Example:
 # /home/you/projects/my-code-repo
+#
+# ONE-SHOT OVERRIDE (push once WITHOUT whitelisting):
+# When the user explicitly asks for a single push from a NON-whitelisted project (e.g. "just push it,
+# but don't add it to the whitelist"), arm a one-time token instead of editing this file:
+#     touch ~/.claude/hooks/review-gate/allow-push-once
+# then run the push. precommit.sh consumes the token and permits exactly ONE push; the project is NOT
+# added here. Re-arm for each additional one-off. Only arm this on an explicit user push request.

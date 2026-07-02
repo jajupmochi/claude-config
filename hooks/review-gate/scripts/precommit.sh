@@ -44,5 +44,17 @@ if [ -f "$wl" ]; then
     case "$cwd" in "$entry"|"$entry"/*) exit 0 ;; esac   # cwd == or under a whitelisted path -> allow
   done < "$wl"
 fi
-echo "[review-gate] Remote push is blocked for this project (not on the push-whitelist). DELIBERATE safety rule, NOT an error — skip this push and CONTINUE with the rest of your work; not pushing does not block anything else. To allow pushes here: add this project's path to $wl (or answer yes to the push-whitelist question when setting up autopilot). The user can also push manually." >&2
+# one-shot override: the USER explicitly authorized THIS single push WITHOUT whitelisting the project.
+# Armed by `touch "$HD/allow-push-once"` (do that ONLY on an explicit user push request); consumed here so
+# it permits exactly one push and never persists — the project stays off the whitelist.
+if [ -f "$HD/allow-push-once" ]; then
+  rm -f "$HD/allow-push-once"
+  echo "[review-gate] one-shot push override consumed — allowing this SINGLE push (project NOT added to the whitelist). Re-arm 'touch $HD/allow-push-once' for another one-off push." >&2
+  exit 0
+fi
+
+echo "[review-gate] Remote push is blocked for this project (not on the push-whitelist). DELIBERATE safety rule, NOT an error — skip this push and CONTINUE the rest of your work (not pushing blocks nothing else).
+  - If the USER explicitly told you to push THIS time WITHOUT whitelisting (e.g. \"直接推送，但不要加进白名单\"): run 'touch $HD/allow-push-once' then retry the push once. It is consumed after a single push and does NOT whitelist the project. Do this ONLY on an explicit user push request, never on your own initiative.
+  - To allow pushes here permanently: add this project's path to $wl (or answer yes to the push-whitelist question when setting up autopilot).
+  - The user can also push manually." >&2
 exit 2
