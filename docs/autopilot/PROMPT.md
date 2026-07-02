@@ -46,6 +46,13 @@ improvement, or documentation. Quality and durability over raw speed.
    text), and write `cron_state.json` `configured_with_version` = the contents of
    `~/.claude/skills/autopilot/VERSION`. Then continue. This is how an already-armed cron picks up new
    autopilot behaviour (new rules, new output format) without needing the session restarted.
+0.5. **Idempotency guard — is this cycle already done? (cheap, code-only, ~0 token).** Run
+   `python3 ~/.claude/skills/autopilot/scripts/cycle_status.py <proj>`. If it prints `"state":"complete"`
+   (exit code 0), THIS run-cycle's work was already finished — by an earlier fire or by a background
+   recovery run — so **STOP immediately**: do no work and commit nothing (a redundant re-run would
+   double-commit the same cycle). Continue ONLY if it says `"incomplete"`. This is cross-midnight-safe: it
+   compares `last-done` to the scheduled fire TIMESTAMP, not the calendar date, so a run that started at
+   23:00 and finished after midnight is correctly counted as done, not mistaken for a fresh day's cycle.
 1. **Perceive.** Read the current reality before acting:
    - The project's own docs and code; recent `git log`; this session's and prior sessions' relevant
      design + discussion; the autopilot workspace docs (long-term plan, latest daily-progress,
