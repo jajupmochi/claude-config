@@ -131,34 +131,19 @@ so each is identifiable. e.g.:
 \`\`\`
 先修真实问题再收尾。(review-gate 每个改代码的回合都跑,不可跳过。)"
 
-# Deliver the review. BOTH mechanisms below BLOCK the stop (force one review round this turn — enforcement
-# is the whole point); they differ ONLY in the label Claude Code shows. Pick by version so the review is
-# NEVER shown as "Stop hook error" when that is avoidable:
-#   * >= 2.1.152: `hookSpecificOutput.additionalContext` blocks AND is labeled "Stop hook feedback"
-#     (2.1.152 release notes: "Stop hooks can now return additionalContext ... keep the turn going without
-#     being labeled a hook error"). REQUIRED on >= 2.1.174, where `decision:"block"` is labeled "Stop hook
-#     error".
-#   * <  2.1.152: additionalContext-on-Stop is NOT honored (would not block), so use `decision:"block"`,
-#     which on those older versions is already shown as "Stop hook feedback".
-# Override via review-gate.conf: stop_mode = auto (DEFAULT, version-adaptive) | feedback | block.
+# Deliver the review. DEFAULT (stop_mode=block): `decision:"block"` — BLOCKS the stop to FORCE one review
+# round this turn. Enforcement is the whole point of the gate, so it is the default.
+# UNAVOIDABLE trade-off in current Claude Code (verified against the official hooks docs):
+#   - `decision:"block"` BLOCKS/forces the review, but a BLOCKING Stop hook is labeled "Stop hook error" on
+#     CC >= 2.1.174 (it was "Stop hook feedback" on 2.1.150). That label is cosmetic — the review still runs.
+#   - `hookSpecificOutput.additionalContext` gets a clean "Stop hook additional context" label BUT the docs
+#     confirm it does NOT block ("the conversation continues" = the turn ENDS, Claude uses it next turn) —
+#     i.e. the review becomes SKIPPABLE, not enforced. It also needs CC >= 2.1.152 or it is ignored entirely.
+# There is NO output that both blocks AND avoids the "error" label. Enforcement wins by default; a user who
+# would rather have the clean label and accept a skippable (advisory) review can set stop_mode=feedback.
 _conf="$HOME/.claude/hooks/review-gate/review-gate.conf"
-smode="auto"
+smode="block"
 [ -f "$_conf" ] && smode="$(sed -n 's/^[[:space:]]*stop_mode[[:space:]]*=[[:space:]]*\([a-z]*\).*/\1/p' "$_conf" | head -1)"
-[ -n "$smode" ] || smode="auto"
-if [ "$smode" = "auto" ]; then
-  vf="$dir/ccver"                                       # cache `claude --version` ~1 day (this hook runs often)
-  if [ ! -s "$vf" ] || [ "$(( $(date +%s) - $(stat -c %Y "$vf" 2>/dev/null || echo 0) ))" -gt 86400 ]; then
-    PATH="$HOME/.local/bin:$HOME/.claude/local:$PATH" claude --version 2>/dev/null \
-      | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 > "$vf" 2>/dev/null
-  fi
-  ccver="$(cat "$vf" 2>/dev/null)"
-  # ccver >= 2.1.152  ->  feedback (additionalContext);  else / unknown -> block (enforcement-safe on all)
-  if [ -n "$ccver" ] && [ "$(printf '%s\n2.1.152\n' "$ccver" | sort -V | head -1)" = "2.1.152" ]; then
-    smode="feedback"
-  else
-    smode="block"
-  fi
-fi
 if [ "$smode" = "feedback" ]; then
   printf '%s' "$reason" | jq -Rs '{hookSpecificOutput:{hookEventName:"Stop", additionalContext:.}}' 2>/dev/null || exit 0
 else

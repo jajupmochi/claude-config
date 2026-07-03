@@ -7,16 +7,14 @@
 # Asked once at first autopilot setup; default is 0 (do not block commits).
 block_commit=0
 #
-# stop_mode: how the Stop-hook review is delivered. EVERY mode below still blocks/forces one review round
-# (the review is always ENFORCED) — the modes only pick the LABEL Claude Code shows.
-#   auto     = DEFAULT. Version-adaptive so you get enforced + no "error" label on EVERY version:
-#              on Claude Code >= 2.1.152 it uses `hookSpecificOutput.additionalContext` (blocks AND is
-#              shown as "Stop hook feedback", not an error — per the 2.1.152 release notes); on older
-#              versions it uses `decision:block` (which those versions already display as feedback).
-#              (Version is detected via `claude --version`, cached ~1 day.)
-#   feedback = force the additionalContext path (clean "feedback" label). Needs CC >= 2.1.152, otherwise
-#              the Stop is NOT blocked (review skipped) — only use if you know your version supports it.
-#   block    = force the decision:block path (always blocks). On CC >= 2.1.174 this shows as
-#              "Stop hook error:" (cosmetic — the review still runs). Use only if additionalContext ever
-#              misbehaves for you.
-stop_mode=auto
+# stop_mode: how the Stop-hook review is delivered. You CANNOT have BOTH "enforced" and "no error label" in
+# current Claude Code (verified against the official hooks docs) — pick one; enforcement is the default:
+#   block    = DEFAULT. `decision:block` — BLOCKS the stop to FORCE one un-skippable review round. On
+#              Claude Code >= 2.1.174 a blocking Stop hook is displayed as "Stop hook error:" (cosmetic — the
+#              review still runs; 2.1.150 displayed the same block as "Stop hook feedback:"). This is the
+#              enforced gate — recommended.
+#   feedback = `hookSpecificOutput.additionalContext` — clean "Stop hook additional context" label (NOT an
+#              error), BUT the docs confirm it does NOT block: the turn ends and the review is used the NEXT
+#              turn, so it is SKIPPABLE / advisory, NOT enforced. Needs CC >= 2.1.152 (else ignored entirely).
+#              Choose this only if a clean label matters more to you than actually enforcing the review.
+stop_mode=block
