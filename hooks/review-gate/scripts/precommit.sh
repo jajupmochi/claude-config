@@ -19,24 +19,24 @@ IN="$(cat 2>/dev/null)"
 cmd="$(printf '%s' "$IN" | jq -r '.tool_input.command // empty' 2>/dev/null)"
 
 # Classify. Anything not commit/remote-publishing is always allowed.
-# Detect the git SUBCOMMAND robustly — even PAST global options — so `git -C <path> push`,
-# `git --git-dir=<x> push`, `git -c k=v push`, `/usr/bin/git push` are NOT a bypass. (The ai-studio
-# session found the old contiguous `*"git push"*` match missed `git -C /tmp/fe-merge push` entirely.)
-# The regex: a git word, then zero+ global option tokens (a `-flag` with an optional non-dash arg), then
-# the `push`/`commit` subcommand as a whole word. It deliberately does NOT match `git log --grep push`,
-# `git show HEAD:push.txt`, `echo pushing`, etc. (verified in test_precommit.sh).
-git_sub=""
-if [[ "$cmd" =~ (^|[^[:alnum:]_-])git([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+(push|commit)([[:space:]]|$) ]]; then
-  git_sub="${BASH_REMATCH[4]}"
+# Detect the git SUBCOMMAND robustly — even PAST global options AND quoted args that contain spaces — so
+# `git -C <path> push`, `git -C "/tmp/my repo" push`, `git --git-dir=<x> push`, `git -c "k=v x" push`,
+# `/usr/bin/git push` are NOT a bypass. (The ai-studio session found the old contiguous `*"git push"*`
+# match missed `git -C /tmp/fe-merge push`; Copilot then flagged that quoted spaced args still slipped.)
+# _OPT = one global-option token: a `-flag` with an optional arg that may be "double"- or 'single'-quoted
+# (spaces allowed inside quotes) or bare. push/commit must then follow as a whole word. Deliberately does
+# NOT match `git log --grep push`, `git show HEAD:push.txt`, `echo pushing` (all verified in test_precommit).
+_OPT="[[:space:]]+-[^[:space:]]+([[:space:]]+(\"[^\"]*\"|'[^']*'|[^-[:space:]][^[:space:]]*))?"
+_RXP="(^|[^[:alnum:]_-])git(${_OPT})*[[:space:]]+push([[:space:]]|\$)"
+_RXC="(^|[^[:alnum:]_-])git(${_OPT})*[[:space:]]+commit([[:space:]]|\$)"
+kind=""
+if   [[ "$cmd" =~ $_RXP ]]; then kind="push"
+elif [[ "$cmd" =~ $_RXC ]]; then kind="commit"
 fi
 case "$cmd" in
-  *"gh pr create"*|*"gh pr merge"*|*"gh release create"*) kind="push" ;;
-  *) case "$git_sub" in
-       push)   kind="push" ;;
-       commit) kind="commit" ;;
-       *)      exit 0 ;;
-     esac ;;
+  *"gh pr create"*|*"gh pr merge"*|*"gh release create"*) kind="push" ;;   # remote-publishing, no git
 esac
+[ -n "$kind" ] || exit 0
 
 # --- commit: free by default; denied (non-fatal) only if the user opted in ---
 if [ "$kind" = "commit" ]; then
@@ -62,12 +62,12 @@ fi
 # it permits exactly one push and never persists — the project stays off the whitelist.
 if [ -f "$HD/allow-push-once" ]; then
   rm -f "$HD/allow-push-once"
-  echo "[review-gate] one-shot push override consumed — allowing this SINGLE push (project NOT added to the whitelist). Re-arm 'touch $HD/allow-push-once' for another one-off push." >&2
+  echo "[review-gate] one-shot override consumed — allowing this SINGLE remote-publishing command (git push / gh pr create|merge / gh release create; project NOT added to the whitelist). Re-arm 'touch $HD/allow-push-once' for another one-off." >&2
   exit 0
 fi
 
-echo "[review-gate] Remote push is blocked for this project (not on the push-whitelist). DELIBERATE safety rule, NOT an error — skip this push and CONTINUE the rest of your work (not pushing blocks nothing else).
-  - If the USER explicitly told you to push THIS time WITHOUT whitelisting (e.g. \"直接推送，但不要加进白名单\"): run 'touch $HD/allow-push-once' then retry the push once. It is consumed after a single push and does NOT whitelist the project. Do this ONLY on an explicit user push request, never on your own initiative.
-  - To allow pushes here permanently: add this project's path to $wl (or answer yes to the push-whitelist question when setting up autopilot).
-  - The user can also push manually." >&2
+echo "[review-gate] Remote publishing (git push / gh pr create|merge / gh release create) is blocked for this project (not on the push-whitelist). DELIBERATE safety rule, NOT an error — skip this command and CONTINUE the rest of your work (not publishing blocks nothing else).
+  - If the USER explicitly told you to publish THIS time WITHOUT whitelisting (e.g. \"直接推送，但不要加进白名单\"): run 'touch $HD/allow-push-once' then retry the command once. It is consumed after a single remote-publishing command and does NOT whitelist the project. Do this ONLY on an explicit user request, never on your own initiative.
+  - To allow remote-publishing here permanently: add this project's path to $wl (or answer yes to the push-whitelist question when setting up autopilot).
+  - The user can also do it manually." >&2
 exit 2

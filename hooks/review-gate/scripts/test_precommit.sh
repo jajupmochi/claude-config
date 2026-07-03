@@ -31,11 +31,15 @@ chk "git -C <path> push not-wl -> deny"  "$(ec 'git -C /tmp/fe push origin' /tmp
 chk "git --git-dir push not-wl -> deny"  "$(ec 'git --git-dir=/x/.git push' /tmp)"  2
 chk "git -c k=v push not-wl -> deny"     "$(ec 'git -c user.name=x push' /tmp)"     2
 chk "git -C <path> push wl -> allow"     "$(ec 'git -C /p push' "$WL")"             0
+# QUOTED global-option args with SPACES + absolute-path git must also NOT bypass (Copilot #26 edge cases)
+chk "git -C \"quoted path\" push -> deny" "$(ec 'git -C "/tmp/my repo" push' /tmp)"  2
+chk "git -c \"quoted k=v\" push -> deny"  "$(ec 'git -c "user.name=a b" push' /tmp)" 2
+chk "/usr/bin/git push not-wl -> deny"    "$(ec '/usr/bin/git push' /tmp)"           2
 # ...and non-push git commands that merely CONTAIN 'push' must stay allowed (no false-positive block)
 chk "git log --grep push -> allow"       "$(ec 'git log --grep push' /tmp)"         0
 chk "git show HEAD:push.txt -> allow"    "$(ec 'git show HEAD:push.txt' /tmp)"       0
 
-# one-shot push override: user-authorized single push WITHOUT whitelisting
+# one-shot remote-publishing override: user-authorized single publish WITHOUT whitelisting
 touch "$HD/allow-push-once"
 chk "push not-wl + token -> allow"      "$(ec 'git push origin main' /tmp)"   0
 chk "token consumed after one push"     "$([ -f "$HD/allow-push-once" ] && echo present || echo gone)" gone
