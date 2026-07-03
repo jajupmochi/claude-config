@@ -122,12 +122,19 @@ The plan EVOLVES — see `<reflect_and_replan>`.
   block is real (not you giving up or misreading). Only declare it blocked after genuine attempts.
 </execution>
 
-<reflect_and_replan>  <!-- Reflect — the plan-reevaluator sub-tool -->
-After the work and before finishing, re-evaluate and update the plan:
-- Reconcile what changed; update `planning/` (long-term plan) + append today's `daily-runs/<date>.md`.
+<reflect_and_replan>  <!-- Reflect — the plan-reevaluator sub-tool. MANDATORY every run, not optional. -->
+After the work and before finishing, you MUST re-evaluate and update the long-term plan against what
+actually happened this run — **EVERY run, not just run #1.** A run that did real work but left the plan
+untouched is a BUG (this step has been silently skipped before — that is the thing to fix).
+- Reconcile reality vs plan: mark done items done, re-estimate what's left, re-order / add / drop items as
+  progress dictates. **Update `planning/` (the live long-term plan) and BUMP its `version`**, recording the
+  bump + a one-line "what changed & why" in the plan's change log. Append today's `daily-runs/<date>.md`.
 - If warranted, consult the web for the latest info / SOTA methods / competitor features / reusable
   OSS + plugins, and fold findings in (cite sources).
 - Archive the superseded plan version to `_archive/` with the date and a one-line reason.
+- Then DISPLAY the re-evaluated plan in THIS run's summary — the "计划进展" block in
+  `<documentation_and_summary>` is required every run, so the user always sees the plan being optimized
+  against progress (the feature the user asked for).
 </reflect_and_replan>
 
 <time_estimation>  <!-- the estimator sub-tool — formal, numeric, no guessing -->
@@ -200,6 +207,12 @@ Update project time/effort estimates with the autopilot estimator (see design do
   created long-term plan (one row per phase/MVP: goal · effort estimate · status) and a clickable link
   to the full plan doc, so the user can review and approve the plan before the autonomous daily cadence
   starts. This is a hard requirement, not a preference.
+- **EVERY run (not just #1) MUST include a "📋 计划进展" block in the summary** — this is the user-requested
+  "optimize the plan against progress and SHOW it" feature; omitting it is a bug. A compact markdown table:
+  current phase/MVP · status or % done · **what THIS run changed in the plan** (re-estimated / re-ordered /
+  added / dropped) · next-up item — PLUS a clickable link to the full plan doc under `planning/` and its new
+  `version` (from `<reflect_and_replan>`). If the plan genuinely did not change this run, say so explicitly
+  ("计划无调整，按原路线") — never silently drop the block.
 - **7-day concatenation rule:** each run, check whether the previous run was human-reviewed. If NOT,
   prepend the prior runs' summaries to this run's summary (so nothing is missed). Cap concatenation at
   7 days; once it exceeds 7 days, archive the concatenated block to a doc and, in the new summary,
@@ -249,9 +262,10 @@ below abbreviate it as `stamp.py`; invoke it as `python3 ~/.claude/autopilot/bin
 
 <finish>
 A run is complete only when: the minimum-duration floor is met, the current unit is committed and has
-passed review-gate, the per-run doc is written, the time-estimate doc is updated, and the in-session
-markdown-table summary (with the 7-day concat applied) is emitted. Then signal completion for the
-watchdog (write the run's done-marker).
+passed review-gate, the per-run doc is written, the time-estimate doc is updated, **the long-term plan has
+been re-evaluated + updated + version-bumped (`<reflect_and_replan>`) and the "📋 计划进展" block is in the
+summary**, and the in-session markdown-table summary (with the 7-day concat applied) is emitted. Then signal
+completion for the watchdog (write the run's done-marker).
 
 **If `AUTOPILOT_HEADLESS` is set, you are a background recovery run detached from the user's session — they
 will NOT see this summary inline.** So, in addition to the normal output, WRITE your final summary (the same
