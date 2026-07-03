@@ -51,6 +51,7 @@ Read these first rather than re-deriving:
 - One commit per phase during the initial build (P1 commit, P2 commit, ...).
 - Don't commit unless the user explicitly asks.
 - **Never put a `https://claude.ai/code/session_<id>` URL in a commit message or PR body.** This repo is **public**; that link is account-scoped (nobody else can open it), so it only leaks a private session id into public history as clutter. Keep the `Co-Authored-By:` attribution line if used, but drop the `Claude-Session:` trailer and any PR-body session line.
+- **Address the Copilot review after every PR.** GitHub Copilot auto-posts a "Pull request overview" + inline comments on each PR. After creating/merging a PR, fetch Copilot's findings (`gh api repos/<org>/<repo>/pulls/<n>/comments` for inline, `.../reviews` for the overview), analyze each, and **fix the real ones** (skip false-positives, noting why). The fix is itself a PR that Copilot reviews too. **Recursion guard — MANDATORY to avoid an infinite fix→review→fix loop:** at most **2 rounds** of Copilot-driven fixing per originating change, OR stop as soon as Copilot raises **no new actionable findings** — whichever comes first. Never loop past 2 rounds.
 
 ## Out of scope
 
