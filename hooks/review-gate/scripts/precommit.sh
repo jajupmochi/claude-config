@@ -19,10 +19,23 @@ IN="$(cat 2>/dev/null)"
 cmd="$(printf '%s' "$IN" | jq -r '.tool_input.command // empty' 2>/dev/null)"
 
 # Classify. Anything not commit/remote-publishing is always allowed.
+# Detect the git SUBCOMMAND robustly — even PAST global options — so `git -C <path> push`,
+# `git --git-dir=<x> push`, `git -c k=v push`, `/usr/bin/git push` are NOT a bypass. (The ai-studio
+# session found the old contiguous `*"git push"*` match missed `git -C /tmp/fe-merge push` entirely.)
+# The regex: a git word, then zero+ global option tokens (a `-flag` with an optional non-dash arg), then
+# the `push`/`commit` subcommand as a whole word. It deliberately does NOT match `git log --grep push`,
+# `git show HEAD:push.txt`, `echo pushing`, etc. (verified in test_precommit.sh).
+git_sub=""
+if [[ "$cmd" =~ (^|[^[:alnum:]_-])git([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+(push|commit)([[:space:]]|$) ]]; then
+  git_sub="${BASH_REMATCH[4]}"
+fi
 case "$cmd" in
-  *"git push"*|*"gh pr create"*|*"gh pr merge"*|*"gh release create"*) kind="push" ;;
-  *"git commit"*) kind="commit" ;;
-  *) exit 0 ;;
+  *"gh pr create"*|*"gh pr merge"*|*"gh release create"*) kind="push" ;;
+  *) case "$git_sub" in
+       push)   kind="push" ;;
+       commit) kind="commit" ;;
+       *)      exit 0 ;;
+     esac ;;
 esac
 
 # --- commit: free by default; denied (non-fatal) only if the user opted in ---

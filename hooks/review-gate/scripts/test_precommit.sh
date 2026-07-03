@@ -26,6 +26,15 @@ chk "push cwd-under-wl -> allow" "$(ec 'git push' "$WL/sub/dir")"         0
 chk "gh pr create not-wl -> deny" "$(ec 'gh pr create -B main' /tmp)"     2
 chk "gh pr merge wl -> allow"   "$(ec 'gh pr merge 1 --squash' "$WL")"    0
 
+# git with GLOBAL OPTIONS must NOT bypass the push gate (the ai-studio-session bypass: `git -C x push`)
+chk "git -C <path> push not-wl -> deny"  "$(ec 'git -C /tmp/fe push origin' /tmp)"  2
+chk "git --git-dir push not-wl -> deny"  "$(ec 'git --git-dir=/x/.git push' /tmp)"  2
+chk "git -c k=v push not-wl -> deny"     "$(ec 'git -c user.name=x push' /tmp)"     2
+chk "git -C <path> push wl -> allow"     "$(ec 'git -C /p push' "$WL")"             0
+# ...and non-push git commands that merely CONTAIN 'push' must stay allowed (no false-positive block)
+chk "git log --grep push -> allow"       "$(ec 'git log --grep push' /tmp)"         0
+chk "git show HEAD:push.txt -> allow"    "$(ec 'git show HEAD:push.txt' /tmp)"       0
+
 # one-shot push override: user-authorized single push WITHOUT whitelisting
 touch "$HD/allow-push-once"
 chk "push not-wl + token -> allow"      "$(ec 'git push origin main' /tmp)"   0
