@@ -39,7 +39,7 @@ try:
     d = json.load(open(sys.argv[1]))
 except Exception:
     d = {}
-print(d.get("home_session_id","") , "||", d.get("last_armed","") , "||", d.get("cron_id","") , "||", d.get("schedule","0 22 * * *") , "||", d.get("configured_with_version",""))
+print(d.get("home_session_id","") , "||", d.get("last_armed","") , "||", d.get("cron_id","") , "||", d.get("schedule","0 22 * * *") , "||", d.get("configured_with_version","") , "||", d.get("paused_until",""))
 PY
 )"
   home="$(printf '%s' "$vals" | awk -F' \\|\\| ' '{print $1}')"
@@ -47,6 +47,7 @@ PY
   cron_id="$(printf '%s' "$vals" | awk -F' \\|\\| ' '{print $3}')"
   sched="$(printf '%s' "$vals" | awk -F' \\|\\| ' '{print $4}')"
   cfgver="$(printf '%s' "$vals" | awk -F' \\|\\| ' '{print $5}')"
+  pausedu="$(printf '%s' "$vals" | awk -F' \\|\\| ' '{print $6}')"
 
   # Only act for the project whose home session is THIS session (if we know both ids). If home is
   # unknown (e.g. first setup not done yet) we still surface it so /autopilot setup can record it.
@@ -70,6 +71,16 @@ except Exception:
     print("unknown")
 PY
 )"
+  fi
+
+  # PAUSED (skip.sh set a still-future paused_until): don't nag to re-arm — a fired run self-skips via
+  # cycle_status and it auto-resumes on/after that date. Surface it and move on.
+  if [ -n "$pausedu" ]; then
+    earlier="$(printf '%s\n%s\n' "$TODAY" "$pausedu" | sort | head -1)"
+    if [ "$earlier" = "$TODAY" ] && [ "$TODAY" != "$pausedu" ]; then
+      echo "NOTE (autopilot '${proj}'): PAUSED until ${pausedu} (via skip.sh) — leaving the cron as-is; runs auto-resume on/after ${pausedu}. Resume now with: skip.sh ${proj} resume."
+      continue
+    fi
   fi
 
   if [ "$emitted" -eq 0 ]; then

@@ -33,10 +33,13 @@ T = tempfile.mkdtemp()
 os.environ["HOME"] = T
 
 
-def setup(proj, schedule, last_done):
+def setup(proj, schedule, last_done, paused_until=None):
     d = os.path.join(T, ".claude", "autopilot", proj)
     os.makedirs(d, exist_ok=True)
-    json.dump({"schedule": schedule}, open(os.path.join(d, "cron_state.json"), "w"))
+    cs = {"schedule": schedule}
+    if paused_until is not None:
+        cs["paused_until"] = paused_until
+    json.dump(cs, open(os.path.join(d, "cron_state.json"), "w"))
     p = os.path.join(d, "last-done")
     if last_done is None:
         if os.path.exists(p):
@@ -82,6 +85,20 @@ chk("multi-fire 1st slot met -> complete", state("p6", ts(2026, 7, 1, 22, 30))[:
 setup("p7", "", ts(2026, 7, 1, 22, 35))
 r, _ = cycle_status.compute("p7", now=ts(2026, 7, 1, 22, 40))
 chk("empty schedule falls back (22:00 default) -> complete", r["state"], "complete")
+
+# 8. SKIP: paused_until = tomorrow -> today's cycle is skipped (state complete + skipped:true, exit 0)
+setup("p8", "0 22 * * *", None, paused_until="2026-07-02")
+r8, c8 = cycle_status.compute("p8", now=ts(2026, 7, 1, 22, 50))
+chk("paused_until tomorrow -> skipped(complete)", (r8["state"], c8, r8.get("skipped")), ("complete", 0, True))
+
+# 9. SKIP is EXCLUSIVE: paused_until == the cycle's own date -> that day RESUMES (not skipped)
+setup("p9", "0 22 * * *", None, paused_until="2026-07-01")
+r9, c9 = cycle_status.compute("p9", now=ts(2026, 7, 1, 22, 50))
+chk("paused_until == cycle date -> resumes that day (not skipped)", (r9["state"], c9), ("incomplete", 1))
+
+# 10. no paused_until -> normal behaviour (regression guard)
+setup("p10", "0 22 * * *", None)
+chk("no paused_until -> normal incomplete", state("p10", ts(2026, 7, 1, 22, 50))[:2], ("incomplete", 1))
 
 shutil.rmtree(T, ignore_errors=True)
 if failed == 0:

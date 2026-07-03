@@ -54,6 +54,13 @@ out="$(run_sc sid-1)"
 chk "pending-summary -> surfaced NOTE"   "$out" "pending-summary.md"
 rm -f "$A/pending-summary.md"
 
+# 8. PAUSED (skip.sh set a future paused_until) -> emit PAUSED note, do NOT nag to re-arm
+future="$(python3 -c 'import datetime;print(datetime.date.today()+datetime.timedelta(days=3))')"
+printf '{"home_session_id":"sid-1","last_armed":"%s","cron_id":"c1","schedule":"0 22 * * *","paused_until":"%s"}' "$fresh" "$future" > "$A/cron_state.json"
+out="$(run_sc sid-1)"
+chk "paused -> PAUSED note"               "$out" "PAUSED until"
+chkno "paused -> no re-arm ACTION"        "$out" "ACTION (autopilot 'proj1')"
+
 rm -rf "$T"
 if [ "$fail" -eq 0 ]; then echo "session_check.sh: all $pass checks PASS"; else echo "session_check.sh: $fail FAIL / $pass pass"; fi
 [ "$fail" -eq 0 ]

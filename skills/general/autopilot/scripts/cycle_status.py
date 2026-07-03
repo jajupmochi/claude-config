@@ -73,9 +73,11 @@ def compute(proj, now=None):
         now = _now()
     base = os.path.expanduser("~/.claude/autopilot/%s" % proj)
     try:
-        sched = json.load(open(os.path.join(base, "cron_state.json"))).get("schedule", "0 22 * * *")
+        cs = json.load(open(os.path.join(base, "cron_state.json")))
     except Exception:
-        sched = "0 22 * * *"
+        cs = {}
+    sched = cs.get("schedule", "0 22 * * *")
+    paused_until = cs.get("paused_until", "")     # YYYY-MM-DD (exclusive): cycles before it are SKIPPED
     try:
         last_done = int(float(open(os.path.join(base, "last-done")).read().strip()))
     except Exception:
@@ -84,6 +86,21 @@ def compute(proj, now=None):
     cycle_ts = most_recent_fire(fires, now)
     if cycle_ts is None:
         return {"state": "unknown", "reason": "no-cycle", "schedule": sched}, 2
+    # SKIP / PAUSE: a set paused_until makes the covered cycles count as done, so the run, the idempotent
+    # guard, AND the watchdog all leave them alone (the cron may stay armed — a fired run self-skips at
+    # step 0). paused_until is a date; any cycle whose scheduled fire is before 00:00 of that date is
+    # skipped. (Set/cleared by skip.sh.)
+    if paused_until:
+        try:
+            pu = datetime.datetime.strptime(paused_until[:10], "%Y-%m-%d").timestamp()
+        except Exception:
+            pu = 0.0
+        if pu and cycle_ts < pu:
+            return ({
+                "state": "complete", "skipped": True, "paused_until": paused_until,
+                "cycle_ts": int(cycle_ts), "last_done": last_done,
+                "overdue_min": int((now - cycle_ts) / 60), "schedule": sched,
+            }, 0)
     complete = last_done >= cycle_ts
     return ({
         "state": "complete" if complete else "incomplete",

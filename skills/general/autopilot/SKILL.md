@@ -23,6 +23,12 @@ Full design + every sub-tool spec: `docs/autopilot/README.md` in the claude-conf
 - **`/autopilot status <proj>`** — read `~/.claude/autopilot/<proj>/cron_state.json` + the newest
   `runs/` log + the latest `daily-runs/<date>.md`, and report **plainly, with clickable links**, what
   the last run did and whether the daily cron is armed/healthy.
+- **`/autopilot skip <proj>`** (or "跳过今晚 / 暂停 X 的定时任务") — skip the scheduled run without unarming
+  anything. Run `bash ~/.claude/autopilot/bin/skip.sh <proj> today` (skip today, resume tomorrow),
+  `... until <YYYY-MM-DD>` (skip until a date), `... resume` (un-skip now), or `... status`. It writes
+  `paused_until` into `cron_state.json`; `cycle_status.py` then reports the covered cycles as
+  complete+skipped, so a fired run self-skips at PROMPT step 0, the idempotent guard skips, and the
+  watchdog does NOT try to recover them — the cron can stay armed, and it auto-resumes on the date.
 
 The daily run is an **in-session cron** (you arm it with CronCreate), NOT a hidden headless `claude -p`.
 It lives in the user's always-open, phone-remote-controlled session so they can watch it.

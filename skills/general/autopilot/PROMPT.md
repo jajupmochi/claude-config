@@ -53,11 +53,14 @@ improvement, or documentation. Quality and durability over raw speed.
    lists, then delete the file. This is how a headless recovery's result reaches the session the user reads.
 0.5. **Idempotency guard — is this cycle already done? (cheap, code-only, ~0 token).** Run
    `python3 ~/.claude/skills/autopilot/scripts/cycle_status.py <proj>`. If it prints `"state":"complete"`
-   (exit code 0), THIS run-cycle's work was already finished — by an earlier fire or by a background
-   recovery run — so **STOP immediately**: do no work and commit nothing (a redundant re-run would
-   double-commit the same cycle). Continue ONLY if it says `"incomplete"`. This is cross-midnight-safe: it
-   compares `last-done` to the scheduled fire TIMESTAMP, not the calendar date, so a run that started at
-   23:00 and finished after midnight is correctly counted as done, not mistaken for a fresh day's cycle.
+   (exit code 0), **STOP immediately**: do no work and commit nothing. Two sub-cases, both = stop:
+     - plain `"complete"` → this cycle was already finished (an earlier fire or a background recovery); a
+       re-run would double-commit.
+     - `"complete"` WITH `"skipped":true` (+ `"paused_until":<date>`) → the user SKIPPED this run via
+       `skip.sh` (e.g. "skip tonight"). Say one line — "本次定时任务已按 skip 标记跳过（paused_until <date>）" —
+       and stop. Do NOT treat it as a failure, do NOT re-arm around it. It auto-resumes on/after that date.
+   Continue ONLY if it says `"incomplete"`. Cross-midnight-safe: it compares `last-done` to the scheduled
+   fire TIMESTAMP, not the calendar date, so a run that started 23:00 and finished after midnight still counts.
 0.6. **Start the liveness heartbeat (so the watchdog can tell this run is alive).** If step 0.5 said
    `incomplete` (you are going to run), immediately launch the detached heartbeat:
    `setsid bash ~/.claude/autopilot/bin/hb_loop.sh <proj> >/dev/null 2>&1 &`. It writes `run-heartbeat`
