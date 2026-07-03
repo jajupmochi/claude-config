@@ -46,6 +46,11 @@ improvement, or documentation. Quality and durability over raw speed.
    text), and write `cron_state.json` `configured_with_version` = the contents of
    `~/.claude/skills/autopilot/VERSION`. Then continue. This is how an already-armed cron picks up new
    autopilot behaviour (new rules, new output format) without needing the session restarted.
+0.4. **Surface any pending recovery summary (in-session run only).** Skip this if `AUTOPILOT_HEADLESS` is
+   set (you ARE a background run). Otherwise check `~/.claude/autopilot/<proj>/pending-summary.md`: if it
+   exists, a background recovery run finished a cycle you never saw. Post its contents to the user in a
+   clearly-labelled block (e.g. "🛟 后台恢复补跑的总结") AND `SendUserFile` every screenshot ABSOLUTE path it
+   lists, then delete the file. This is how a headless recovery's result reaches the session the user reads.
 0.5. **Idempotency guard — is this cycle already done? (cheap, code-only, ~0 token).** Run
    `python3 ~/.claude/skills/autopilot/scripts/cycle_status.py <proj>`. If it prints `"state":"complete"`
    (exit code 0), THIS run-cycle's work was already finished — by an earlier fire or by a background
@@ -247,6 +252,12 @@ A run is complete only when: the minimum-duration floor is met, the current unit
 passed review-gate, the per-run doc is written, the time-estimate doc is updated, and the in-session
 markdown-table summary (with the 7-day concat applied) is emitted. Then signal completion for the
 watchdog (write the run's done-marker).
+
+**If `AUTOPILOT_HEADLESS` is set, you are a background recovery run detached from the user's session — they
+will NOT see this summary inline.** So, in addition to the normal output, WRITE your final summary (the same
+fenced `📊 本轮小结` block) to `~/.claude/autopilot/<proj>/pending-summary.md`, and on a line list the
+ABSOLUTE paths of any screenshots you produced. The user's home session surfaces + `SendUserFile`s it on its
+next run (step 0.4) and then deletes it — that is the ONLY way your work reaches the session they read.
 </finish>
 
 </autopilot_directive>

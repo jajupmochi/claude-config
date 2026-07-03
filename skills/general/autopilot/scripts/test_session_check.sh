@@ -48,6 +48,12 @@ printf '{"home_session_id":"sid-1","last_armed":"%s","cron_id":"c1","schedule":"
 out="$(run_sc sid-1)"
 chk "version match -> verstale=no"       "$out" "verstale=no"
 
+# 7. a background recovery left pending-summary.md -> session_check surfaces it
+: > "$A/pending-summary.md"
+out="$(run_sc sid-1)"
+chk "pending-summary -> surfaced NOTE"   "$out" "pending-summary.md"
+rm -f "$A/pending-summary.md"
+
 rm -rf "$T"
 if [ "$fail" -eq 0 ]; then echo "session_check.sh: all $pass checks PASS"; else echo "session_check.sh: $fail FAIL / $pass pass"; fi
 [ "$fail" -eq 0 ]

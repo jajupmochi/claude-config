@@ -103,9 +103,11 @@ def _bump_recover_attempts(proj: str, cycle_ts) -> int:
 
 
 def _recovery_running(proj: str) -> bool:
-    """A headless run.sh recovery for this proj is already in flight — never stack a second."""
+    """A headless run.sh recovery for this proj is already in flight — never stack a second. The pattern is
+    anchored to the exact proj arg ('run.sh <proj>' followed by end-of-cmdline or a space) so a project
+    whose name is a prefix of another (e.g. 'creuset' vs 'creuset-docs') can't false-match."""
     try:
-        r = subprocess.run(["pgrep", "-f", f"run.sh {proj}"], capture_output=True)
+        r = subprocess.run(["pgrep", "-f", rf"run\.sh {proj}($| )"], capture_output=True)
         return r.returncode == 0
     except Exception:
         return False

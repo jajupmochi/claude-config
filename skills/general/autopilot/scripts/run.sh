@@ -50,6 +50,10 @@ if "$PY" "$HERE/cycle_status.py" "$PROJ" >/dev/null 2>&1; then
   exit 0
 fi
 rm -f "$BASE/last-error"                                # clear stale failure marker before a real attempt
+# Mark this as a HEADLESS run (recovery or opt-in fallback). PROMPT.md reads it to (a) skip the
+# SessionStart cron self-heal and (b) also write its final summary to pending-summary.md so the user's
+# home session can surface it (this run is detached from that session).
+export AUTOPILOT_HEADLESS=1
 "$PY" "$HERE/floor.py" "$PROJ" start; heartbeat
 [ -n "$REPO" ] && cd "$REPO" 2>/dev/null
 attempt=0; floor_met=0; fast_fail=0; transient=0
