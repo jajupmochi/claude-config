@@ -53,6 +53,13 @@ improvement, or documentation. Quality and durability over raw speed.
    double-commit the same cycle). Continue ONLY if it says `"incomplete"`. This is cross-midnight-safe: it
    compares `last-done` to the scheduled fire TIMESTAMP, not the calendar date, so a run that started at
    23:00 and finished after midnight is correctly counted as done, not mistaken for a fresh day's cycle.
+0.6. **Start the liveness heartbeat (so the watchdog can tell this run is alive).** If step 0.5 said
+   `incomplete` (you are going to run), immediately launch the detached heartbeat:
+   `setsid bash ~/.claude/autopilot/bin/hb_loop.sh <proj> >/dev/null 2>&1 &`. It writes `run-heartbeat`
+   every ~5 min so `watch.py` won't mistake a quiet stretch (e.g. a long subagent) for a dead run; it
+   **auto-stops the moment the cycle completes** and hard-caps at 90 min. If a transient API error later
+   kills this run mid-way, `watch.py` (every 10 min) sees the cycle overdue + the run no longer alive and
+   spawns a headless recovery to finish it — so you do NOT need to build your own retry.
 1. **Perceive.** Read the current reality before acting:
    - The project's own docs and code; recent `git log`; this session's and prior sessions' relevant
      design + discussion; the autopilot workspace docs (long-term plan, latest daily-progress,
