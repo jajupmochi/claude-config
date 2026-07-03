@@ -87,8 +87,9 @@ for d in "$BASE"/*/; do
     echo "NOTE (autopilot '${proj}'): the last run did NOT finish (last-error newer than last-done). Read $d/runs/ newest log and tell the user plainly what blocked it, with clickable links."
   fi
   # A background recovery run left a summary the user hasn't seen — surface it into THIS session.
-  if [ -f "$d/pending-summary.md" ]; then
-    echo "NOTE (autopilot '${proj}'): a background recovery run left ${d}pending-summary.md. Post its contents to the user (labelled '🛟 后台恢复补跑的总结'), SendUserFile any screenshot paths it lists, then delete the file."
+  pend="${d%/}/pending-summary.md"    # strip any trailing slash from the glob dir, then join explicitly
+  if [ -f "$pend" ]; then
+    echo "NOTE (autopilot '${proj}'): a background recovery run left ${pend}. Post its contents to the user (labelled '🛟 后台恢复补跑的总结'), SendUserFile any screenshot paths it lists, then delete the file."
   fi
 done
 exit 0

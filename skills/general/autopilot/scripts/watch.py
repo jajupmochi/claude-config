@@ -22,6 +22,7 @@ from __future__ import annotations
 import glob
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -107,7 +108,7 @@ def _recovery_running(proj: str) -> bool:
     anchored to the exact proj arg ('run.sh <proj>' followed by end-of-cmdline or a space) so a project
     whose name is a prefix of another (e.g. 'creuset' vs 'creuset-docs') can't false-match."""
     try:
-        r = subprocess.run(["pgrep", "-f", rf"run\.sh {proj}($| )"], capture_output=True)
+        r = subprocess.run(["pgrep", "-f", rf"run\.sh {re.escape(proj)}($| )"], capture_output=True)
         return r.returncode == 0
     except Exception:
         return False

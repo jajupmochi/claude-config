@@ -46,6 +46,7 @@ fi
 # recovery did the work), skip — never double-run the same cycle. cycle_status.py is cross-midnight-safe
 # and exits 0 ONLY when complete; any other exit (incomplete/unknown) is fail-safe = proceed.
 if "$PY" "$HERE/cycle_status.py" "$PROJ" >/dev/null 2>&1; then
+  rm -f "$BASE/last-error"   # cycle IS complete — clear any stale failure marker so watchdogs don't keep flagging it
   echo "[run.sh] cycle already complete for [$PROJ] — skipping (idempotent) $(date -Iseconds)" >>"$LOG"
   exit 0
 fi

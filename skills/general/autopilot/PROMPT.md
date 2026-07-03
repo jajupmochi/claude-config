@@ -177,8 +177,8 @@ Update project time/effort estimates with the autopilot estimator (see design do
   `http://localhost:<port>/docs#/<tag>/<operationId>`, Storybook `http://localhost:6006/?path=/story/<id>`,
   state how to start the server) in the daily-run doc AND the summary. If a change is visible in the UI,
   you MUST give the full clickable LOCAL preview URL of the exact changed route AND **start the app, take
-  a screenshot** of the change **to a FILE on disk** — Playwright `browser_take_screenshot` with a path (or
-  `save_to_disk`); do NOT use claude-in-chrome inline screenshots (they come back inline, are NOT saved to
+  a screenshot** of the change **to a FILE on disk** — Playwright `browser_take_screenshot` with an explicit
+  output `filename`/path; do NOT use claude-in-chrome inline screenshots (they come back inline, are NOT saved to
   disk, so there's no file to link/commit and they don't render on the user's end — this is exactly why a
   past run's screenshots were invisible). Save under the project's `images/`. Embed it in the doc with a
   repo-relative path (`![...](images/<name>.png)` — renders on GitHub); in the summary give a **clickable

@@ -15,8 +15,9 @@ Reads  ~/.claude/autopilot/<proj>/cron_state.json  ->  "schedule" (cron string, 
        ~/.claude/autopilot/<proj>/last-done         ->  unix ts (int/float) of the last completed run
 
 Prints one line of JSON:
-  {"state":"complete"|"incomplete", "cycle_ts":<int>, "last_done":<int>, "overdue_min":<int>,
+  {"state":"complete"|"incomplete"|"unknown", "cycle_ts":<int>, "last_done":<int>, "overdue_min":<int>,
    "schedule":"..."}
+  ("unknown" is emitted on a usage/validation error, or when no cycle time can be resolved.)
 Exit code: 0 = complete, 1 = incomplete, 2 = unknown/error (fail-safe: callers treat non-0 as
 "not known-complete", i.e. a run is allowed).
 
@@ -97,7 +98,11 @@ def main(argv):
     if len(argv) < 2:
         print('{"state":"unknown","error":"usage: cycle_status.py <proj>"}')
         return 2
-    result, code = compute(argv[1])
+    proj = argv[1]
+    if not proj or "/" in proj or ".." in proj:   # path-escape guard — proj is interpolated into a path,
+        print('{"state":"unknown","error":"invalid proj"}')   # and run.sh/watch.py call this with it
+        return 2
+    result, code = compute(proj)
     print(json.dumps(result))
     return code
 
