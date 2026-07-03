@@ -98,11 +98,13 @@ reason="## review-gate: automatic review of this turn's code
 5. **Test-gap** (form: coverage reasoning) — are the changed units covered by tests?
 6. **Minimal change / blast-radius** (form: diff scope) — is the change minimal? does it avoid touching unrelated code or hot paths?
 7. **Modularity** (form: structure) — minimal function/module granularity, reusable, not a conflated block.
-8. **Commit & doc completeness** (form: hygiene) — small named commit(s); docstrings/docs updated for what changed."
+8. **Commit & doc completeness** (form: hygiene) — small named commit(s); docstrings/docs updated for what changed.
+9. **Doc/message/name accuracy** (form: consistency — a GitHub-Copilot-recurring miss) — do user-facing messages, docstrings, examples, and any referenced tool/API/flag NAME match what the code ACTUALLY does, and actually EXIST? (e.g. a message saying \"push\" when the gate covers all remote-publishing; an invented tool/API name; a docstring that omits a real output state; a stale example path.)
+10. **Robustness / adversarial inputs** (form: edge cases — a GitHub-Copilot-recurring miss) — quoting & embedded spaces, regex metacharacters in interpolated values, path assumptions (trailing slash, un-escaped names), boundary/empty inputs, and stale state an early-exit or error branch leaves behind for other components."
 
 if [ "$has_module" = "yes" ]; then
   reason="$reason
-9. **Per-function/module AI review** (DEFAULT ON) — a minimal function/module changed this turn; review EACH changed function/module individually (correctness, contract/inputs-outputs, side effects)."
+11. **Per-function/module AI review** (DEFAULT ON) — a minimal function/module changed this turn; review EACH changed function/module individually (correctness, contract/inputs-outputs, side effects)."
 fi
 
 if [ "$lint_fail" -ne 0 ]; then
@@ -129,5 +131,37 @@ so each is identifiable. e.g.:
 \`\`\`
 先修真实问题再收尾。(review-gate 每个改代码的回合都跑,不可跳过。)"
 
-printf '%s' "$reason" | jq -Rs '{decision:"block", reason:.}' 2>/dev/null || exit 0
+# Deliver the review. BOTH mechanisms below BLOCK the stop (force one review round this turn — enforcement
+# is the whole point); they differ ONLY in the label Claude Code shows. Pick by version so the review is
+# NEVER shown as "Stop hook error" when that is avoidable:
+#   * >= 2.1.152: `hookSpecificOutput.additionalContext` blocks AND is labeled "Stop hook feedback"
+#     (2.1.152 release notes: "Stop hooks can now return additionalContext ... keep the turn going without
+#     being labeled a hook error"). REQUIRED on >= 2.1.174, where `decision:"block"` is labeled "Stop hook
+#     error".
+#   * <  2.1.152: additionalContext-on-Stop is NOT honored (would not block), so use `decision:"block"`,
+#     which on those older versions is already shown as "Stop hook feedback".
+# Override via review-gate.conf: stop_mode = auto (DEFAULT, version-adaptive) | feedback | block.
+_conf="$HOME/.claude/hooks/review-gate/review-gate.conf"
+smode="auto"
+[ -f "$_conf" ] && smode="$(sed -n 's/^[[:space:]]*stop_mode[[:space:]]*=[[:space:]]*\([a-z]*\).*/\1/p' "$_conf" | head -1)"
+[ -n "$smode" ] || smode="auto"
+if [ "$smode" = "auto" ]; then
+  vf="$dir/ccver"                                       # cache `claude --version` ~1 day (this hook runs often)
+  if [ ! -s "$vf" ] || [ "$(( $(date +%s) - $(stat -c %Y "$vf" 2>/dev/null || echo 0) ))" -gt 86400 ]; then
+    PATH="$HOME/.local/bin:$HOME/.claude/local:$PATH" claude --version 2>/dev/null \
+      | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 > "$vf" 2>/dev/null
+  fi
+  ccver="$(cat "$vf" 2>/dev/null)"
+  # ccver >= 2.1.152  ->  feedback (additionalContext);  else / unknown -> block (enforcement-safe on all)
+  if [ -n "$ccver" ] && [ "$(printf '%s\n2.1.152\n' "$ccver" | sort -V | head -1)" = "2.1.152" ]; then
+    smode="feedback"
+  else
+    smode="block"
+  fi
+fi
+if [ "$smode" = "feedback" ]; then
+  printf '%s' "$reason" | jq -Rs '{hookSpecificOutput:{hookEventName:"Stop", additionalContext:.}}' 2>/dev/null || exit 0
+else
+  printf '%s' "$reason" | jq -Rs '{decision:"block", reason:.}' 2>/dev/null || exit 0
+fi
 exit 0
