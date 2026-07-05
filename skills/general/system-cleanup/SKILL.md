@@ -1,6 +1,6 @@
 ---
 name: system-cleanup
-description: Use when a Linux disk is filling up or the user asks to free space / clean the system / "系统盘满了" / move large files off the system disk. Diagnose where the space went (df / du / dpkg / snap / docker), then give a prioritized, risk-tagged plan — do safe user-level deletions, and LIST the sudo items for the user to run (default to advise-then-confirm; this kind of box often has no passwordless sudo, so use pkexec or hand over the commands). Covers the VS Code WebStorage PDF-cache bloat bug, old-kernel pile-up, snap/journal/apt/docker caches, and NTFS data-disk write failures.
+description: Use when a Linux disk is filling up or the user asks to free space / clean the system / "系统盘满了" / move large files off the system disk. Diagnose where the space went (df / du / dpkg / snap / docker), then give a prioritized, risk-tagged plan — do safe user-level deletions, and LIST the sudo items for the user to run (default to advise-then-confirm; this kind of box often has no passwordless sudo, so use pkexec or hand over the commands). Covers the biggest reclaimables — `~/.cache/uv` (Python package cache, 58 GB seen), `~/.cache/huggingface` (model/dataset cache, 24 GB seen), Docker build cache, VS Code WebStorage PDF-cache bloat, JetBrains indexes — plus old-kernel pile-up, snap/journal/apt caches, and NTFS data-disk write failures.
 ---
 
 # /system-cleanup
@@ -30,6 +30,8 @@ Read-only. Run these first and report the picture before touching anything:
 ```bash
 df -h /                                            # how full is the system disk
 du -h --max-depth=1 ~ 2>/dev/null | sort -hr | head -20   # biggest things in $HOME
+du -h --max-depth=1 ~/.cache 2>/dev/null | sort -hr | head # ~/.cache breakdown — uv / huggingface / JetBrains / pip are the usual giants
+docker system df 2>/dev/null                              # Docker images / build cache (often no sudo if in the docker group)
 sudo du -h --max-depth=1 / 2>/dev/null | sort -hr | head -20   # biggest top-level dirs (/snap /usr /var …)
 dpkg-query -W -f='${Installed-Size}\t${Package}\n' | sort -rn | head -20 | awk '{printf "%.0fM\t%s\n",$1/1024,$2}'  # biggest pkgs
 du -sh /usr/lib/modules/*/ 2>/dev/null | sort -hr  # kernels (see "old kernels" below)
@@ -44,28 +46,37 @@ Real sizes seen on this user's Ubuntu box (2026-05) — good priors:
 
 | Target | Typical / seen | Risk | Notes |
 |---|---|---|---|
-| **VS Code `~/.config/Code/WebStorage`** | **31 GB** | low | PDF/webview preview cache bloat — see special section. Biggest single win. |
-| `~/.cache/*` | ~4 GB | low | regenerated on demand |
-| npm cache | ~3 GB | low | `npm cache clean --force` |
+| **`~/.cache/uv`** (Python pkg cache) | **58 GB seen** | low | The biggest win on an ML box — torch/CUDA wheels pile up. `uv cache clean` (or `rm -rf ~/.cache/uv`); re-downloads on demand. |
+| **`~/.cache/huggingface`** (models/datasets) | **24 GB seen** | low–**med** | Re-downloads, SLOW for big models — **confirm first**. `huggingface-cli delete-cache` (keeps chosen) or `rm -rf`. |
+| `~/.cache/JetBrains` (IDE caches/indexes) | ~11 GB seen | low | Regenerates (slow re-index). `rm -rf ~/.cache/JetBrains`. |
+| **Docker build cache** + dangling images | ~10 GB + ~2 GB seen | low–med | `docker builder prune` (build cache = **100% safe**, regenerates) + `docker image prune`; usually **no sudo if you're in the `docker` group**. Never prune named volumes. |
+| `~/.config/Code/WebStorage` (VS Code) | **31 GB** (one box) | low | PDF/webview preview cache bloat — see special section. |
+| npm cache `~/.npm/_cacache` | ~3–7 GB | low | `npm cache clean --force` |
+| pip cache `~/.cache/pip` | ~4 GB | low | `pip cache purge` |
 | VS Code `CachedExtensionVSIXs` + `Cache` | ~1.4 GB | low | re-downloaded if needed |
 | Trash `~/.local/share/Trash` | varies | low | the user's deleted files — confirm |
 | **Old kernels** `/usr/lib/modules` | 28 versions seen! | med (sudo) | keep current + 1; `apt autoremove` |
 | `/snap` old revisions | ~40 GB | med (sudo) | `snap list --all`; remove `disabled` revisions |
-| `/var/log` journal | varies | low (sudo) | `journalctl --vacuum-size=200M` |
-| apt archive cache | varies | low (sudo) | `apt clean` |
-| Docker dangling images/volumes | varies | med | `docker system prune` (asks) — never auto-prune named volumes |
+| `/var/log` journal | ~2.8 GB seen | low (sudo) | `journalctl --vacuum-size=200M` |
+| apt archive cache | ~0.5 GB seen | low (sudo) | `apt clean` |
 
 ## Step 3 — safe cleanup (no sudo)
 
 User-level, reversible-ish (caches regenerate). Confirm Trash with the user first.
 
 ```bash
-rm -rf ~/.config/Code/WebStorage/*/CacheStorage   # the big VS Code cache (keeps settings/auth)
-rm -rf ~/.cache/*                                  # user cache
+uv cache clean 2>/dev/null || rm -rf ~/.cache/uv    # Python pkg cache — usually the biggest (58 GB seen)
+pip cache purge 2>/dev/null || rm -rf ~/.cache/pip
 npm cache clean --force 2>/dev/null
-rm -rf ~/.config/Code/CachedExtensionVSIXs ~/.config/Code/Cache
-# rm -rf ~/.local/share/Trash/*                    # only after confirming with the user
-fc-cache -f ; rm -rf ~/.cache/thumbnails/*         # optional: font/thumbnail caches
+docker builder prune -f 2>/dev/null                 # Docker build cache — safe, regenerates, no sudo if in docker group
+rm -rf ~/.config/Code/WebStorage/*/CacheStorage     # the big VS Code cache (keeps settings/auth)
+rm -rf ~/.config/Code/CachedExtensionVSIXs ~/.config/Code/Cache ~/.config/Code/CachedData
+rm -rf ~/.cache/chrome-devtools-mcp ~/.cache/thumbnails/*   # small mcp + thumbnail caches
+# Do NOT blanket `rm -rf ~/.cache/*` — it also nukes ~/.cache/huggingface (24 GB, slow to re-download) and
+# ~/.cache/JetBrains (slow re-index). Delete THOSE two only after confirming with the user:
+#   rm -rf ~/.cache/huggingface   # confirm first — big models re-download slowly
+#   rm -rf ~/.cache/JetBrains     # confirm first — IDE re-indexes
+# rm -rf ~/.local/share/Trash/*   # only after confirming with the user
 ```
 
 GitHub/Copilot auth is in `~/.config/Code/User/globalStorage/`, NOT WebStorage — so clearing WebStorage does **not** log you out.
@@ -118,3 +129,5 @@ Ship a `cleanup.sh` (in this skill folder) that the user runs **in their own ter
 ## Provenance
 
 Distilled from a real disk-cleanup session on the author's Ubuntu box (system disk 91% → freed ~41 GB: 31 GB VS Code WebStorage + ~9 GB caches, then sudo kernels/snap) plus the fcitx5-migration session's `ibus-libpinyin` / `apt autoremove` cleanup. Generalised for cross-project reuse.
+
+Updated 2026-07-05 from a second box (system disk **100% full → 71%, freed ~79 GB, no sudo needed**): the giants there were `~/.cache/uv` **58 GB** + `~/.cache/huggingface` **24 GB** + Docker **build cache 9.6 GB** (`docker builder prune`, in the docker group) — a different profile from the WebStorage box, which is why the cache table now leads with uv/huggingface. Lesson folded in: **never blanket `rm -rf ~/.cache/*`** — it silently deletes the huggingface model cache (24 GB, slow to re-download) and JetBrains indexes; those two need explicit confirmation.

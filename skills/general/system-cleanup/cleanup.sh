@@ -11,12 +11,16 @@ sz()  { du -sh "$@" 2>/dev/null | awk '{s=$1} END{print s?s:"0"}'; }
 echo "=== disk before ==="; df -h / | awk 'NR==1||/\/$/'
 
 echo; echo "### Phase 1 — user-level caches (no sudo) ###"
+# Ask PER cache — never blanket-delete ~/.cache (that silently nukes the huggingface model cache).
+[ -d ~/.cache/uv ]          && { echo "uv Python pkg cache ($(sz ~/.cache/uv)) — the usual biggest";     ask "$(sz ~/.cache/uv)"          && { uv cache clean 2>/dev/null || rm -rf ~/.cache/uv; } && echo "  cleared"; }
+[ -d ~/.cache/pip ]         && { echo "pip cache ($(sz ~/.cache/pip))";                                  ask "$(sz ~/.cache/pip)"         && { pip cache purge 2>/dev/null || rm -rf ~/.cache/pip; } && echo "  cleared"; }
+command -v npm >/dev/null   && { echo "npm cache";                                                       ask "npm cache"                  && npm cache clean --force >/dev/null 2>&1 && echo "  cleared"; }
+[ -d ~/.cache/JetBrains ]   && { echo "JetBrains IDE cache/indexes ($(sz ~/.cache/JetBrains)) — will re-index"; ask "$(sz ~/.cache/JetBrains)" && rm -rf ~/.cache/JetBrains && echo "  cleared"; }
+[ -d ~/.cache/huggingface ] && { echo "HuggingFace models/datasets ($(sz ~/.cache/huggingface)) — big models RE-DOWNLOAD SLOWLY"; ask "$(sz ~/.cache/huggingface)" && rm -rf ~/.cache/huggingface && echo "  cleared"; }
 WS=~/.config/Code/WebStorage
-[ -d "$WS" ]            && { echo "VS Code WebStorage ($(sz "$WS"))";          ask "$(sz "$WS")"          && rm -rf "$WS"/*/CacheStorage && echo "  cleared"; }
-[ -d ~/.cache ]        && { echo "~/.cache ($(sz ~/.cache))";                 ask "$(sz ~/.cache)"       && rm -rf ~/.cache/* && echo "  cleared"; }
-command -v npm >/dev/null && { echo "npm cache";                              ask "npm cache"            && npm cache clean --force >/dev/null 2>&1 && echo "  cleared"; }
-[ -d ~/.config/Code/CachedExtensionVSIXs ] && { echo "VS Code ext VSIX + Cache"; ask "VS Code caches" && rm -rf ~/.config/Code/CachedExtensionVSIXs ~/.config/Code/Cache && echo "  cleared"; }
-[ -d ~/.local/share/Trash ] && { echo "Trash ($(sz ~/.local/share/Trash))";  ask "$(sz ~/.local/share/Trash)" && rm -rf ~/.local/share/Trash/* && echo "  emptied"; }
+[ -d "$WS" ]               && { echo "VS Code WebStorage ($(sz "$WS"))";                                 ask "$(sz "$WS")"                && rm -rf "$WS"/*/CacheStorage && echo "  cleared"; }
+[ -d ~/.config/Code/CachedExtensionVSIXs ] && { echo "VS Code ext VSIX + Cache";                         ask "VS Code caches"             && rm -rf ~/.config/Code/CachedExtensionVSIXs ~/.config/Code/Cache ~/.config/Code/CachedData && echo "  cleared"; }
+[ -d ~/.local/share/Trash ] && { echo "Trash ($(sz ~/.local/share/Trash))";                             ask "$(sz ~/.local/share/Trash)" && rm -rf ~/.local/share/Trash/* && echo "  emptied"; }
 
 echo; echo "### Phase 2 — system (sudo) ###"
 if sudo -v 2>/dev/null; then
@@ -31,8 +35,9 @@ fi
 
 echo; echo "### Phase 3 — Docker (if installed) ###"
 if command -v docker >/dev/null; then
-  docker system df 2>/dev/null
-  ask "docker system prune (dangling images + build cache; keeps named volumes)" && docker system prune -f
+  docker system df 2>/dev/null   # usually works with no sudo if you are in the docker group
+  ask "docker builder prune (build cache only — 100% safe, regenerates)" && docker builder prune -f
+  ask "docker system prune (also removes dangling images + stopped containers; keeps named volumes)" && docker system prune -f
 fi
 
 echo; echo "=== disk after ==="; df -h / | awk '/\/$/'
