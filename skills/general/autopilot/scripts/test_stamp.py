@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # autopilot-stamp · version: 0.1.0 · created: 2026-06-24 · updated: 2026-06-24
 """Tests for stamp.py (date+version stamping of generated artifacts). Run: python3 test_stamp.py"""
+import datetime
 import importlib.util
 import os
 import tempfile
@@ -21,6 +22,10 @@ def run():
         # 1. unstamped, undated doc -> check flags both reasons, exit 1
         f = os.path.join(tmp, "notes.md")
         open(f, "w").write("# Notes\n\nbody\n")
+        # created is back-filled from the file's mtime (notes.md has no date-in-name); pin the mtime to a
+        # fixed day so the "2026-06-24" assertions below are deterministic instead of "whatever today is".
+        _pin = datetime.datetime(2026, 6, 24, 12, 0).timestamp()
+        os.utime(f, (_pin, _pin))
         assert stamp.main(["stamp", "check", tmp]) == 1, "unstamped must flag"
         assert not stamp.has_stamp(f) and stamp.needs_filename_date(f)
 
