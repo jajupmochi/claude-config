@@ -20,28 +20,30 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      NODE_OPTIONS: --openssl-legacy-provider
     steps:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install via `npx github:jajupmochi/claude-config`
+      - name: Install via `npx github:jajupmochi/agent-harness`
         run: |
           # Run install in a temp HOME so we don't pollute the runner
           export HOME=$(mktemp -d)
-          npx --yes github:jajupmochi/claude-config
+          npx --yes github:jajupmochi/agent-harness
 
           # Verify clone landed
-          test -d "$HOME/.claude/claude-config" || { echo "::error::~/.claude/claude-config missing"; exit 1; }
+          test -d "$HOME/.claude/agent-harness" || { echo "::error::~/.claude/agent-harness missing"; exit 1; }
 
           # Verify symlink (or directory) for the init skill
-          if [ ! -e "$HOME/.claude/skills/init-claude-config" ]; then
-            echo "::error::Skill not registered at ~/.claude/skills/init-claude-config"
+          if [ ! -e "$HOME/.claude/skills/init-agent-config" ]; then
+            echo "::error::Skill not registered at ~/.claude/skills/init-agent-config"
             exit 1
           fi
 
           # Verify the SKILL.md is reachable through the symlink
-          test -f "$HOME/.claude/claude-config/setup/init-claude-config/SKILL.md" \
+          test -f "$HOME/.claude/agent-harness/setup/init-agent-config/SKILL.md" \
             || { echo "::error::SKILL.md missing in clone"; exit 1; }
 
           echo "✓ npx install verified"
@@ -57,16 +59,16 @@ jobs:
       - name: git clone + symlink the init skill
         run: |
           export HOME=$(mktemp -d)
-          git clone https://github.com/jajupmochi/claude-config.git "$HOME/.claude/claude-config"
+          git clone https://github.com/jajupmochi/agent-harness.git "$HOME/.claude/agent-harness"
           mkdir -p "$HOME/.claude/skills"
-          ln -s "$HOME/.claude/claude-config/setup/init-claude-config" "$HOME/.claude/skills/init-claude-config"
+          ln -s "$HOME/.claude/agent-harness/setup/init-agent-config" "$HOME/.claude/skills/init-agent-config"
 
           # Verify
-          test -f "$HOME/.claude/claude-config/setup/init-claude-config/SKILL.md" \
+          test -f "$HOME/.claude/agent-harness/setup/init-agent-config/SKILL.md" \
             || { echo "::error::SKILL.md missing"; exit 1; }
-          test -L "$HOME/.claude/skills/init-claude-config" \
+          test -L "$HOME/.claude/skills/init-agent-config" \
             || { echo "::error::Symlink missing"; exit 1; }
-          test "$(readlink $HOME/.claude/skills/init-claude-config)" = "$HOME/.claude/claude-config/setup/init-claude-config" \
+          test "$(readlink $HOME/.claude/skills/init-agent-config)" = "$HOME/.claude/agent-harness/setup/init-agent-config" \
             || { echo "::error::Symlink target wrong"; exit 1; }
 
           echo "✓ local-clone install verified"
@@ -85,7 +87,7 @@ jobs:
             'rules/output-brevity/snippet.md'
             'skills/general/verify-template/SKILL.md'
             'skills/general/long-running-tasks/SKILL.md'
-            'setup/init-claude-config/SKILL.md'
+            'setup/init-agent-config/SKILL.md'
             'hooks/ruff-format-on-edit/settings.snippet.json'
             'hooks/jq-validate-json/settings.snippet.json'
             '.claude-plugin/plugin.json'
@@ -93,7 +95,7 @@ jobs:
             'USAGE.md'
           )
           for path in "${paths[@]}"; do
-            url="https://raw.githubusercontent.com/jajupmochi/claude-config/main/${path}"
+            url="https://raw.githubusercontent.com/jajupmochi/agent-harness/main/${path}"
             echo "  Fetching ${path}..."
             content=$(curl -fsSL --max-time 10 "${url}")
             test -n "${content}" || { echo "::error::Empty response from ${url}"; exit 1; }
@@ -129,6 +131,8 @@ jobs:
   npx-script-syntax:
     name: bin/install.js syntax check
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: --openssl-legacy-provider
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
@@ -138,7 +142,7 @@ jobs:
         run: |
           node --check bin/install.js
           # Also check the package.json bin entry resolves
-          jq -e '.bin["claude-config"]' package.json > /dev/null
+          jq -e '.bin["agent-harness"]' package.json > /dev/null
           test -x bin/install.js || { echo "::error::bin/install.js not executable"; exit 1; }
           echo "✓ install.js valid + executable"
 

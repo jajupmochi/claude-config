@@ -48,4 +48,4 @@ These improve the dev loop but aren't required. **Context:** `optional` for all 
 | `hyperfine` | CLI benchmarker | `sudo apt install hyperfine` |
 | `act` | Run GitHub Actions locally — useful for debugging GHA workflows offline | `gh extension install nektos/gh-act` (or `nektos/act` binary). **Note**: download is sizable; ask user before installing. CC can also monitor real GHA runs via `gh run list / view`. |
 
-**Install context decision**: by default, `setup/init-claude-config` (P8) installs only the `always` and matching-project-type tools. Optional tools are installed only when the user opts in.
+**Install context decision**: by default, `setup/init-agent-harness` (P8) installs only the `always` and matching-project-type tools. Optional tools are installed only when the user opts in.

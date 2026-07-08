@@ -1,6 +1,6 @@
 # autopilot — daily autonomous project-driver (design)
 
-A claude-config plugin that **drives a project forward autonomously, once per day, for ≥30 min per run**,
+A agent-harness plugin that **drives a project forward autonomously, once per day, for ≥30 min per run**,
 treating the project as an industrial-grade deployable product. It plans, executes (feature/bugfix/
 refactor/design/docs), passes review-gate, re-plans, estimates time formally, self-heals when stuck,
 and reports — all without waiting for a human. The per-run prompt is [`PROMPT.md`](PROMPT.md) (the
@@ -182,7 +182,7 @@ seed the plan root.
 ## 10. Integration & guarantees
 - **review-gate** runs on every code turn (mandatory). Code discipline: minimal module/change/impact,
   modular, tests + commits + docs complete, git per increment.
-- Uses claude-config skills (code-verifier, research-critic, impeccable, …) + existing agent
+- Uses agent-harness skills (code-verifier, research-critic, impeccable, …) + existing agent
   skills/plugins; auto-invokes Chrome/visual tools; retries real blockers (no laziness/misjudgment).
 - **autorun** throughout. Crash-proof via systemd Persistent + watchdog. Escape hatch: disable the
   timers (`systemctl --user disable --now autopilot-daily.timer`).

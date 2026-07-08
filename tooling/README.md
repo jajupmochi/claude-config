@@ -10,7 +10,7 @@
 
 ## How to use
 
-For a new project, the `setup/init-claude-config` skill (P8) picks the relevant tooling subfolders based on project type. For manual setup, browse the index below and copy/adapt the templates.
+For a new project, the `setup/init-agent-harness` skill (P8) picks the relevant tooling subfolders based on project type. For manual setup, browse the index below and copy/adapt the templates.
 
 ## Tooling index
 

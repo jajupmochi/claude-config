@@ -59,36 +59,36 @@ Then open `http://localhost:8000/index.html`. **Do not use `file://`** — it br
 
 ## Workflow rules (imported)
 
-This project follows the workflow rules from [claude-config](https://github.com/jajupmochi/claude-config). Pick consumption mode and uncomment:
+This project follows the workflow rules from [agent-harness](https://github.com/jajupmochi/agent-harness). Pick consumption mode and uncomment:
 
 ```markdown
 <!-- Option 1: Raw URL imports (always live, requires network) -->
 <!--
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/pre-edit-confirmation/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/phased-planning/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/plugin-preflight/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/ui-iteration-loop/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/output-brevity/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/tool-proactivity/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/no-reread-files/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/chinese-output/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/bilingual-docs/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/pre-edit-confirmation/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/phased-planning/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/plugin-preflight/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/ui-iteration-loop/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/output-brevity/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/tool-proactivity/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/no-reread-files/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/chinese-output/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/bilingual-docs/snippet.md
 -->
 
-<!-- Option 2: Local clone of claude-config to ~/.claude/claude-config -->
+<!-- Option 2: Local clone of agent-harness to ~/.claude/agent-harness -->
 <!--
-@~/.claude/claude-config/rules/pre-edit-confirmation/snippet.md
-@~/.claude/claude-config/rules/phased-planning/snippet.md
-@~/.claude/claude-config/rules/plugin-preflight/snippet.md
-@~/.claude/claude-config/rules/ui-iteration-loop/snippet.md
-@~/.claude/claude-config/rules/output-brevity/snippet.md
-@~/.claude/claude-config/rules/tool-proactivity/snippet.md
-@~/.claude/claude-config/rules/no-reread-files/snippet.md
-@~/.claude/claude-config/rules/chinese-output/snippet.md
-@~/.claude/claude-config/rules/bilingual-docs/snippet.md
+@~/.claude/agent-harness/rules/pre-edit-confirmation/snippet.md
+@~/.claude/agent-harness/rules/phased-planning/snippet.md
+@~/.claude/agent-harness/rules/plugin-preflight/snippet.md
+@~/.claude/agent-harness/rules/ui-iteration-loop/snippet.md
+@~/.claude/agent-harness/rules/output-brevity/snippet.md
+@~/.claude/agent-harness/rules/tool-proactivity/snippet.md
+@~/.claude/agent-harness/rules/no-reread-files/snippet.md
+@~/.claude/agent-harness/rules/chinese-output/snippet.md
+@~/.claude/agent-harness/rules/bilingual-docs/snippet.md
 -->
 
-<!-- Option 3: Plugin install (P10+) — /plugin install jajupmochi/claude-config -->
+<!-- Option 3: Plugin install (P10+) — /plugin install jajupmochi/agent-harness -->
 ```
 
-The `setup/init-claude-config` skill picks one option and uncomments.
+The `setup/init-agent-harness` skill picks one option and uncomments.

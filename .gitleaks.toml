@@ -1,0 +1,16 @@
+# Gitleaks configuration for agent-harness
+# False-positive suppression for documentation patterns (gitleaks v8 format)
+
+[allowlist]
+  description = "False positives in documentation and author attribution"
+  paths = [
+    '''docs/CODEX_ADAPTATION_PLAN.md''',
+    '''skills/general/privacy-redact/SKILL.md''',
+    '''tooling/permissions-allowlist/README.md''',
+  ]
+  stopwords = [
+    '''Linlin''',
+  ]
+
+[extend]
+  useDefault = true

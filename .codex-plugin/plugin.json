@@ -1,0 +1,43 @@
+{
+  "name": "agent-harness",
+  "version": "0.1.0+codex.20260708120738",
+  "description": "Codex adapter for Linlin's agent-harness workflows, reusable skills, project setup guidance, hooks, recommendations, tooling preferences, templates, and safe Codex update repair.",
+  "author": {
+    "name": "Linlin Jia",
+    "url": "https://github.com/jajupmochi"
+  },
+  "homepage": "https://github.com/jajupmochi/agent-harness",
+  "repository": "https://github.com/jajupmochi/agent-harness",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "claude-code",
+    "skills",
+    "hooks",
+    "workflow-rules",
+    "agent-adapter",
+    "scaffold",
+    "default-installed",
+    "codex-update"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "agent-harness",
+    "shortDescription": "Codex adapter for agent-harness workflows",
+    "longDescription": "Use agent-harness from Codex without changing the original Claude Code setup. The plugin exposes Codex-compatible setup, verification, visual review, research critique, privacy redaction, system cleanup, long-running task, safe Codex update, and cross-agent adaptation workflows while keeping Claude-specific files isolated.",
+    "developerName": "Linlin Jia",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Apply agent-harness to this project for Codex",
+      "Activate agent-harness as my default local Codex plugin",
+      "Run the agent-harness verification workflow",
+      "Repair a Codex CLI update that failed because latest release assets were unavailable"
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}

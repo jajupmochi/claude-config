@@ -1,6 +1,6 @@
 # Consumption
 
-> Three ways to use this library in a downstream project. Choose at `setup/init-claude-config` time, or mix.
+> Three ways to use this library in a downstream project. Choose at `setup/init-agent-harness` time, or mix.
 
 > **Language:** English | [中文](CONSUMPTION.zh.md)
 
@@ -17,8 +17,8 @@
 Your project's `CLAUDE.md` includes lines like:
 
 ```markdown
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/pre-edit-confirmation/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/phased-planning/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/pre-edit-confirmation/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/phased-planning/snippet.md
 ```
 
 **Pros:** always live (any rule update lands without action), no clone, easy to discover (Claude follows the link), zero local setup.
@@ -30,13 +30,13 @@ Your project's `CLAUDE.md` includes lines like:
 Once:
 
 ```bash
-git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-config
+git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness
 ```
 
 Then in a project's `CLAUDE.md` (or `~/.claude/CLAUDE.md` for global):
 
 ```markdown
-@~/.claude/claude-config/rules/pre-edit-confirmation/snippet.md
+@~/.claude/agent-harness/rules/pre-edit-confirmation/snippet.md
 ```
 
 **Pros:** faster session start (no network), offline-friendly, easy to override locally (edit the cloned file), can pin to a specific commit/tag.
@@ -48,10 +48,10 @@ Then in a project's `CLAUDE.md` (or `~/.claude/CLAUDE.md` for global):
 Once Phase 10 ships `.claude-plugin/plugin.json`:
 
 ```bash
-/plugin install jajupmochi/claude-config
+/plugin install jajupmochi/agent-harness
 ```
 
-**Pros:** most native — exposes the setup skill as `/init-claude-config` slash command, registers selected rules / hooks / skills automatically, marketplace-managed updates.
+**Pros:** most native — exposes the setup skill as `/init-agent-harness` slash command, registers selected rules / hooks / skills automatically, marketplace-managed updates.
 
 **Cons:** only works after Phase 10. Adds an indirection; debugging "where does this rule come from" is one step harder.
 
@@ -74,4 +74,4 @@ You can combine. Common pattern:
 - **Per-project** `CLAUDE.md` uses **Option A** (raw URL) to import only the project-relevant subset (e.g. just the static-site rules).
 - **Once C ships**, swap one or both to plugin form for slash-command UX.
 
-The `setup/init-claude-config` skill (Phase 8) writes the right form into a new project's `CLAUDE.md` based on the user's preference.
+The `setup/init-agent-harness` skill (Phase 8) writes the right form into a new project's `CLAUDE.md` based on the user's preference.

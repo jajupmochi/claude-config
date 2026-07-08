@@ -1,6 +1,6 @@
 # Templates
 
-> Project starters for two of the author's main project types: Python research packages and static personal sites. Each template is a minimal-but-complete scaffold that the `setup/init-claude-config` skill (P8) composes with the rules / hooks / skills / tooling from the rest of the lib.
+> Project starters for two of the author's main project types: Python research packages and static personal sites. Each template is a minimal-but-complete scaffold that the `setup/init-agent-harness` skill (P8) composes with the rules / hooks / skills / tooling from the rest of the lib.
 
 ## Master TOC
 
@@ -13,7 +13,7 @@
 The recommended path is via the setup skill:
 
 ```
-/init-claude-config   # asks: project type, bilingual? primary language? install which? then scaffolds
+/init-agent-harness   # asks: project type, bilingual? primary language? install which? then scaffolds
 ```
 
 For manual use:
@@ -37,7 +37,7 @@ The template's `TEMPLATE_README.md` documents the specific substitutions per tem
 
 See [`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md) §"Adding a template". Each template should:
 
-- Be **minimal-but-complete** — enough that a user can run `setup/init-claude-config` and get a working project
+- Be **minimal-but-complete** — enough that a user can run `setup/init-agent-harness` and get a working project
 - Use `<PLACEHOLDER>` markers for project-specific bits (project name, package name, etc.)
 - Reference `tooling/` and `rules/` rather than duplicating their content
 - Include a `TEMPLATE_README.md` listing the placeholders and any required post-setup steps

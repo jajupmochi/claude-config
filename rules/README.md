@@ -13,11 +13,11 @@
 
 In a downstream project's `CLAUDE.md`, add `@<path-to-rule>/snippet.md` lines for each rule that applies. Three paths:
 
-- **Raw URL** — `@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/<name>/snippet.md`
-- **Local clone** — `@~/.claude/claude-config/rules/<name>/snippet.md`
-- **Plugin** (P10+) — `/plugin install jajupmochi/claude-config` exposes these via the setup skill.
+- **Raw URL** — `@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/<name>/snippet.md`
+- **Local clone** — `@~/.claude/agent-harness/rules/<name>/snippet.md`
+- **Plugin** (P10+) — `/plugin install jajupmochi/agent-harness` exposes these via the setup skill.
 
-The `setup/init-claude-config` skill (P8) does this composition automatically based on project type.
+The `setup/init-agent-harness` skill (P8) does this composition automatically based on project type.
 
 ## Rule index
 
@@ -51,7 +51,7 @@ The `setup/init-claude-config` skill (P8) does this composition automatically ba
 | `ui-project` | Apply only to frontend / UI work |
 | `optional` | Don't auto-apply; the setup skill asks per project |
 
-The `setup/init-claude-config` skill (P8) reads each rule's frontmatter `scope:` and offers it based on project type.
+The `setup/init-agent-harness` skill (P8) reads each rule's frontmatter `scope:` and offers it based on project type.
 
 ## Adding a new rule
 

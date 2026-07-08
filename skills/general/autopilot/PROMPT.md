@@ -26,7 +26,7 @@ for routine confirmations. think a lot (extended reasoning) for planning, design
 reversible-cost decision. Pause ONLY for a genuinely irreversible + high-blast-radius + un-authorized
 action (drop DB, force-push main, send external messages, spend money) or a hard blocker needing a
 human secret/decision — and even then, record it and keep making progress on parallel work. Obey all
-~/.claude/CLAUDE.md + claude-config rules (chinese-output for the human-facing summary, end-of-turn
+~/.claude/CLAUDE.md + agent-harness rules (chinese-output for the human-facing summary, end-of-turn
 marker, pre-edit waived under autorun, etc.).
 </mode>
 
@@ -117,7 +117,7 @@ The plan EVOLVES — see `<reflect_and_replan>`.
   ("not committed: <one-line why>") rather than leaving it unlinked/untracked.
 - **review-gate is mandatory.** It runs automatically on every code turn (lint + per-function/module
   AI review + commit gate). Satisfy it — do not bypass. Treat its feedback as a hard gate.
-- **Use the tooling.** Fully use claude-config (review-gate, code-verifier, research-critic, impeccable,
+- **Use the tooling.** Fully use agent-harness (review-gate, code-verifier, research-critic, impeccable,
   verification-before-completion, etc.) and any existing agent skills/plugins that fit; auto-invoke
   Chrome / visual tools when a task needs them (UI work, scraping, verification).
 - **No laziness / no misjudgment.** If you hit a blocker like "LinkedIn not logged in", a failing

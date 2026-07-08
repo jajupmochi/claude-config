@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working **on** 
 
 ## Project
 
-`claude-config` — Linlin Jia's curated Claude Code configuration library. The library's *content* (rules, skills, hooks, recommendations, tooling, templates) is meant to be consumed by other projects. **This `CLAUDE.md` governs edits to the library itself.**
+`agent-harness` — Linlin Jia's curated Claude Code configuration library. The library's *content* (rules, skills, hooks, recommendations, tooling, templates) is meant to be consumed by other projects. **This `CLAUDE.md` governs edits to the library itself.**
 
 ## Authoritative references
 
@@ -31,7 +31,7 @@ Read these first rather than re-deriving:
 - **Top-level docs** (`README`, `INVENTORY`, `docs/PHILOSOPHY`, `docs/CONSUMPTION`) ship as `NAME.md` (English, canonical) + `NAME.zh.md` (Chinese mirror), with a header line: `> **Language:** English | [中文](NAME.zh.md)` (or the mirror).
 - **Content modules** (`RULE.md`, `SKILL.md`, `hooks/*/README.md`, `docs/CONTRIBUTING.md`, etc.) stay **English only** — Claude is the primary reader.
 - Adding a new top-level doc → MUST add both files in the same edit batch.
-- This library does NOT enforce bilingual policy on consumer projects. That's the `rules/bilingual-docs/` rule, opted-in per project at `setup/init-claude-config` time.
+- This library does NOT enforce bilingual policy on consumer projects. That's the `rules/bilingual-docs/` rule, opted-in per project at `setup/init-agent-harness` time.
 
 ## Structural conventions
 

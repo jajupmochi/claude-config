@@ -1,24 +1,24 @@
 # USAGE —— 操作指南
 
-> `claude-config` 常见使用场景的分步走查。
+> `agent-harness` 常见使用场景的分步走查。
 
 > **语言：** [English](USAGE.md) | 中文
 
 ## Master TOC
 
-- [0. 安装 claude-config（每台机器一次）](#0-安装-claude-config每台机器一次)
+- [0. 安装 agent-harness（每台机器一次）](#0-安装-agent-harness每台机器一次)
 - [1. 启动新的 Python 研究项目](#1-启动新的-python-研究项目)
 - [2. 启动新的静态个人主页](#2-启动新的静态个人主页)
-- [3. 把 claude-config 加到现有项目](#3-把-claude-config-加到现有项目)
+- [3. 把 agent-harness 加到现有项目](#3-把-agent-harness-加到现有项目)
 - [4. 为单个项目定制规则](#4-为单个项目定制规则)
 - [5. 给库新增 rule / skill / hook](#5-给库新增-rule--skill--hook)
 - [6. 更新到最新版](#6-更新到最新版)
 - [7. 发布新版本（维护者）](#7-发布新版本维护者)
 - [疑难排解](#疑难排解)
 
-## 0. 安装 claude-config（每台机器一次）
+## 0. 安装 agent-harness（每台机器一次）
 
-**6 种方式**选一。快速对比：
+**6 种 Claude Code 方式**选一；Codex 使用下面单独的安装路径。快速对比：
 
 | 方式 | 最适合 | session 启动联网 | 更新机制 |
 |---|---|---|---|
@@ -34,80 +34,102 @@
 最快路径，零配置：
 
 ```bash
-npx github:jajupmochi/claude-config
+npx github:jajupmochi/agent-harness
 ```
 
-这会跑 [`bin/install.js`](https://github.com/jajupmochi/claude-config/blob/main/bin/install.js)：
-1. 把库 clone 到 `~/.claude/claude-config/`
-2. 把 `init-claude-config` 技能软链到 `~/.claude/skills/`，让 `/init-claude-config` 在任何项目都可用
+这会跑 [`bin/install.js`](https://github.com/jajupmochi/agent-harness/blob/main/bin/install.js)：
+1. 把库 clone 到 `~/.claude/agent-harness/`
+2. 把 `init-agent-harness` 技能软链到 `~/.claude/skills/`，让 `/init-agent-harness` 在任何项目都可用
 3. 打印下一步
 
-后续更新：再跑一次 `npx github:jajupmochi/claude-config`（它会检测已有安装并打印 `git pull` 提示）。
+后续更新：再跑一次 `npx github:jajupmochi/agent-harness`（它会检测已有安装并打印 `git pull` 提示）。
 
 ### B) `/plugin` 交互（在 Claude Code 里）
 
-浏览插件 marketplace 并选择 claude-config：
+浏览插件 marketplace 并选择 agent-harness：
 
 ```
-/plugin marketplace add jajupmochi/claude-config
+/plugin marketplace add jajupmochi/agent-harness
 /plugin
-# 浏览并安装 claude-config
+# 浏览并安装 agent-harness
 ```
 
-安装后 `/init-claude-config` 在任何项目里可用。
+安装后 `/init-agent-harness` 在任何项目里可用。
 
 ### C) `/plugin install` 直接（在 Claude Code 里）
 
 如果已知插件名：
 
 ```
-/plugin install jajupmochi/claude-config
+/plugin install jajupmochi/agent-harness
 ```
 
-（plugin 规范稳定后能用——manifest 已就绪在 [`.claude-plugin/plugin.json`](https://github.com/jajupmochi/claude-config/blob/main/.claude-plugin/plugin.json)。）
+（plugin 规范稳定后能用——manifest 已就绪在 [`.claude-plugin/plugin.json`](https://github.com/jajupmochi/agent-harness/blob/main/.claude-plugin/plugin.json)。）
 
 ### D) 本地 `git clone`（标准方式）
 
 完全手动控制：
 
 ```bash
-git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-config
+git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness
 
-# 软链 init 技能让 /init-claude-config 全局可用：
-ln -s ~/.claude/claude-config/setup/init-claude-config ~/.claude/skills/init-claude-config
+# 软链 init 技能让 /init-agent-harness 全局可用：
+ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness
 ```
 
-更新：`cd ~/.claude/claude-config && git pull`。
+更新：`cd ~/.claude/agent-harness && git pull`。
 
 ### E) Raw URL `@imports`（不装）
 
 什么都不装。项目 `CLAUDE.md` 用 `@import` 直接指向 GitHub raw URL：
 
 ```markdown
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/pre-edit-confirmation/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/pre-edit-confirmation/snippet.md
 ```
 
-永远是最新的，但 session 启动需要联网。`/init-claude-config` 斜杠命令也不会全局可用——需要手动组合 `CLAUDE.md`，不能用 scaffold 技能。
+永远是最新的，但 session 启动需要联网。`/init-agent-harness` 斜杠命令也不会全局可用——需要手动组合 `CLAUDE.md`，不能用 scaffold 技能。
 
 ### F) 复制粘贴提示词给 Claude Code
 
 在任何目录打开 Claude Code（不用先装任何东西）。把这段提示词原样粘贴进去，Claude 会帮你执行安装：
 
-> 请帮我从 https://github.com/jajupmochi/claude-config 安装 claude-config：
+> 请帮我从 https://github.com/jajupmochi/agent-harness 安装 agent-harness：
 >
-> 1. 跑：`git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-config`
-> 2. 跑：`mkdir -p ~/.claude/skills && ln -s ~/.claude/claude-config/setup/init-claude-config ~/.claude/skills/init-claude-config`
-> 3. 确认完成后告诉我在项目里跑 `/init-claude-config`。
+> 1. 跑：`git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness`
+> 2. 跑：`mkdir -p ~/.claude/skills && ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness`
+> 3. 确认完成后告诉我在项目里跑 `/init-agent-harness`。
 
 或英文：
 
-> Please install claude-config from https://github.com/jajupmochi/claude-config:
+> Please install agent-harness from https://github.com/jajupmochi/agent-harness:
 >
-> 1. Run: `git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-config`
-> 2. Run: `mkdir -p ~/.claude/skills && ln -s ~/.claude/claude-config/setup/init-claude-config ~/.claude/skills/init-claude-config`
-> 3. Confirm done and tell me to run `/init-claude-config` in my project.
+> 1. Run: `git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness`
+> 2. Run: `mkdir -p ~/.claude/skills && ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness`
+> 3. Confirm done and tell me to run `/init-agent-harness` in my project.
 
 这种方式可行，因为 Claude Code 能执行 shell 命令、能读取提示词里的 GitHub URL。
+
+---
+
+### Codex 本地激活
+
+Codex 使用的发现位置和 Claude Code 不同。这个路径不会改动 `~/.claude` 或 Claude 插件安装。
+
+```bash
+cd ~/.claude/agent-harness
+npm run verify:codex
+npm run activate:codex
+```
+
+安装脚本会：
+
+1. 把 Codex wrapper skills 软链到 `~/.agents/skills/`。
+2. 把本仓库软链到 `~/plugins/agent-harness`。
+3. 创建或更新 `~/.agents/plugins/marketplace.json`。
+
+重启 Codex 或开启新 session 后，用 `/skills` 调用 `init-codex-config` 或 `agent-config-adapter`；用 `/plugins` 查看本地插件条目。
+
+如果 Codex CLI 更新报 `Could not find Codex package or platform npm release assets`，运行 `npm run update:codex`。这个 wrapper 会在 latest release 元数据和实际资产短暂不同步时，改用显式 `CODEX_RELEASE` 重试官方安装器。
 
 ---
 
@@ -128,7 +150,7 @@ cd my-research-pkg
 claude
 
 # 3. 跑安装技能
-/init-claude-config
+/init-agent-harness
 ```
 
 提示时回答：
@@ -155,9 +177,9 @@ my-research-pkg/
 │   ├── settings.local.json         ← 权限白名单（gitignore）
 │   ├── skills/
 │   │   ├── verify/SKILL.md         ← 项目专属 verify
-│   │   ├── long-running-tasks/     ← 来自 claude-config（symlink）
-│   │   ├── privacy-redact/         ← 来自 claude-config（symlink）
-│   │   └── verify-visual/          ← 来自 claude-config（symlink）
+│   │   ├── long-running-tasks/     ← 来自 agent-harness（symlink）
+│   │   ├── privacy-redact/         ← 来自 agent-harness（symlink）
+│   │   └── verify-visual/          ← 来自 agent-harness（symlink）
 └── （你的代码）
 ```
 
@@ -182,7 +204,7 @@ uv pip install -e ".[dev]"
 # 初始化 git
 git init -b main
 git add .
-git commit -m "chore: initialize from claude-config research-package-py template"
+git commit -m "chore: initialize from agent-harness research-package-py template"
 
 # 验证
 /verify
@@ -205,7 +227,7 @@ cd myhandle.github.io
 
 # 2. 打开 Claude Code 跑 scaffold
 claude
-/init-claude-config
+/init-agent-harness
 ```
 
 回答：
@@ -236,8 +258,8 @@ myhandle.github.io/
     │   ├── preview/SKILL.md          ← python3 -m http.server
     │   ├── verify-visual/SKILL.md    ← chrome-devtools MCP
     │   ├── i18n-sync/SKILL.md        ← locale 一致性检查
-    │   ├── long-running-tasks/       ← 来自 claude-config
-    │   └── privacy-redact/           ← 来自 claude-config
+    │   ├── long-running-tasks/       ← 来自 agent-harness
+    │   └── privacy-redact/           ← 来自 agent-harness
 ```
 
 ### 安装后命令
@@ -262,24 +284,24 @@ find . -type f \( -name "*.html" -o -name "*.json" -o -name "*.md" \) -exec sed 
 # 初始化 git + 推到 GitHub
 git init -b main
 git add .
-git commit -m "chore: initialize from claude-config personal-cite-static template"
+git commit -m "chore: initialize from agent-harness personal-cite-static template"
 gh repo create myhandle/myhandle.github.io --public --source=. --push
 ```
 
 ---
 
-## 3. 把 claude-config 加到现有项目
+## 3. 把 agent-harness 加到现有项目
 
 ### 场景
 
-已有项目，想给它加上 `claude-config` 约定但不覆盖现有代码。
+已有项目，想给它加上 `agent-harness` 约定但不覆盖现有代码。
 
 ### 步骤
 
 ```bash
 cd my-existing-project
 claude
-/init-claude-config
+/init-agent-harness
 ```
 
 技能检测到现有项目（有 manifest / 有 CLAUDE.md / 有 .git）：
@@ -300,7 +322,7 @@ Context 标签按现有项目性质选。技能不会复制模板脚手架（项
 
 - 你的源码
 - 现有 `pyproject.toml` / `package.json`
-- 现有 `.gitignore`（仅追加 claude-config 相关条目）
+- 现有 `.gitignore`（仅追加 agent-harness 相关条目）
 - 现有 `README.md`
 
 ---
@@ -316,7 +338,7 @@ Context 标签按现有项目性质选。技能不会复制模板脚手架（项
 编辑项目 `CLAUDE.md`，把对应 `@import` 注释掉：
 
 ```markdown
-<!-- @~/.claude/claude-config/rules/output-brevity/snippet.md -->
+<!-- @~/.claude/agent-harness/rules/output-brevity/snippet.md -->
 ```
 
 完成。其他规则仍生效。
@@ -335,7 +357,7 @@ Context 标签按现有项目性质选。技能不会复制模板脚手架（项
 
 ### 方案 C：全局修正（影响所有消费方）
 
-如果规则本身错了（不只是项目特殊），向 `claude-config` 提 PR 修正。见 5。
+如果规则本身错了（不只是项目特殊），向 `agent-harness` 提 PR 修正。见 5。
 
 ---
 
@@ -348,7 +370,7 @@ Context 标签按现有项目性质选。技能不会复制模板脚手架（项
 ### 步骤
 
 ```bash
-cd ~/.claude/claude-config
+cd ~/.claude/agent-harness
 claude
 
 # 加规则：
@@ -378,7 +400,7 @@ git push origin main
 ### 本地 clone（方案 B 安装）
 
 ```bash
-cd ~/.claude/claude-config
+cd ~/.claude/agent-harness
 git pull origin main
 ```
 
@@ -396,17 +418,17 @@ git pull origin main
 
 ```markdown
 <!-- 锁定到 v0.1.0 而不是 main -->
-@https://raw.githubusercontent.com/jajupmochi/claude-config/v0.1.0/rules/<rule>/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/v0.1.0/rules/<rule>/snippet.md
 ```
 
-本地 clone：`cd ~/.claude/claude-config && git checkout v0.1.0`。
+本地 clone：`cd ~/.claude/agent-harness && git checkout v0.1.0`。
 
 ---
 
 ## 7. 发布新版本（维护者）
 
 ```bash
-cd ~/.claude/claude-config
+cd ~/.claude/agent-harness
 claude
 /publish minor
 ```
@@ -425,15 +447,15 @@ claude
 
 ## 疑难排解
 
-### `/init-claude-config` 找不到
+### `/init-agent-harness` 找不到
 
 技能还没在你的 CC 环境里：
 
-- **Plugin 安装**：重跑 `/plugin install jajupmochi/claude-config`
+- **Plugin 安装**：重跑 `/plugin install jajupmochi/agent-harness`
 - **本地 clone**：把技能 symlink 进 `~/.claude/skills/`：
 
   ```bash
-  ln -s ~/.claude/claude-config/setup/init-claude-config ~/.claude/skills/init-claude-config
+  ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness
   ```
 
 - **Raw URL**（高级）：手动，因为 SKILL.md 不会自动加载。建议改用 clone 或 plugin。
@@ -443,7 +465,7 @@ claude
 检查：
 
 1. 项目 `CLAUDE.md` 里确实有 `@import` 行（或 snippet 已嵌入）
-2. 路径解析正确（本地 clone 用 `@~/.claude/claude-config/rules/...`——注意 tilde）
+2. 路径解析正确（本地 clone 用 `@~/.claude/agent-harness/rules/...`——注意 tilde）
 3. CLAUDE.md 改完后 CC 重启了一次（`@import` 解析有时需要重启）
 
 ### 钩子没触发
@@ -460,5 +482,5 @@ cat .claude/settings.json | jq '.hooks'
 
 ### 需要帮助
 
-- Issue 跟踪：https://github.com/jajupmochi/claude-config/issues
+- Issue 跟踪：https://github.com/jajupmochi/agent-harness/issues
 - 已有讨论：看 closed issues 找常见问题

@@ -209,4 +209,4 @@ Re-running NOT optional — the previous claim of <X> is NOT supported.
 
 ## Provenance
 
-Originally authored as a user-level always-on gate; consolidated into `claude-config` for cross-project reuse. Pairs with `research-critic` for full claim-defensibility coverage.
+Originally authored as a user-level always-on gate; consolidated into `agent-harness` for cross-project reuse. Pairs with `research-critic` for full claim-defensibility coverage.

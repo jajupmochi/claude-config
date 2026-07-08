@@ -1,12 +1,12 @@
 ---
 name: publish
-description: Tag a new version of claude-config, push to GitHub, and create a GitHub release. Use when shipping a meaningful update (new rules, new templates, etc.). Asks for SemVer bump and writes release notes from git log.
+description: Tag a new version of agent-harness, push to GitHub, and create a GitHub release. Use when shipping a meaningful update (new rules, new templates, etc.). Asks for SemVer bump and writes release notes from git log.
 disable-model-invocation: true
 ---
 
 # /publish
 
-Cut a new release of `claude-config`.
+Cut a new release of `agent-harness`.
 
 ## Usage
 
@@ -20,7 +20,7 @@ If no bump type is given, asks interactively.
 
 - Verify the working tree is clean (`git status` — no uncommitted changes)
 - Verify on `main` branch (not a feature branch)
-- Verify origin is `git@github.com:jajupmochi/claude-config.git` (or HTTPS equivalent)
+- Verify origin is `git@github.com:jajupmochi/agent-harness.git` (or HTTPS equivalent)
 - Verify `gh` CLI is authenticated (`gh auth status`)
 
 ## Steps
@@ -65,7 +65,7 @@ If no bump type is given, asks interactively.
 
    ```bash
    gh release create <new-version> \
-     --title "claude-config <new-version>" \
+     --title "agent-harness <new-version>" \
      --notes-file /tmp/release-notes.md
    ```
 

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * One-command install for claude-config:
+ * One-command install for agent-harness:
  *
- *   npx github:jajupmochi/claude-config
+ *   npx github:jajupmochi/agent-harness
  *
- * Clones the lib to ~/.claude/claude-config and symlinks the
- * `init-claude-config` skill into ~/.claude/skills/ so that
- * `/init-claude-config` is available in any Claude Code project.
+ * Clones the lib to ~/.claude/agent-harness and symlinks the
+ * `init-agent-config` skill into ~/.claude/skills/ so that
+ * `/init-agent-config` is available in any Claude Code project.
  */
 
 const { execSync } = require('child_process');
@@ -14,17 +14,17 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 
-const REPO = 'https://github.com/jajupmochi/claude-config.git';
-const TARGET = path.join(os.homedir(), '.claude', 'claude-config');
+const REPO = 'https://github.com/jajupmochi/agent-harness.git';
+const TARGET = path.join(os.homedir(), '.claude', 'agent-harness');
 const SKILLS_DIR = path.join(os.homedir(), '.claude', 'skills');
-const SKILL_NAME = 'init-claude-config';
+const SKILL_NAME = 'init-agent-config';
 
 function run(cmd) {
   return execSync(cmd, { stdio: 'inherit' });
 }
 
 function main() {
-  console.log(`📦 Installing claude-config to ${TARGET}...\n`);
+  console.log(`📦 Installing agent-harness to ${TARGET}...\n`);
 
   // 1. Make sure ~/.claude exists
   fs.mkdirSync(path.join(os.homedir(), '.claude'), { recursive: true });
@@ -75,8 +75,8 @@ function main() {
   console.log(`  2. Open Claude Code: claude`);
   console.log(`  3. Run the scaffold skill: /${SKILL_NAME}`);
   console.log(sep);
-  console.log(`\nDocs:         https://github.com/jajupmochi/claude-config`);
-  console.log(`Walkthroughs: https://github.com/jajupmochi/claude-config/blob/main/USAGE.md\n`);
+  console.log(`\nDocs:         https://github.com/jajupmochi/agent-harness`);
+  console.log(`Walkthroughs: https://github.com/jajupmochi/agent-harness/blob/main/USAGE.md\n`);
 }
 
 main();

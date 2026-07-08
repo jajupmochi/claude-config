@@ -1,284 +1,300 @@
-# claude-config
+# agent-harness
 
-> Linlin 为 Claude Code 整理的配置库：**工作流规则、技能（skills）、钩子（hooks）、插件推荐、工具偏好和项目模板**。每台机器装一次，然后在任何新项目里跑 `/init-claude-config`，按项目类型 scaffold 出对应子集。
+> 多 Agent 开发工具链：**工作流规则、可复用技能、钩子、插件配置、工具偏好和项目模板**，同时支持 Claude Code 与 Codex。装一次，在任何新项目中按需 scaffold——无论你使用哪个 Agent。
 
 > **语言：** [English](README.md) | 中文
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![GitHub](https://img.shields.io/badge/GitHub-jajupmochi%2Fclaude--config-181717?logo=github)](https://github.com/jajupmochi/claude-config) [![Privacy Scan](https://github.com/jajupmochi/claude-config/actions/workflows/privacy-scan.yml/badge.svg)](https://github.com/jajupmochi/claude-config/actions/workflows/privacy-scan.yml) [![Install Matrix](https://github.com/jajupmochi/claude-config/actions/workflows/install-verify.yml/badge.svg)](https://github.com/jajupmochi/claude-config/actions/workflows/install-verify.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![GitHub](https://img.shields.io/badge/GitHub-jajupmochi%2Fagent--harness-181717?logo=github)](https://github.com/jajupmochi/agent-harness) [![Privacy Scan](https://github.com/jajupmochi/agent-harness/actions/workflows/privacy-scan.yml/badge.svg)](https://github.com/jajupmochi/agent-harness/actions/workflows/privacy-scan.yml) [![Install Matrix](https://github.com/jajupmochi/agent-harness/actions/workflows/install-verify.yml/badge.svg)](https://github.com/jajupmochi/agent-harness/actions/workflows/install-verify.yml)
 
 ## Master TOC
 
-- [TL;DR](#tldr)
 - [这是什么](#这是什么)
 - [快速上手](#快速上手)
 - [仓库结构](#仓库结构)
-- [14 条工作流规则](#14-条工作流规则)
-- [7 个可复用技能](#7-个可复用技能)
-- [2 个钩子配方](#2-个钩子配方)
-- [推荐清单（15 类）](#推荐清单15-类)
+- [工作流规则（15+）](#工作流规则15)
+- [可复用技能（12）](#可复用技能12)
+- [钩子（6：3 Claude + 3 Codex）](#钩子63-claude--3-codex)
+- [推荐清单（17 类）](#推荐清单17-类)
 - [项目模板](#项目模板)
-- [安装技能 `/init-claude-config`](#安装技能-init-claude-config)
+- [安装技能](#安装技能)
+- [多 Agent 架构](#多-agent-架构)
+- [提交规范](#提交规范)
 - [给维护者](#给维护者)
-- [发布到外部目录](#发布到外部目录)
 - [构建历程](#构建历程)
 - [贡献](#贡献)
 - [许可](#许可)
 
-## TL;DR
-
-最快的安装方式 —— **`npx`（不用 clone，不用重启 Claude Code）**：
-
-```bash
-npx github:jajupmochi/claude-config
-```
-
-然后在任何项目根目录打开 Claude Code 跑：
-
-```
-/init-claude-config
-```
-
-回答 6 个问题 → 项目按类型 scaffold 出相应规则 + 钩子 + 技能 + 工具链。
-
-**6 种安装方式**（npx / 交互式 `/plugin` / 直接 `/plugin install` / 本地 clone / raw URL @imports / 复制粘贴提示词给 CC）—— 见 **[USAGE.zh.md §0](USAGE.zh.md#0-安装-claude-config每台机器一次)** 看所有路径。
-
 ## 这是什么
 
-三年积累的 Claude Code 用法约定——给每个新项目都用的规则、值得信任的钩子、复用的技能、依赖的插件——从六七个真实研究/Web 项目（`liulian-python`、`swiss-river-network-benchmark`、`AI_Mur4Cast`、`jajupmochi.github.io` 加几个前端）里抽出来，做成一个组合式库。
+自 2026 年初积累的 AI Agent 使用约定——规则、钩子、技能、工具推荐和项目模板，从六七个真实研究/Web 项目（`liulian-python`、`swiss-river-network-benchmark`、`AI_Mur4Cast`、`jajupmochi.github.io` 加数个前端）中抽取，打包成**一个库，两套 Agent 入口**：
+
+| Agent | 插件 manifest | 技能 | 钩子 | 安装技能 |
+|---|---|---|---|---|
+| **Claude Code** | `.claude-plugin/plugin.json` | `skills/general/*`（7 个源技能） | `hooks/*`（3 个配方） | `/init-agent-config` |
+| **Codex** | `.codex-plugin/plugin.json` | `skills/*`（12 个包装技能） | `hooks.json`（3 个脚本） | `/skills` → `init-codex-config` |
+| **其他 Agent** | 通过 `agent-config-adapter` 技能 | 见适配工作流 | 见适配工作流 | — |
 
 **四个目标：**
 
-1. **唯一权威。** 每个新项目从同一基线出发。CLAUDE.md 之间不再 copy-paste 漂移。
-2. **按需选取。** 静态主页项目不需要 ML 训练规则。`/init-claude-config` 技能问哪些 context 标签适用（`research-pkg`、`ui-project`、`static-site`、`ml-research`、`web-perf` 等），只装匹配的子集。
-3. **人类可读。** 每条规则、钩子、技能都解释*为什么*存在，而不只是*做什么*。即使没有 AI agent，看的人也能受益。
-4. **Agent 可直接执行。** 每条工具/安装条目都附可复制粘贴的命令，agent 读完即可在新机器上从零启动，不用人工兜底。
+1. **唯一权威。** 同一套规则/技能/钩子，不同 Agent 入口——不重复、不漂移。
+2. **按需选取。** 安装技能询问项目类型和 context 标签（`research-pkg`、`ui-project`、`static-site` 等），只装匹配子集。
+3. **人类可读。** 每条规则、钩子、技能都解释*为什么*存在。不用 AI 也能看懂。
+4. **模型无关。** Codex 包装技能把 Claude 专用工具名映射为 Codex 等价名。非视觉模型（DeepSeek）用截图式视觉验证。支持自动加载（`allow_implicit_invocation`），减少手动技能调用。
 
 ## 快速上手
 
-急用版（本地 clone 路径）：
+### Claude Code
 
 ```bash
-# 1. clone 库（每台机器一次）
-git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-config
+# 一行安装
+npx github:jajupmochi/agent-harness
 
-# 2. 在新项目根目录打开 Claude Code
-cd /path/to/new-project
+# 或本地 clone
+git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness
+cd /path/to/your-project
 claude
-
-# 3. 跑 scaffold 技能
-/init-claude-config
+/init-agent-config   # 回答 6 个问题 → 项目 scaffold 完成
 ```
 
-技能问：
+### Codex
 
-| 问题 | 选项 |
-|---|---|
-| 项目类型 | Python 研究 / 静态个人主页 / frontend / 自定义 |
-| 双语策略 | EN+zh / 仅英文 / 仅中文 / 暂定 |
-| 终端输出语言 | 中文 / 英文 / 暂定 |
-| Context 标签（多选） | always、research-pkg、ui-project、static-site、ml-research、web-perf、image-or-video-work、docs-site、electron-or-desktop |
-| 消费方式 | raw URL / 本地 clone / plugin |
-| 个人偏好规则 | output-brevity / tool-proactivity / no-reread-files |
+```bash
+git clone https://github.com/jajupmochi/agent-harness.git ~/agent-harness
+cd ~/agent-harness
+npm run verify:codex   # 结构验证通过后再安装
+npm run activate:codex  # 软链技能 → ~/.agents/skills，创建 marketplace 条目
 
-回答完后，项目得到：
+# 重启 Codex → /skills 显示 agent-harness 技能
+# 用 /plugins 查看本地插件条目
+```
 
-- `CLAUDE.md` 含所选规则的 `@import` 行
-- `.claude/settings.json` 含匹配的格式化-on-编辑钩子
-- `.claude/skills/` 填了相关通用技能 + 项目类型专属技能
-- 选了模板的话还有起步脚手架（`pyproject.toml`、`index.html` 等）
-
-详细分步走查见 **[USAGE.zh.md](USAGE.zh.md)**。
+**Claude 6 种安装方式**详见 **[USAGE.zh.md §0](USAGE.zh.md#0-安装-agent-harness每台机器一次)**。
 
 ## 仓库结构
 
 ```
-claude-config/
-├── README.md / README.zh.md          ← 你在这里
-├── USAGE.md / USAGE.zh.md            ← 分步走查
-├── INVENTORY.md / .zh.md             ← 已收录条目主索引
-├── CLAUDE.md                         ← 编辑库本身的规则
-├── LICENSE                           ← MIT
-├── docs/
-│   ├── PHILOSOPHY.md / .zh.md        ← 规则背后的"为什么"
-│   ├── CONSUMPTION.md / .zh.md       ← 三种下游消费方式
-│   └── CONTRIBUTING.md               ← 如何新增内容
-├── rules/                            ← 工作流规则 + 索引
-│   └── <rule-name>/RULE.md + snippet.md
-├── skills/                           ← 通用技能 + 索引
-│   └── general/<skill-name>/SKILL.md
-├── hooks/                            ← 2 个钩子配方 + 索引
-│   └── <hook-name>/{README.md, settings.snippet.json}
-├── recommendations/                  ← 推荐清单 + reference 表
-│   ├── cc-plugins.md
-│   ├── cc-marketplaces-and-skill-bundles.md
-│   ├── cli-tools.md
-│   ├── js-{ui-and-design, animation-and-3d, build-test-style, state-data}.md
-│   ├── web-auditing.md
-│   ├── image-video-pdf.md
-│   ├── docs-tools.md
-│   ├── {ml-research, orchestra-ml-skills}.md
-│   └── reference/{apt-packages, vscode-extensions}.md
-├── tooling/                          ← 3 个工具链偏好 + 索引
-│   ├── python-uv-ruff/
-│   ├── node-nvm/
-│   └── permissions-allowlist/
-├── templates/                        ← 2 个项目脚手架 + 索引
-│   ├── research-package-py/
-│   └── personal-cite-static/
-├── setup/                            ← /init-claude-config 技能
-│   └── init-claude-config/SKILL.md
-├── .claude/
-│   └── skills/                       ← 编辑库本身用的元技能
-│       └── new-rule/, new-skill/, new-hook/, publish/SKILL.md
-└── .claude-plugin/
-    └── plugin.json                   ← Plugin manifest
+agent-harness/
+├── README.md / README.zh.md              ← 你在这里
+├── USAGE.md / USAGE.zh.md                ← 分步操作指南
+├── INVENTORY.md / .zh.md                 ← 已收录条目的主索引
+├── CLAUDE.md                             ← 编辑库本身的规则
+├── LICENSE                               ← MIT
+├── package.json                          ← npm 元数据，安装/验证/更新脚本
+│
+├── .claude-plugin/plugin.json            ← Claude Code 插件 manifest
+├── .codex-plugin/plugin.json             ← Codex 插件 manifest
+├── hooks.json                            ← Codex 内置钩子（ruff、jq、review-gate）
+│
+├── rules/                                ← 15+ 条工作流规则
+│   ├── commit-discipline/                ← 约定式提交强制执行
+│   ├── chinese-output/                   ← 以及另外 14 条…
+│   └── <规则名>/RULE.md + snippet.md
+│
+├── skills/                               ← Codex 12 个包装技能 + 源目录
+│   ├── general/                          ← 7 个 Claude 源技能
+│   ├── init-codex-config/                ← Codex 安装技能
+│   ├── agent-config-adapter/             ← 跨 Agent 迁移工作流
+│   ├── code-verifier/                    ← 自动加载代码审计
+│   ├── research-critic/                  ← 自动加载研究批判
+│   ├── verify-visual/                    ← 截图式（兼容非视觉模型）
+│   ├── verify-template/ preview-template/ long-running-tasks/ privacy-redact/
+│   ├── system-cleanup/ autoresearch-toolfinder/
+│   └── general/SKILL.md                  ← 源目录索引
+│
+├── hooks/                                ← 3 个 Claude Code 钩子配方
+│   ├── ruff-format-on-edit/              ← Write|Edit 时自动格式化 Python
+│   ├── jq-validate-json/                 ← 阻止无效 JSON 写入数据文件
+│   └── review-gate/                      ← Stop 事件审计未提交变更
+│
+├── scripts/                              ← Codex 钩子脚本 + 安装/验证器
+│   ├── codex_review_gate.sh              ← Stop 钩子：审计 git 状态
+│   ├── codex_visual_verify.sh            ← 截图捕获（非视觉模型安全）
+│   ├── codex_ruff_format_on_edit.sh      ← PostToolUse：格式化 Python
+│   ├── codex_jq_validate_json.sh         ← PostToolUse：校验 JSON
+│   ├── codex_commit_msg.sh               ← commit-msg 钩子（约定式提交）
+│   ├── install-codex-local.js            ← 本地 Codex 安装器
+│   ├── verify-codex-adapter.js           ← 结构验证
+│   └── codex-update-safe.js              ← 安全的 Codex CLI 更新器
+│
+├── recommendations/                      ← 17 类推荐清单（插件、工具、框架）
+├── tooling/                              ← 3 类工具偏好
+├── templates/                            ← 2 个项目启动模板
+├── setup/                                ← Claude 安装技能
+├── docs/                                 ← 理念、消费模式、贡献指南
+│   ├── PHILOSOPHY.md / .zh.md
+│   ├── CONSUMPTION.md / .zh.md
+│   ├── CONTRIBUTING.md
+│   └── CODEX_ADAPTATION_PLAN.md          ← 架构决策和研究记录
+└── .claude/                              ← 编辑库的元技能
 ```
 
-## 14 条工作流规则
+## 工作流规则（15+）
 
-每条规则有 `RULE.md`（完整内容、rationale、例子、例外）+ `snippet.md`（下游 `CLAUDE.md` 通过 `@import` 引入的紧凑版）。
+每条规则包含 `RULE.md`（完整内容、理由、示例、异常） + `snippet.md`（可直接嵌入的摘录）。
 
-| 规则 | Scope | 触发场景 |
+| 规则 | Scope | 何时生效 |
 |---|---|---|
-| [`pre-edit-confirmation`](rules/pre-edit-confirmation/RULE.md) | universal | 任何 Edit / Write 前列出精确目标 + 一句话计划，等用户 explicit "go" |
-| [`phased-planning`](rules/phased-planning/RULE.md) | universal | 任务涉及 3+ 文件 / >5 次工具调用 / 多步骤 → 编号阶段 + 阶段间暂停 |
-| [`plugin-preflight`](rules/plugin-preflight/RULE.md) | universal | 调用插件 / skill / 命令前先验证已安装且未弃用 |
-| [`ui-iteration-loop`](rules/ui-iteration-loop/RULE.md) | ui-project | 用户给视觉参考时：8 轮自动迭代循环 + chrome-devtools 截图 + 四轴自评 |
-| [`output-brevity`](rules/output-brevity/RULE.md) | personal | 末尾不复述、不回显工具输出、优先 Edit 而非 Write |
-| [`tool-proactivity`](rules/tool-proactivity/RULE.md) | personal | 已装的插件 / skill / MCP 匹配场景时主动调用（含若干"必须先确认"的例外） |
-| [`no-reread-files`](rules/no-reread-files/RULE.md) | personal | 信任本 session 内对文件内容的记忆；除非真的变了不再重读 |
-| [`chinese-output`](rules/chinese-output/RULE.md) | personal | 终端面向用户输出用中文；中间过程保持英文 |
-| [`bilingual-docs`](rules/bilingual-docs/RULE.md) | optional | 面向人类的 doc 用 `NAME.md` + `NAME.zh.md` 双语约定（消费方 opt-in） |
-| [`end-of-turn-marker`](rules/end-of-turn-marker/RULE.md) | personal | 每轮以 `[END:FINAL]` / `[END:WAIT]` / `[END:NEEDS_USER]` 单行结束 |
-| [`always-on-verification`](rules/always-on-verification/RULE.md) | research-pkg | 任何 code / test / 结果声明前调用 `code-verifier` + `research-critic` |
-| [`autorun-mode`](rules/autorun-mode/RULE.md) | personal | "autorun" / "全力跑" / "think a lot" + scope → 高自主 cadence + 多轮 review + 分支卫生 |
-| [`multi-round-redesign`](rules/multi-round-redesign/RULE.md) | ui-project | N 轮 UI 重设计协议——日期戳子目录里 `00-plan.md` + `round-N.html`/`.png` + 最终 spec lock |
-| [`latex-edit-policy`](rules/latex-edit-policy/RULE.md) | research-pkg | 编辑 `.tex`/`.sty`/`.cls`/`.bib`：hard fix 直接改；soft（内容）改动注释保留原文不删，打 `% [orig YYYY-MM-DD]` 内联备份 |
+| [`pre-edit-confirmation`](rules/pre-edit-confirmation/RULE.md) | universal | 列出目标 + 计划 + 等明确的"go"再 Edit/Write |
+| [`phased-planning`](rules/phased-planning/RULE.md) | universal | 涉及 3+ 文件 / >5 工具调用 → 编号阶段 + 每阶段暂停 |
+| [`plugin-preflight`](rules/plugin-preflight/RULE.md) | universal | 调用前确认插件/技能/命令已安装 |
+| [`ui-iteration-loop`](rules/ui-iteration-loop/RULE.md) | ui-project | 视觉参考 → 8 轮迭代循环 + 截图自我批判 |
+| [`output-brevity`](rules/output-brevity/RULE.md) | personal | 不输出批量总结、不回声工具输出、尽量 Edit 替代 Write |
+| [`tool-proactivity`](rules/tool-proactivity/RULE.md) | personal | 匹配场景时已装插件/技能/MCP 主动调用 |
+| [`no-reread-files`](rules/no-reread-files/RULE.md) | personal | 信任会话内记忆；仅在文件实际变更时重读 |
+| [`chinese-output`](rules/chinese-output/RULE.md) | personal | 最终用户输出用中文；中间过程保持英文 |
+| [`bilingual-docs`](rules/bilingual-docs/RULE.md) | optional | 人类文档遵循 `NAME.md` + `NAME.zh.md` 约定 |
+| [`commit-discipline`](rules/commit-discipline/RULE.md) | always | 每次提交必须遵守约定式提交格式；安装 `.git/hooks/commit-msg` |
+| [`end-of-turn-marker`](rules/end-of-turn-marker/RULE.md) | personal | 每轮结束时用 `[END:FINAL]` / `[END:WAIT]` / `[END:NEEDS_USER]` |
+| [`always-on-verification`](rules/always-on-verification/RULE.md) | research-pkg | 声称任何代码/测试/结果前，自动调用 `code-verifier` + `research-critic` |
+| [`autorun-mode`](rules/autorun-mode/RULE.md) | personal | 高自主 cadence + 多轮 review + 分支卫生 |
+| [`multi-round-redesign`](rules/multi-round-redesign/RULE.md) | ui-project | N 轮 UI 重设计协议，日期戳输出 + 规范 |
+| [`latex-edit-policy`](rules/latex-edit-policy/RULE.md) | research-pkg | 硬修复直接改；内容编辑注释不删除 |
 
-## 7 个可复用技能
+## 可复用技能（12）
 
-| 技能 | 桶 | 触发 | 用途 |
+Codex 的 `/skills` 中显示 12 个技能。Claude Code 使用 `skills/general/` 下的 7 个源技能。Codex 包装技能在配置后自动加载。
+
+| 技能 | 自动加载 | 用途 |
+|---|---|---|
+| [`init-codex-config`](skills/init-codex-config/SKILL.md) | — | 用 AGENTS.md、.codex/hooks.json、.agents/skills 配置 Codex 项目 |
+| [`agent-config-adapter`](skills/agent-config-adapter/SKILL.md) | — | 在 Claude Code、Codex、Gemini 或非原生模型间迁移 Agent 配置 |
+| [`code-verifier`](skills/code-verifier/SKILL.md) | ✅ 自动 | 声称成功前审计代码/测试/结果——检测虚假通过模式 |
+| [`research-critic`](skills/research-critic/SKILL.md) | ✅ 自动 | 六问审计：可证伪性、设计、公平比较、泄露、结论、替代方案 |
+| [`verify-visual`](skills/verify-visual/SKILL.md) | — | 截图式 UI 验证。兼容非视觉模型（DeepSeek）：截屏保存，返回路径，无需 AI 视觉 |
+| [`verify-template`](skills/verify-template/SKILL.md) | — | 本地运行 CI 门禁（ruff + mypy + pytest）；按项目定制 |
+| [`preview-template`](skills/preview-template/SKILL.md) | — | 启动本地 dev server（HTTP、Vite、Next.js、MkDocs、Storybook） |
+| [`long-running-tasks`](skills/long-running-tasks/SKILL.md) | — | Codex：exec_command 会话 + write_stdin 轮询。Claude：后台 Bash + Monitor |
+| [`privacy-redact`](skills/privacy-redact/SKILL.md) | — | 扫描用户名、绝对路径、token、代号；用占位符替换 |
+| [`system-cleanup`](skills/system-cleanup/SKILL.md) | — | 释放磁盘空间：uv 缓存、huggingface、JetBrains、Docker、pip |
+| [`autoresearch-toolfinder`](skills/autoresearch-toolfinder/SKILL.md) | — | 发现 ML 研究工具（自动安装、每周定时） |
+| [`general`](skills/general/SKILL.md) | — | 源目录索引——映射 Claude 源技能到 Codex 包装 |
+
+## 钩子（6：3 Claude + 3 Codex）
+
+所有钩子均有 Claude Code 和 Codex 两种实现。
+
+| 钩子 | Agent | 事件 | 作用 |
 |---|---|---|---|
-| [`verify-template`](skills/general/verify-template/SKILL.md) | general | `/verify` | 本地跑 CI 门禁（ruff + mypy + pytest）；按项目定制 |
-| [`preview-template`](skills/general/preview-template/SKILL.md) | general | `/preview` | 启动本地 dev server（HTTP、Vite、Next.js、MkDocs、Storybook） |
-| [`long-running-tasks`](skills/general/long-running-tasks/SKILL.md) | general | 自动 / `/long-running-tasks` | 决策树：后台 subagent vs Monitor vs 显式超时 |
-| [`verify-visual`](skills/general/verify-visual/SKILL.md) | general | UI 改动时自动 | chrome-devtools MCP 截图 + 四轴自评对比参考 |
-| [`privacy-redact`](skills/general/privacy-redact/SKILL.md) | general | `/privacy-redact <file>` | 扫描文件中的用户名、绝对路径、token、代号；用占位符 redact |
-| [`code-verifier`](skills/general/code-verifier/SKILL.md) | general | 自动 / `/code-verifier` | "tests pass" / "code works" / "结果是 X" 前的三层门禁——检测 FAKE-RUN 模式 |
-| [`research-critic`](skills/general/research-critic/SKILL.md) | general | 自动 / `/research-critic` | 六问审计：可证伪 · 设计与假设匹配 · 公平比较 · 泄漏 · 结论与证据匹配 · 替代解释排除 |
+| **ruff 格式化** | Claude | PostToolUse（Write|Edit） | 对 `*.py` 自动运行 ruff 格式化 |
+| | Codex | PostToolUse（Edit|Write|apply_patch） | 同上——运行 `ruff format` + `ruff check --fix` |
+| **jq 校验** | Claude | PostToolUse（Write|Edit） | 当 `*/locales/*` 或 `*/data/*` 写入无效 JSON 时阻止 |
+| | Codex | PostToolUse（Edit|Write|apply_patch） | 同上——无效 JSON 时输出 `decision: "block"` |
+| **review-gate** | Claude | Stop | 会话结束审计未提交变更，保护分支上警告 |
+| | Codex | Stop | 同上——检查 git 状态、最近的破坏性操作、保护分支，**始终输出摘要** |
 
-外加：**`/init-claude-config`** 安装技能（Phase 8 入口）。
+**review-gate 如何工作：** 在会话结束（Stop 事件）时，钩子检查未提交变更、最近的破坏性 git 操作、是否在保护分支上。始终输出状态信息——即使一切正常。确保你永远不会在不知道待处理内容的情况下结束会话。
 
-## 2 个钩子配方
+## 推荐清单（17 类）
 
-每个钩子有 `README.md`（什么 / 为什么 / 安装 / 变体）+ `settings.snippet.json`（drop-in JSON）。
+每份清单包含 Agent 可直接执行的安装命令和 context 标签。清单同时引用 Claude Code 插件和适用于任何 Agent 的通用工具。
 
-| 钩子 | Event | Matcher | Context | 用途 |
-|---|---|---|---|---|
-| [`ruff-format-on-edit`](hooks/ruff-format-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | research-pkg / Python | Claude 编辑后用 ruff 自动格式化 `*.py` |
-| [`jq-validate-json`](hooks/jq-validate-json/README.md) | `PostToolUse` | `Write\|Edit` | static-site / JSON 配置 | Claude 写入 `*/locales/*.json` 或 `*/data/*.json` 无效 JSON 时拦截下次工具调用 |
-
-## 推荐清单（15 类）
-
-每条都有 agent 可执行的安装命令、context 标签、"为什么用"理由。
-
-| 文件 | Context | 覆盖 |
+| 文件 | 适用场景 | 覆盖范围 |
 |---|---|---|
-| [cc-plugins.md](recommendations/cc-plugins.md) | always | 37 个 Claude Code 插件（workflow、集成、specialized） |
-| [cc-marketplaces-and-skill-bundles.md](recommendations/cc-marketplaces-and-skill-bundles.md) | always | 4 个第三方 marketplace + 9 个 `npx skills add` skill bundle（GSAP、shadcn、impeccable、Remotion、baoyu 等） |
-| [cli-tools.md](recommendations/cli-tools.md) | always（按需） | 系统 CLI（jq、gh、ripgrep、fd 等）+ Python 用户级 CLI（uv、ruff、mkdocs、hf 等） |
-| [js-ui-and-design.md](recommendations/js-ui-and-design.md) | ui-project | Lucide、Radix UI 全套、**Chakra UI**、lenis、d3、visx、recharts、monaco、tanstack/table、shadcn；图标浏览器（**yesicon.app**、**svgl.app**） |
-| [js-animation-and-3d.md](recommendations/js-animation-and-3d.md) | 3d-or-animation | motion、gsap、**anime.js**、lottie-react、tailwindcss-animate、**math-curve-loaders**；three、R3F、drei、mediapipe；动效图标库（**itshover**、**useanimations**）；HTML→视频（**HyperFrames**、Remotion）；React Native motion |
-| [js-build-test-style.md](recommendations/js-build-test-style.md) | ui-project | vite、next、electron、vitest、playwright、storybook、tailwindcss、prettier |
-| [js-state-data.md](recommendations/js-state-data.md) | ui-project | pinia、zustand、swr、vueuse、vue-i18n、vue-router、next-themes |
-| [web-auditing.md](recommendations/web-auditing.md) | static-site / web-perf | chrome-devtools MCP（默认零安装）、lighthouse CLI、lhci、pa11y、axe-core |
-| [image-video-pdf.md](recommendations/image-video-pdf.md) | image-or-video-work | sharp、svgo、imagemin、ffmpeg（apt）、puppeteer |
-| [docs-tools.md](recommendations/docs-tools.md) | docs-site | mkdocs + material、ghp-import、latexmk（apt） |
-| [ml-research.md](recommendations/ml-research.md) | ml-research | huggingface_hub[cli]、datasets、gpustat、kaleido、selenium；**实验跟踪平台**（MLflow、Weights & Biases、ClearML） |
-| [orchestra-ml-skills.md](recommendations/orchestra-ml-skills.md) | ml-research | 21 类 ML 技能栈，含 `0-autoresearch-skill` 元编排器 |
-| [ai-coding-tools.md](recommendations/ai-coding-tools.md) | optional | Spec-driven 脚手架（**OpenSpec**）+ 论文 review（**paperreview.ai**） |
-| [cluster-hpc.md](recommendations/cluster-hpc.md) | optional | SLURM 模式、free-tier 规则、HPC 集群 rsync 约定 |
-| [reference-projects.md](recommendations/reference-projects.md) | optional | 值得学习的 standalone demo / template 项目（如 **`mykonos-island-voxels`** —— 零依赖 Canvas 2D 等距岛屿生成器，painterly 资产、分层缓存渲染、触屏 UI） |
-| [reference/apt-packages.md](recommendations/reference/apt-packages.md) | always（查询） | apt 包参考表——绝不自动安装 |
-| [reference/vscode-extensions.md](recommendations/reference/vscode-extensions.md) | always（查询） | VS Code 扩展参考表——绝不自动安装 |
+| [cc-plugins.md](recommendations/cc-plugins.md) | always | 37 个 Claude Code 插件 |
+| [cc-marketplaces-and-skill-bundles.md](recommendations/cc-marketplaces-and-skill-bundles.md) | always | 4 个第三方 marketplace + 9 个技能包 |
+| [cli-tools.md](recommendations/cli-tools.md) | always | 系统 CLI（jq、gh、ripgrep、fd…）+ Python 用户 CLI |
+| [js-ui-and-design.md](recommendations/js-ui-and-design.md) | ui-project | Lucide、Radix、Chakra UI、lenis、d3、monaco、shadcn |
+| [js-animation-and-3d.md](recommendations/js-animation-and-3d.md) | 3d-or-animation | motion、gsap、anime.js、lottie、three、R3F |
+| [js-build-test-style.md](recommendations/js-build-test-style.md) | ui-project | vite、next、electron、vitest、playwright、storybook |
+| [js-state-data.md](recommendations/js-state-data.md) | ui-project | pinia、zustand、swr、vueuse、vue-i18n |
+| [web-auditing.md](recommendations/web-auditing.md) | static-site | chrome-devtools MCP、lighthouse、pa11y、axe-core |
+| [image-video-pdf.md](recommendations/image-video-pdf.md) | image-or-video-work | sharp、svgo、ffmpeg、puppeteer |
+| [docs-tools.md](recommendations/docs-tools.md) | docs-site | mkdocs + material、ghp-import、latexmk |
+| [ml-research.md](recommendations/ml-research.md) | ml-research | huggingface_hub、datasets、MLflow、W&B、ClearML |
+| [orchestra-ml-skills.md](recommendations/orchestra-ml-skills.md) | ml-research | 21 类 ML 技能栈含元编排器 |
+| [ai-coding-tools.md](recommendations/ai-coding-tools.md) | optional | OpenSpec、paperreview.ai |
+| [cluster-hpc.md](recommendations/cluster-hpc.md) | optional | SLURM 模式、免费层规则、rsync 约定 |
+| [reference-projects.md](recommendations/reference-projects.md) | optional | 独立演示/模板项目 |
+| [reference/apt-packages.md](recommendations/reference/apt-packages.md) | 查阅 | Apt 包——绝不自动安装 |
+| [reference/vscode-extensions.md](recommendations/reference/vscode-extensions.md) | 查阅 | VS Code 扩展——绝不自动安装 |
 
 ## 项目模板
 
-最小但完整的脚手架，安装技能将其与所选 rules / hooks / skills 组合。
+精简但完整的启动模板。
 
-| 模板 | 类型 | 包含 |
-|---|---|---|
-| [research-package-py/](templates/research-package-py/TEMPLATE_README.md) | Python 研究包 | `CLAUDE.template.md` + `pyproject.template.toml`（research extras：torch / data / logging）+ `.gitignore` + `.claude/settings.template.json`（ruff 钩子）+ 项目 `verify` 技能 |
-| [personal-cite-static/](templates/personal-cite-static/TEMPLATE_README.md) | 静态个人主页（HTML/CSS/JS、i18n、双语） | `CLAUDE.template.md` + `index.template.html`（i18n 支持）+ `locales/{en,zh}.template.json` + `.claude/settings.template.json`（jq 钩子）+ 项目 `preview` / `verify-visual` / `i18n-sync` 技能 |
+| 模板 | 类型 | Claude | Codex |
+|---|---|---|---|
+| [research-package-py/](templates/research-package-py/TEMPLATE_README.md) | Python 研究 | CLAUDE.md + pyproject.toml + ruff 钩子 | init-codex-config 翻译 → AGENTS.md + .codex/hooks.json |
+| [personal-cite-static/](templates/personal-cite-static/TEMPLATE_README.md) | 静态站（i18n） | CLAUDE.md + index.html + locales + jq 钩子 | init-codex-config 翻译 → Codex 等价 |
 
-## 安装技能 `/init-claude-config`
+## 安装技能
 
-[`setup/init-claude-config/SKILL.md`](setup/init-claude-config/SKILL.md) 是入口。读项目状态、问 6 个问题、组合相应子集：
+| 技能 | Agent | 触发方式 | 作用 |
+|---|---|---|---|
+| [`init-agent-config`](setup/init-agent-config/SKILL.md) | Claude Code | `/init-agent-config` | 检测项目类型 → 问 6 个问题 → 生成 CLAUDE.md、hooks、skills |
+| [`init-codex-config`](skills/init-codex-config/SKILL.md) | Codex | `/skills` → `init-codex-config` | 同样流程，生成 AGENTS.md、.codex/hooks.json、.agents/skills |
+| [`agent-config-adapter`](skills/agent-config-adapter/SKILL.md) | Any | `/skills` → `agent-config-adapter` | 将源 Agent 配置映射到目标 Agent + 模型路由 |
 
-1. **检测**——空目录 vs 现有项目；有无 manifest 文件
-2. **询问**——项目类型、双语、终端语言、context 标签、消费方式、个人偏好
-3. **组合**——复制模板、替换占位符、生成 `CLAUDE.md`（按 context 过滤的 `@import` 行）、设置 `.claude/settings.json` + `settings.local.json`、安装相关 skills
-4. **验证**——`jq empty` 校验 JSON、`pyproject.toml` 解析、`git status`
-5. **报告**——展示组合结果 + 后续步骤
+## 多 Agent 架构
 
-幂等——添加新 context 标签时可重跑。
+```mermaid
+graph TD
+    subgraph "agent-harness Repository"
+        CC[".claude-plugin/<br/>plugin.json<br/><br/>hooks/ (3 recipes)<br/>skills/general/ (7 src)<br/>setup/init-…"]
+        CX[".codex-plugin/<br/>plugin.json<br/><br/>hooks.json (3 scripts)<br/>skills/ (12 wrappers)<br/>scripts/ (9 tools)"]
+        SHARED["rules/ (15+)<br/>recommendations/ (17)<br/>tooling/ (3)<br/>templates/ (2)"]
+    end
+
+    CLAUDE["🤖 Claude Code"] --> CC
+    CODEX["🤖 Codex / DeepSeek"] --> CX
+    CC --> SHARED
+    CX --> SHARED
+
+    style SHARED fill:#2563EB,color:#fff
+    style CC fill:#10B981,color:#fff
+    style CX fill:#F59E0B,color:#fff
+```
+
+**设计原则：** 共享规则、推荐、工具偏好和模板只存一份。Agent 专用入口（manifest、钩子、安装技能）隔离 Agent 差异。Codex 包装器将 Claude 专用工具名映射为 Codex 等价名，不修改原始 Claude 技能。
+
+**非视觉模型支持：** `verify-visual` Codex 技能使用截图捕获而非 AI 视觉分析。在指定 viewport 下用 Playwright 或 headless Chrome 截屏，保存到日期戳目录，返回文件路径。兼容 DeepSeek 及任何无原生视觉能力的模型。可与参考图逐像素比对做回归检测。
+
+## 提交规范
+
+`commit-discipline` 规则和 `.git/hooks/commit-msg` 钩子强制执行约定式提交格式。这对非原生模型（DeepSeek）特别重要，因为它们容易跳过或写偷懒的提交信息。
+
+```bash
+# 安装钩子（每个仓库一次）
+cp scripts/codex_commit_msg.sh .git/hooks/commit-msg
+```
+
+格式：`type[(scope)]: description`。有效类型：feat fix docs style refactor perf test chore ci build revert。
 
 ## 给维护者
 
-扩展 `claude-config` 本身用 `.claude/skills/` 下的四个元技能：
+`.claude/skills/` 下四个元技能：
 
 | 元技能 | 用途 |
 |---|---|
-| [`/new-rule`](.claude/skills/new-rule/SKILL.md) | scaffold 新规则（frontmatter + RULE.md + snippet.md），同 batch 更新 INVENTORY |
-| [`/new-skill`](.claude/skills/new-skill/SKILL.md) | scaffold 新技能（正确的 frontmatter），更新 INVENTORY |
-| [`/new-hook`](.claude/skills/new-hook/SKILL.md) | scaffold 新钩子配方（8 步构造流程：dedup → 管道测试 → JSON 包装 → 校验 → 实战验证 → 清理 → 交付） |
-| [`/publish`](.claude/skills/publish/SKILL.md) | 打 SemVer tag + push + GitHub release（notes 从 git log 生成） |
+| `/new-rule` | 用 frontmatter + RULE.md + snippet.md 生成新规则 |
+| `/new-skill` | 生成新技能（Claude 源 + Codex 包装） |
+| `/new-hook` | 生成新钩子配方（8 步：去重 → 管道测试 → 包装 → 验证 → 实机验证 → 清理 → 交接） |
+| `/publish` | Tag SemVer + push + GitHub 发布 |
 
-加上 [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)——新增 rules / skills / hooks / recommendations / tooling / templates 的正式规范，含 inventory-同步要求。
-
-## 发布到外部目录
-
-仓库同时正在发布到社区目录方便发现。各渠道状态记录在 **[PUBLISHING.md](PUBLISHING.md)**：
-
-| 渠道 | 状态 |
-|---|---|
-| GitHub Topics（`claude-code`、`claude-skills`、`claude-config`、`claude-plugin`、`scaffold`、`workflow-rules`、`ai-coding`、`developer-tools`） | ✅ 已设置——可通过 GitHub topic 页面发现 |
-| [hesreallyhim/awesome-claude-code](https://github.com/hesreallyhim/awesome-claude-code) PR | 🟡 Fork + 分支已推——一键开 PR：见 [PUBLISHING.md §1](PUBLISHING.md#1-awesome-claude-code-pr--almost-auto-one-click-left-for-you) |
-| Anthropic 官方 plugin marketplace（[clau.de/plugin-directory-submission](https://clau.de/plugin-directory-submission)） | ⚪ 需手动填表——表单内容已准备好，见 [PUBLISHING.md §2](PUBLISHING.md#2-anthropic-plugin-marketplace-manual-form) |
-| [claudemarketplaces.com](https://claudemarketplaces.com/) / [buildwithclaude.com](https://buildwithclaude.com/) | ⚪ 大概率自动聚合（topics 设好后 ~24h） |
-| npm registry（`npx claude-config`） | ⚪ 需 `npm login` + `npm publish`——见 [PUBLISHING.md §4](PUBLISHING.md#4-npm-registry-manual-npm-login--npm-publish)。当前可用 `npx github:jajupmochi/claude-config` |
+详见 [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)：正式规范、清单同步规则、双语约定。
 
 ## 构建历程
 
-`claude-config` 在 2026-04-29 单日里分 11 个阶段构建（v0.1.0）：
-
-| Phase | 聚焦 | Commit |
+| 阶段 | 日期 | 内容 |
 |---|---|---|
-| P1 | 基础骨架（README、CLAUDE.md、docs、结构） | `1e94686` |
-| P1.5 | Discovery 扫描：本机工具盘点 → 草稿 `docs/DISCOVERY.md`（gitignore） | `f4cc5eb` |
-| P2 | 9 条工作流规则（从 `~/.claude/CLAUDE.md` 和 personal-site `CLAUDE.local.md` 蒸馏） | `314e292` |
-| P3 | 2 个可复用钩子（ruff format-on-edit、jq JSON 校验） | `61e5261` |
-| P4 | 5 个通用技能（verify、preview、long-running-tasks、verify-visual、privacy-redact） | `5ed2b45` |
-| P5 | 12 个 active 推荐清单 + 2 个 reference 表 | `b328c84` |
-| P6 | 3 个工具链类目带 agent 可执行安装步骤（python-uv-ruff、node-nvm、permissions-allowlist） | `f8e2042` |
-| P7 | 2 个项目模板（research-package-py、personal-cite-static） | `5722a88` |
-| P8 | `/init-claude-config` 安装技能 | `b97b8b7` |
-| P9 | LICENSE + 4 个元技能 + GitHub publish | `1673f37` + push |
-| P10 | Plugin packaging（`.claude-plugin/plugin.json`）+ 文档收尾 | `71b11a9` |
+| P1–P2 | 2026-04-29 | 基础骨架 + 9 条规则 |
+| P3 | 2026-04-29 | 2 个钩子（ruff、jq） |
+| P4 | 2026-04-29 | 5 个技能（verify、preview、long-running、verify-visual、privacy-redact） |
+| P5 | 2026-04-29 | 12 份推荐清单 |
+| P6 | 2026-04-29 | 3 类工具偏好 |
+| P7 | 2026-04-29 | 2 个项目模板 |
+| P8 | 2026-04-29 | 安装技能 |
+| P9 | 2026-04-29 | LICENSE + 元技能 + 发布 |
+| P10 | 2026-05 | 插件打包，新增规则（writing-style、end-of-turn-marker 等） |
+| P11 | 2026-07-08 | Codex 适配：.codex-plugin、12 个包装技能、hooks.json、安装/验证/更新脚本 |
+| P12 | 2026-07-08 | 多 Agent 重命名（agent-harness）、review-gate Stop 钩子、非视觉模型视觉验证、code-verifier 自动加载、约定式提交强制执行 |
 
-总规模：9 规则 + 5 + 4 元技能 + 2 钩子 + 12 推荐清单 + 3 工具偏好 + 2 项目模板 + 1 安装技能 + 双语文档 + 1 plugin manifest。
+**总覆盖：** 15+ 条规则 + 12 个技能 + 6 个钩子（双 Agent）+ 17 份推荐清单 + 3 类工具模板 + 2 个项目模板 + 2 个安装技能 + 8 个脚本 + 双语文档 + 2 个插件 manifest。
 
 ## 贡献
 
-欢迎 PR。请先开 issue 对齐范围 + 内容类目（rule / skill / hook / recommendation / tooling / template）。
-
-[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) 含：
-
-- 正式 frontmatter 约定
-- "inventory 必须同步"规则
-- 库自身文档的双语策略
-- Conventional Commits 风格
+欢迎 PR。先开 issue 对齐范围。见 [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)。
 
 ## 许可
 
-MIT —— 见 [LICENSE](LICENSE)。
+MIT — 见 [LICENSE](LICENSE)。

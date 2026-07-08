@@ -14,6 +14,7 @@
 - [Tooling](#tooling)
 - [Templates](#templates)
 - [Setup](#setup)
+- [Codex adapter](#codex-adapter)
 
 ## Status
 
@@ -28,8 +29,9 @@
 - P6: Tooling ✓
 - P7: Templates ✓
 - P8: Setup skill ✓
-- P9: LICENSE + meta-skills + GitHub publish ✓ (https://github.com/jajupmochi/claude-config)
+- P9: LICENSE + meta-skills + GitHub publish ✓ (https://github.com/jajupmochi/agent-harness)
 - P10: Plugin packaging (`.claude-plugin/plugin.json`) ✓
+- P11: Codex adapter (`.codex-plugin`, wrapper skills, `hooks.json`, install/verify/update scripts) ✓
 
 See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) and README's "Build history" for details.
 
@@ -51,7 +53,7 @@ See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) and README's "Build history" for de
 | [`writing-style`](rules/writing-style/RULE.md) | personal | De-AI prose tics. No hyphen-joined compound modifiers, no colon or semicolon opening a trailing clause, no filler emphasis words (important, crucial, genuinely). Edit the user's own text minimally and surgically |
 | [`tool-proactivity`](rules/tool-proactivity/RULE.md) | personal | Installed plugin / skill / MCP fires without asking when matched (with explicit-approval exceptions) |
 | [`no-reread-files`](rules/no-reread-files/RULE.md) | personal | Trust your in-session memory of file contents; re-read only on actual change |
-| [`bilingual-docs`](rules/bilingual-docs/RULE.md) | optional | `NAME.md` + `NAME.zh.md` convention (consumer-side opt-in via `setup/init-claude-config`) |
+| [`bilingual-docs`](rules/bilingual-docs/RULE.md) | optional | `NAME.md` + `NAME.zh.md` convention (consumer-side opt-in via `setup/init-agent-harness`) |
 | [`end-of-turn-marker`](rules/end-of-turn-marker/RULE.md) | personal | Every turn ends with `[END:FINAL]` / `[END:WAIT]` / `[END:NEEDS_USER]` on its own line |
 | [`always-on-verification`](rules/always-on-verification/RULE.md) | research-pkg | Before any code / test / results claim, invoke `code-verifier` (artifact authenticity) and/or `research-critic` (inferential soundness) |
 | [`autorun-mode`](rules/autorun-mode/RULE.md) | personal | When user says "autorun" / "全力跑" / "think a lot" + scope: higher-autonomy cadence + multi-pass review + branch hygiene |
@@ -117,7 +119,7 @@ See [`hooks/README.md`](hooks/README.md) for install instructions.
 | [reference/apt-packages.md](recommendations/reference/apt-packages.md) | always (lookup) | apt-installed packages — knowledge table only, never auto-install |
 | [reference/vscode-extensions.md](recommendations/reference/vscode-extensions.md) | always (lookup) | VS Code extensions — knowledge table only, CC-friendly defaults flagged |
 
-See [`recommendations/README.md`](recommendations/README.md) for context tags and how `setup/init-claude-config` (P8) decides what to install per project type.
+See [`recommendations/README.md`](recommendations/README.md) for context tags and how `setup/init-agent-harness` (P8) decides what to install per project type.
 
 ## Tooling
 
@@ -140,7 +142,7 @@ See [`tooling/README.md`](tooling/README.md) for usage.
 | [research-package-py/](templates/research-package-py/TEMPLATE_README.md) | Python research pkg (uv + ruff + pytest) | CLAUDE.template.md, pyproject.template.toml (with research extras: torch/data/logging), .gitignore, .claude/settings.template.json (ruff format hook), .claude/skills/verify/ |
 | [personal-cite-static/](templates/personal-cite-static/TEMPLATE_README.md) | Static personal academic site (HTML/CSS/JS, i18n, bilingual) | CLAUDE.template.md (bilingual + visual-verification + iterative-round-file rules), index.template.html (i18n-aware), locales/{en,zh}.template.json, .gitignore, .claude/settings.template.json (jq JSON validity hook), .claude/skills/{preview,verify-visual,i18n-sync}/ |
 
-See [`templates/README.md`](templates/README.md) for usage. The `setup/init-claude-config` skill (P8) does the substitution + composition automatically.
+See [`templates/README.md`](templates/README.md) for usage. The `setup/init-agent-harness` skill (P8) does the substitution + composition automatically.
 
 ## Setup
 
@@ -148,6 +150,22 @@ See [`templates/README.md`](templates/README.md) for usage. The `setup/init-clau
 
 | Skill | Purpose |
 |---|---|
-| [`init-claude-config`](setup/init-claude-config/SKILL.md) | Interactive `/init-claude-config` slash command. Asks 6 questions (project type, bilingual policy, final-output language, context tags, consumption mode, personal-preference rules), then composes the right subset of rules/hooks/skills/templates/tooling into the project. |
+| [`init-agent-harness`](setup/init-agent-harness/SKILL.md) | Interactive `/init-agent-harness` slash command. Asks 6 questions (project type, bilingual policy, final-output language, context tags, consumption mode, personal-preference rules), then composes the right subset of rules/hooks/skills/templates/tooling into the project. |
 
 See [`setup/README.md`](setup/README.md) for usage.
+
+## Codex adapter
+
+Merged from branch `codex-adapter` (2026-07-08). This keeps the Claude Code surface intact and adds Codex-specific entrypoints.
+
+| Item | Purpose |
+|---|---|
+| [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json) | Codex plugin manifest with `skills: "./skills/"` |
+| [`hooks.json`](hooks.json) | Plugin-bundled Codex hooks for ruff formatting and JSON validation |
+| [`skills/init-codex-config`](skills/init-codex-config/SKILL.md) | Apply agent-harness to Codex projects through `AGENTS.md`, `.codex/hooks.json`, and `.agents/skills` |
+| [`skills/agent-config-adapter`](skills/agent-config-adapter/SKILL.md) | General workflow for adapting an agent configuration to another agent/model route |
+| [`scripts/install-codex-local.js`](scripts/install-codex-local.js) | Symlink skills into `~/.agents/skills`, expose the plugin through the personal marketplace as `INSTALLED_BY_DEFAULT` |
+| [`scripts/verify-codex-adapter.js`](scripts/verify-codex-adapter.js) | Local structural checks for the Codex adapter |
+| [`scripts/codex-update-safe.js`](scripts/codex-update-safe.js) | Safe Codex CLI updater for release-asset rollout windows |
+| [`docs/CODEX_ADAPTATION_PLAN.md`](docs/CODEX_ADAPTATION_PLAN.md) | Full function inventory, research notes, architecture options, and execution plan |
+

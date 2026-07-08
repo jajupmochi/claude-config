@@ -13,4 +13,4 @@ Both are TEXT-only audits — cheap. Use generously, not sparingly.
 - Before any "tests pass" / "build works" / "training converges" / "code runs" claim → invoke `code-verifier`.
 - Before any "method A beats B" / "results show X" / "we observe Y" / "transfer ratio is Z%" claim → invoke `research-critic`.
 
-See `skills/general/code-verifier/SKILL.md` + `skills/general/research-critic/SKILL.md` (in `claude-config`) for the full skills.
+See `skills/general/code-verifier/SKILL.md` + `skills/general/research-critic/SKILL.md` (in `agent-harness`) for the full skills.

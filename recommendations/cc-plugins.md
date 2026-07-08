@@ -85,4 +85,4 @@ For a fresh CC setup matching the author's defaults, run interactively:
 # then browse and install the workflow / quality block first
 ```
 
-The `setup/init-claude-config` skill (P8) automates this for new projects based on selected context tags.
+The `setup/init-agent-harness` skill (P8) automates this for new projects based on selected context tags.

@@ -62,39 +62,39 @@ Layer → directory map:
 
 ## Workflow rules (imported)
 
-This project follows the workflow rules from the author's [claude-config](https://github.com/jajupmochi/claude-config) library. Pick the consumption mode (raw URL / local clone / plugin) and uncomment the matching block:
+This project follows the workflow rules from the author's [agent-harness](https://github.com/jajupmochi/agent-harness) library. Pick the consumption mode (raw URL / local clone / plugin) and uncomment the matching block:
 
 ```markdown
 <!-- Option 1: Raw URL imports (always live, requires network) -->
 <!--
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/pre-edit-confirmation/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/phased-planning/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/plugin-preflight/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/output-brevity/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/tool-proactivity/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/no-reread-files/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/chinese-output/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/pre-edit-confirmation/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/phased-planning/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/plugin-preflight/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/output-brevity/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/tool-proactivity/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/no-reread-files/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/chinese-output/snippet.md
 -->
 
-<!-- Option 2: Local clone of claude-config to ~/.claude/claude-config (faster, offline) -->
+<!-- Option 2: Local clone of agent-harness to ~/.claude/agent-harness (faster, offline) -->
 <!--
-@~/.claude/claude-config/rules/pre-edit-confirmation/snippet.md
-@~/.claude/claude-config/rules/phased-planning/snippet.md
-@~/.claude/claude-config/rules/plugin-preflight/snippet.md
-@~/.claude/claude-config/rules/output-brevity/snippet.md
-@~/.claude/claude-config/rules/tool-proactivity/snippet.md
-@~/.claude/claude-config/rules/no-reread-files/snippet.md
-@~/.claude/claude-config/rules/chinese-output/snippet.md
+@~/.claude/agent-harness/rules/pre-edit-confirmation/snippet.md
+@~/.claude/agent-harness/rules/phased-planning/snippet.md
+@~/.claude/agent-harness/rules/plugin-preflight/snippet.md
+@~/.claude/agent-harness/rules/output-brevity/snippet.md
+@~/.claude/agent-harness/rules/tool-proactivity/snippet.md
+@~/.claude/agent-harness/rules/no-reread-files/snippet.md
+@~/.claude/agent-harness/rules/chinese-output/snippet.md
 -->
 
-<!-- Option 3: Plugin install (P10+) — /plugin install jajupmochi/claude-config -->
+<!-- Option 3: Plugin install (P10+) — /plugin install jajupmochi/agent-harness -->
 <!-- (rules are auto-loaded via the plugin) -->
 ```
 
-The `setup/init-claude-config` skill picks one option and uncomments.
+The `setup/init-agent-harness` skill picks one option and uncomments.
 
 ## Authoritative references
 
 - Project-specific docs go in `docs/` (architecture, ADRs, etc.)
 - Code style / build commands: this CLAUDE.md (above)
-- Workflow conventions: imported from `claude-config` (above)
+- Workflow conventions: imported from `agent-harness` (above)

@@ -1,0 +1,1 @@
+- Commit discipline: every commit MUST follow conventional commit format (`type(scope): description`). No empty or one-word commits. Install `.git/hooks/commit-msg` from `scripts/codex_commit_msg.sh`.

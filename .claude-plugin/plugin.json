@@ -1,16 +1,17 @@
 {
-  "name": "claude-config",
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "agent-harness",
   "version": "0.1.0",
-  "description": "Linlin's curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Install once, then run /init-claude-config in any new project to scaffold it with the relevant subset.",
+  "description": "Linlin's curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Install once, then run /init-agent-config in any new project to scaffold it with the relevant subset.",
   "author": {
     "name": "Linlin Jia",
     "github": "jajupmochi"
   },
   "license": "MIT",
-  "homepage": "https://github.com/jajupmochi/claude-config",
+  "homepage": "https://github.com/jajupmochi/agent-harness",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jajupmochi/claude-config"
+    "url": "https://github.com/jajupmochi/agent-harness"
   },
   "keywords": [
     "claude-code",
@@ -20,17 +21,21 @@
     "scaffold",
     "research-package",
     "static-site",
-    "ml-research"
+    "ml-research",
+    "codex-adapter"
   ],
   "skills": [
+    "setup/init-agent-config",
     "skills/general/verify-template",
     "skills/general/preview-template",
     "skills/general/long-running-tasks",
     "skills/general/verify-visual",
     "skills/general/privacy-redact",
+    "skills/general/code-verifier",
+    "skills/general/research-critic",
+    "skills/general/system-cleanup",
     "skills/general/autoresearch-toolfinder",
-    "skills/general/autopilot",
-    "setup/init-claude-config"
+    "skills/general/autopilot"
   ],
   "rules": [
     "rules/chinese-output",
@@ -39,9 +44,18 @@
     "rules/plugin-preflight",
     "rules/ui-iteration-loop",
     "rules/output-brevity",
+    "rules/human-readable-output",
+    "rules/writing-style",
+    "rules/clickable-links",
+    "rules/design-artifacts",
     "rules/tool-proactivity",
     "rules/no-reread-files",
-    "rules/bilingual-docs"
+    "rules/bilingual-docs",
+    "rules/end-of-turn-marker",
+    "rules/always-on-verification",
+    "rules/autorun-mode",
+    "rules/multi-round-redesign",
+    "rules/latex-edit-policy"
   ],
   "hooks": [
     "hooks/ruff-format-on-edit",
@@ -64,7 +78,12 @@
     "recommendations/image-video-pdf.md",
     "recommendations/docs-tools.md",
     "recommendations/ml-research.md",
-    "recommendations/orchestra-ml-skills.md"
+    "recommendations/orchestra-ml-skills.md",
+    "recommendations/ai-coding-tools.md",
+    "recommendations/cluster-hpc.md",
+    "recommendations/reference-projects.md",
+    "recommendations/reference/apt-packages.md",
+    "recommendations/reference/vscode-extensions.md"
   ],
   "tooling": [
     "tooling/python-uv-ruff",
@@ -72,7 +91,7 @@
     "tooling/permissions-allowlist"
   ],
   "_notes": [
-    "This manifest follows the conventions emerging in the Claude Code plugin ecosystem (mattpocock/skills, anthropics/claude-plugins-official). The exact field names may need adjustment as the plugin spec stabilizes — see https://code.claude.com/docs/en/plugins for the canonical reference.",
-    "When the spec stabilizes, this file may need: a 'commands' array for slash-command overrides, an 'mcpServers' array if any MCP servers are bundled (currently none), a 'lspServers' array (currently none), or a 'manifestVersion' field."
+    "Claude Code uses .claude-plugin/plugin.json. Codex uses .codex-plugin/plugin.json and root hooks.json; keeping them separate preserves Claude Code behavior while making the adapter discoverable by Codex.",
+    "When either plugin spec changes, update the corresponding manifest without removing fields used by the other agent's discovery path."
   ]
 }

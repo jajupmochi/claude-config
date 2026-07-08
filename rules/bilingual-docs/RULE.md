@@ -66,7 +66,7 @@ The Chinese mirror has the same structure — same headings, same TOC anchor IDs
 
 ## Opt-in
 
-This rule is **opt-in per project** — the `setup/init-claude-config` skill (P8) asks at scaffold time:
+This rule is **opt-in per project** — the `setup/init-agent-harness` skill (P8) asks at scaffold time:
 
 - "需要双语文档吗？(English ↔ Chinese)"
 - "主要语言（canonical）是什么？"

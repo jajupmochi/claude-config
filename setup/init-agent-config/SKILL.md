@@ -1,11 +1,11 @@
 ---
-name: init-claude-config
-description: Scaffold a new project with the relevant subset of claude-config rules, hooks, skills, recommendations, and templates. Asks about project type, language preferences, and context tags, then composes a project-specific CLAUDE.md, .claude/settings.json, and starter files. Use in a fresh or existing project to apply claude-config conventions.
+name: init-agent-harness
+description: Scaffold a new project with the relevant subset of agent-harness rules, hooks, skills, recommendations, and templates. Asks about project type, language preferences, and context tags, then composes a project-specific CLAUDE.md, .claude/settings.json, and starter files. Use in a fresh or existing project to apply agent-harness conventions.
 ---
 
-# /init-claude-config
+# /init-agent-harness
 
-Compose `claude-config` into a project — interactive scaffold that asks about project type and selects the right subset.
+Compose `agent-harness` into a project — interactive scaffold that asks about project type and selects the right subset.
 
 ## Master TOC
 
@@ -22,13 +22,13 @@ Compose `claude-config` into a project — interactive scaffold that asks about 
 
 Verify (per `plugin-preflight` rule):
 
-- `claude-config` is locally cloned at `~/.claude/claude-config/` OR the user has internet access for raw-URL imports OR the plugin is installed
+- `agent-harness` is locally cloned at `~/.claude/agent-harness/` OR the user has internet access for raw-URL imports OR the plugin is installed
 - The current directory is writable and the user is OK adding `CLAUDE.md` / `.claude/` / etc.
 
-If `claude-config` is not yet cloned and the user wants the local-clone consumption mode:
+If `agent-harness` is not yet cloned and the user wants the local-clone consumption mode:
 
 ```bash
-git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-config
+git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness
 ```
 
 Ask the user before running this.
@@ -51,7 +51,7 @@ ls package.json pyproject.toml Cargo.toml go.mod 2>/dev/null
 
 Branches:
 
-- **Empty directory** → fresh scaffold from a `claude-config` template
+- **Empty directory** → fresh scaffold from a `agent-harness` template
 - **Existing project, no CLAUDE.md** → add `CLAUDE.md` + `.claude/` on top of existing code
 - **Existing project, with CLAUDE.md** → ask the user: merge with existing? back up first? skip CLAUDE.md and only do `.claude/`?
 
@@ -89,8 +89,8 @@ Use `AskUserQuestion` to gather:
 
 5. **Consumption mode** (single-select):
    - Raw URL imports — always live, requires network
-   - Local clone (`~/.claude/claude-config/`) — fast, offline
-   - Plugin install (P10+) — most native; only if `/plugin install jajupmochi/claude-config` was run
+   - Local clone (`~/.claude/agent-harness/`) — fast, offline
+   - Plugin install (P10+) — most native; only if `/plugin install jajupmochi/agent-harness` was run
 
 6. **Personal-preference rules** (multi-select):
    - `output-brevity` — no end-of-batch recap, no echo, prefer Edit over Write
@@ -101,8 +101,8 @@ Use `AskUserQuestion` to gather:
 
 Build the `@import` paths based on the user's choice:
 
-- **Raw URL**: `@https://raw.githubusercontent.com/jajupmochi/claude-config/main/<path>`
-- **Local clone**: `@~/.claude/claude-config/<path>`
+- **Raw URL**: `@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/<path>`
+- **Local clone**: `@~/.claude/agent-harness/<path>`
 - **Plugin**: (no `@import` lines — plugin auto-loads)
 
 ## Step 4: Compose the project
@@ -113,10 +113,10 @@ Based on choices, do:
 
 ```bash
 # Python research:
-cp -r ~/.claude/claude-config/templates/research-package-py/. ./
+cp -r ~/.claude/agent-harness/templates/research-package-py/. ./
 
 # Static site:
-cp -r ~/.claude/claude-config/templates/personal-cite-static/. ./
+cp -r ~/.claude/agent-harness/templates/personal-cite-static/. ./
 ```
 
 ### 4.2 Substitute placeholders
@@ -160,18 +160,18 @@ Apply `tooling/permissions-allowlist/settings.local.snippet.json` — common saf
 
 For the chosen template, the project-specific skills (`verify`, `preview`, `verify-visual`, `i18n-sync`) come from the template directly.
 
-For general skills (long-running-tasks, privacy-redact), symlink or copy from `~/.claude/claude-config/skills/general/`:
+For general skills (long-running-tasks, privacy-redact), symlink or copy from `~/.claude/agent-harness/skills/general/`:
 
 ```bash
 # Symlink (if local clone consumption):
 mkdir -p .claude/skills
 for skill in long-running-tasks privacy-redact verify-visual; do
-  ln -s ~/.claude/claude-config/skills/general/$skill .claude/skills/$skill
+  ln -s ~/.claude/agent-harness/skills/general/$skill .claude/skills/$skill
 done
 
 # Or copy (if raw-URL or plugin consumption — symlinks won't work for distribution):
 for skill in long-running-tasks privacy-redact verify-visual; do
-  cp -r ~/.claude/claude-config/skills/general/$skill .claude/skills/$skill
+  cp -r ~/.claude/agent-harness/skills/general/$skill .claude/skills/$skill
 done
 ```
 
@@ -188,9 +188,9 @@ Append to the project's `README.md`:
 ```markdown
 ## Tooling references
 
-This project follows conventions from [claude-config](https://github.com/jajupmochi/claude-config). For tool selection guidance, see:
+This project follows conventions from [agent-harness](https://github.com/jajupmochi/agent-harness). For tool selection guidance, see:
 
-- [recommendations/cli-tools.md](https://github.com/jajupmochi/claude-config/blob/main/recommendations/cli-tools.md)
+- [recommendations/cli-tools.md](https://github.com/jajupmochi/agent-harness/blob/main/recommendations/cli-tools.md)
 - [recommendations/<context-specific-files>.md](...)
 ```
 
@@ -223,7 +223,7 @@ If anything fails, surface the error and ask the user how to proceed.
 Output something like:
 
 ```
-✓ /init-claude-config complete
+✓ /init-agent-harness complete
 
 Composed:
 - Project type: <selected>
@@ -236,12 +236,12 @@ Next steps:
 1. Replace remaining <PLACEHOLDERS> in CLAUDE.md / pyproject.toml / README.md
 2. (Research) uv sync --python 3.12 && uv pip install -e ".[dev]"
 3. (Static) python3 -m http.server 8000
-4. git init && git add . && git commit -m "chore: initialize from claude-config"
+4. git init && git add . && git commit -m "chore: initialize from agent-harness"
 ```
 
 ## Idempotency
 
-If `/init-claude-config` is run a second time in the same project:
+If `/init-agent-harness` is run a second time in the same project:
 
 - Detect existing `CLAUDE.md` and `.claude/settings.json`
 - Ask: "merge new selections / overwrite / skip"

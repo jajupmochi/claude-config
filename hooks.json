@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/codex_ruff_format_on_edit.sh",
+            "timeout": 30,
+            "statusMessage": "Formatting Python with ruff"
+          },
+          {
+            "type": "command",
+            "command": "./scripts/codex_jq_validate_json.sh",
+            "timeout": 30,
+            "statusMessage": "Validating JSON"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/codex_review_gate.sh",
+            "timeout": 60,
+            "statusMessage": "review-gate: auditing changes..."
+          }
+        ]
+      }
+    ]
+  }
+}

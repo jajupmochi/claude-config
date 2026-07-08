@@ -1,22 +1,22 @@
 {
-  "name": "claude-config",
+  "name": "agent-harness",
   "version": "0.1.0",
-  "description": "Curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Run /init-claude-config in any project to scaffold it.",
+  "description": "Curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Run /init-agent-harness in any project to scaffold it.",
   "bin": {
-    "claude-config": "./bin/install.js",
-    "claude-config-init": "./bin/install.js"
+    "agent-harness": "./bin/install.js",
+    "agent-harness-init": "./bin/install.js"
   },
   "engines": {
     "node": ">=18"
   },
   "license": "MIT",
-  "homepage": "https://github.com/jajupmochi/claude-config#readme",
+  "homepage": "https://github.com/jajupmochi/agent-harness#readme",
   "bugs": {
-    "url": "https://github.com/jajupmochi/claude-config/issues"
+    "url": "https://github.com/jajupmochi/agent-harness/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jajupmochi/claude-config.git"
+    "url": "git+https://github.com/jajupmochi/agent-harness.git"
   },
   "keywords": [
     "claude-code",
@@ -39,8 +39,11 @@
     "templates/",
     "setup/",
     "docs/",
+    "scripts/",
     ".claude/",
     ".claude-plugin/",
+    "hooks.json",
+    ".codex-plugin/",
     "README.md",
     "README.zh.md",
     "USAGE.md",
@@ -49,5 +52,12 @@
     "INVENTORY.zh.md",
     "CLAUDE.md",
     "LICENSE"
-  ]
+  ],
+  "scripts": {
+    "install:codex": "node scripts/install-codex-local.js",
+    "verify:codex": "node scripts/verify-codex-adapter.js",
+    "activate:codex": "node scripts/install-codex-local.js",
+    "update:codex": "node scripts/codex-update-safe.js",
+    "repair:codex-update": "node scripts/codex-update-safe.js --repair-cache"
+  }
 }

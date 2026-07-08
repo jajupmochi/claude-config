@@ -1,6 +1,6 @@
 # 消费方式（Consumption）
 
-> 在下游项目里使用本库的三种方式。在 `setup/init-claude-config` 时选定，或混用。
+> 在下游项目里使用本库的三种方式。在 `setup/init-agent-harness` 时选定，或混用。
 
 > **语言：** [English](CONSUMPTION.md) | 中文
 
@@ -17,8 +17,8 @@
 项目的 `CLAUDE.md` 加入类似这样的行：
 
 ```markdown
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/pre-edit-confirmation/snippet.md
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/phased-planning/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/pre-edit-confirmation/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/phased-planning/snippet.md
 ```
 
 **优点：** 永远是最新（规则更新立即生效）、不用 clone、容易被发现（Claude 直接跟链接走）、零本地配置。
@@ -30,13 +30,13 @@
 一次性：
 
 ```bash
-git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-config
+git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness
 ```
 
 然后在项目 `CLAUDE.md`（或全局 `~/.claude/CLAUDE.md`）：
 
 ```markdown
-@~/.claude/claude-config/rules/pre-edit-confirmation/snippet.md
+@~/.claude/agent-harness/rules/pre-edit-confirmation/snippet.md
 ```
 
 **优点：** session 启动更快（无网络）、离线可用、本地易覆盖（直接改 clone 出的文件）、可 pin 到具体 commit/tag。
@@ -48,10 +48,10 @@ git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-confi
 Phase 10 交付 `.claude-plugin/plugin.json` 后：
 
 ```bash
-/plugin install jajupmochi/claude-config
+/plugin install jajupmochi/agent-harness
 ```
 
-**优点：** 最原生——安装技能直接作为 `/init-claude-config` 斜杠命令；自动注册选定的 rules / hooks / skills；marketplace 管更新。
+**优点：** 最原生——安装技能直接作为 `/init-agent-harness` 斜杠命令；自动注册选定的 rules / hooks / skills；marketplace 管更新。
 
 **缺点：** 只有 Phase 10 之后才能用；多了一层间接，调试"这条规则从哪来"多一步。
 
@@ -74,4 +74,4 @@ Phase 10 交付 `.claude-plugin/plugin.json` 后：
 - **项目级** `CLAUDE.md` 用 **方式 A**（raw URL）只引入项目相关子集（比如只要 static-site 那部分）。
 - Phase C 上线后，把一个或两个换成 Plugin 形式获得斜杠命令体验。
 
-`setup/init-claude-config` 技能（Phase 8）会根据用户偏好把对应形式写进新项目的 `CLAUDE.md`。
+`setup/init-agent-harness` 技能（Phase 8）会根据用户偏好把对应形式写进新项目的 `CLAUDE.md`。

@@ -14,7 +14,7 @@
 
 When an agent (or human) reads these files, the goal is: pick the relevant subset for the current project's context and run the install commands.
 
-The `setup/init-claude-config` skill (P8) does this composition automatically based on project type. For manual use, browse the index below.
+The `setup/init-agent-harness` skill (P8) does this composition automatically based on project type. For manual use, browse the index below.
 
 ## Active recommendations
 

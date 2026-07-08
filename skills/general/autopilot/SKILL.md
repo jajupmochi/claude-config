@@ -11,7 +11,7 @@ tags: [autopilot, autonomous, daily-driver, autorun, scheduling, project-managem
 You configure and install the **autopilot** daily autonomous project-driver. This skill is
 self-contained: the per-run prompt is `PROMPT.md` and all scripts are under `scripts/`, both bundled
 beside this file (so the live copy under `~/.claude/skills/autopilot/` runs without the source repo).
-Full design + every sub-tool spec: `docs/autopilot/README.md` in the claude-config repo.
+Full design + every sub-tool spec: `docs/autopilot/README.md` in the agent-harness repo.
 
 ## Modes (how the user invokes you)
 
@@ -95,5 +95,5 @@ as an optional fallback for users with no always-open session.)
 
 ## Guarantees it relies on
 review-gate (mandatory on every code turn) · code discipline (minimal module/change/impact, modular,
-tests + commits + docs, git per increment) · claude-config skills + Chrome/visual tools as needed ·
+tests + commits + docs, git per increment) · agent-harness skills + Chrome/visual tools as needed ·
 system-level crash-proofing (systemd Persistent + watchdog).

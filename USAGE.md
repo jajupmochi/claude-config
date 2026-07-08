@@ -1,24 +1,24 @@
 # USAGE — Operation Guide
 
-> Step-by-step walkthroughs for the most common scenarios with `claude-config`.
+> Step-by-step walkthroughs for the most common scenarios with `agent-harness`.
 
 > **Language:** English | [中文](USAGE.zh.md)
 
 ## Master TOC
 
-- [0. Install claude-config (once per machine)](#0-install-claude-config-once-per-machine)
+- [0. Install agent-harness (once per machine)](#0-install-agent-harness-once-per-machine)
 - [1. Bootstrap a new Python research project](#1-bootstrap-a-new-python-research-project)
 - [2. Bootstrap a new static personal site](#2-bootstrap-a-new-static-personal-site)
-- [3. Add claude-config to an existing project](#3-add-claude-config-to-an-existing-project)
+- [3. Add agent-harness to an existing project](#3-add-agent-harness-to-an-existing-project)
 - [4. Customize a rule for one project](#4-customize-a-rule-for-one-project)
 - [5. Add a new rule / skill / hook to the lib](#5-add-a-new-rule--skill--hook-to-the-lib)
-- [6. Update claude-config to the latest version](#6-update-claude-config-to-the-latest-version)
+- [6. Update agent-harness to the latest version](#6-update-agent-harness-to-the-latest-version)
 - [7. Publish a new version (maintainer)](#7-publish-a-new-version-maintainer)
 - [Troubleshooting](#troubleshooting)
 
-## 0. Install claude-config (once per machine)
+## 0. Install agent-harness (once per machine)
 
-Pick one of **6 methods**. Quick guide:
+Pick one of **6 Claude Code methods**, or use the separate Codex path below. Quick guide:
 
 | Method | Best for | Network at session start | Update mechanism |
 |---|---|---|---|
@@ -34,80 +34,102 @@ Pick one of **6 methods**. Quick guide:
 The fastest path. Zero config:
 
 ```bash
-npx github:jajupmochi/claude-config
+npx github:jajupmochi/agent-harness
 ```
 
-This runs [`bin/install.js`](https://github.com/jajupmochi/claude-config/blob/main/bin/install.js) which:
-1. Clones the lib to `~/.claude/claude-config/`
-2. Symlinks the `init-claude-config` skill into `~/.claude/skills/` so `/init-claude-config` becomes available globally
+This runs [`bin/install.js`](https://github.com/jajupmochi/agent-harness/blob/main/bin/install.js) which:
+1. Clones the lib to `~/.claude/agent-harness/`
+2. Symlinks the `init-agent-harness` skill into `~/.claude/skills/` so `/init-agent-harness` becomes available globally
 3. Prints next steps
 
-To update later: `npx github:jajupmochi/claude-config` again (it detects existing install and prints `git pull` instructions).
+To update later: `npx github:jajupmochi/agent-harness` again (it detects existing install and prints `git pull` instructions).
 
 ### B) `/plugin` interactive (inside Claude Code)
 
-Browse the plugin marketplace and pick claude-config:
+Browse the plugin marketplace and pick agent-harness:
 
 ```
-/plugin marketplace add jajupmochi/claude-config
+/plugin marketplace add jajupmochi/agent-harness
 /plugin
-# Browse and install claude-config
+# Browse and install agent-harness
 ```
 
-After install, `/init-claude-config` is available in any project.
+After install, `/init-agent-harness` is available in any project.
 
 ### C) `/plugin install` direct (inside Claude Code)
 
 If you already know the plugin name:
 
 ```
-/plugin install jajupmochi/claude-config
+/plugin install jajupmochi/agent-harness
 ```
 
-(Works once the plugin spec stabilizes — the manifest at [`.claude-plugin/plugin.json`](https://github.com/jajupmochi/claude-config/blob/main/.claude-plugin/plugin.json) is ready.)
+(Works once the plugin spec stabilizes — the manifest at [`.claude-plugin/plugin.json`](https://github.com/jajupmochi/agent-harness/blob/main/.claude-plugin/plugin.json) is ready.)
 
 ### D) Local `git clone` (canonical)
 
 For full manual control:
 
 ```bash
-git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-config
+git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness
 
-# Symlink the init skill so /init-claude-config is available globally:
-ln -s ~/.claude/claude-config/setup/init-claude-config ~/.claude/skills/init-claude-config
+# Symlink the init skill so /init-agent-harness is available globally:
+ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness
 ```
 
-Update with `cd ~/.claude/claude-config && git pull`.
+Update with `cd ~/.claude/agent-harness && git pull`.
 
 ### E) Raw URL `@imports` (no install)
 
 You don't install anything. Instead, your project's `CLAUDE.md` has `@import` lines pointing at GitHub raw URLs:
 
 ```markdown
-@https://raw.githubusercontent.com/jajupmochi/claude-config/main/rules/pre-edit-confirmation/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/pre-edit-confirmation/snippet.md
 ```
 
-Always live, but requires network on session start. The `/init-claude-config` slash command won't be available globally — you'd manually compose `CLAUDE.md` rather than using the scaffold skill.
+Always live, but requires network on session start. The `/init-agent-harness` slash command won't be available globally — you'd manually compose `CLAUDE.md` rather than using the scaffold skill.
 
 ### F) Copy-paste prompt to Claude Code
 
 Open Claude Code in any directory (no install needed). Paste this prompt verbatim and Claude will execute the install for you:
 
-> Please install claude-config from https://github.com/jajupmochi/claude-config:
+> Please install agent-harness from https://github.com/jajupmochi/agent-harness:
 >
-> 1. Run: `git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-config`
-> 2. Run: `mkdir -p ~/.claude/skills && ln -s ~/.claude/claude-config/setup/init-claude-config ~/.claude/skills/init-claude-config`
-> 3. Confirm done and tell me to run `/init-claude-config` in my project.
+> 1. Run: `git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness`
+> 2. Run: `mkdir -p ~/.claude/skills && ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness`
+> 3. Confirm done and tell me to run `/init-agent-harness` in my project.
 
 Or in Chinese:
 
-> 请帮我从 https://github.com/jajupmochi/claude-config 安装 claude-config：
+> 请帮我从 https://github.com/jajupmochi/agent-harness 安装 agent-harness：
 >
-> 1. 跑：`git clone https://github.com/jajupmochi/claude-config.git ~/.claude/claude-config`
-> 2. 跑：`mkdir -p ~/.claude/skills && ln -s ~/.claude/claude-config/setup/init-claude-config ~/.claude/skills/init-claude-config`
-> 3. 确认完成后告诉我在项目里跑 `/init-claude-config`。
+> 1. 跑：`git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness`
+> 2. 跑：`mkdir -p ~/.claude/skills && ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness`
+> 3. 确认完成后告诉我在项目里跑 `/init-agent-harness`。
 
 This works because Claude Code can execute shell commands and reads the GitHub URL from the prompt.
+
+---
+
+### Codex local activation
+
+Codex uses separate discovery locations from Claude Code. This path does not change `~/.claude` or the Claude plugin install.
+
+```bash
+cd ~/.claude/agent-harness
+npm run verify:codex
+npm run activate:codex
+```
+
+The activation script:
+
+1. Symlinks Codex wrapper skills into `~/.agents/skills/`.
+2. Symlinks this repository to `~/plugins/agent-harness`.
+3. Creates or updates `~/.agents/plugins/marketplace.json`.
+
+Restart Codex or start a new session, then use `/skills` for `init-codex-config` or `agent-config-adapter`. Use `/plugins` to inspect the local plugin entry.
+
+If Codex CLI update fails with `Could not find Codex package or platform npm release assets`, run `npm run update:codex`. The wrapper retries the official installer with an explicit `CODEX_RELEASE` when the latest release metadata and assets are briefly out of sync.
 
 ---
 
@@ -128,7 +150,7 @@ cd my-research-pkg
 claude
 
 # 3. Run the scaffold skill
-/init-claude-config
+/init-agent-harness
 ```
 
 When prompted, answer:
@@ -155,9 +177,9 @@ my-research-pkg/
 │   ├── settings.local.json         ← permissions allowlist (gitignored)
 │   ├── skills/
 │   │   ├── verify/SKILL.md         ← project-specific verify
-│   │   ├── long-running-tasks/     ← from claude-config (symlink)
-│   │   ├── privacy-redact/         ← from claude-config (symlink)
-│   │   └── verify-visual/          ← from claude-config (symlink)
+│   │   ├── long-running-tasks/     ← from agent-harness (symlink)
+│   │   ├── privacy-redact/         ← from agent-harness (symlink)
+│   │   └── verify-visual/          ← from agent-harness (symlink)
 └── (your code goes here)
 ```
 
@@ -182,7 +204,7 @@ uv pip install -e ".[dev]"
 # Initialize git
 git init -b main
 git add .
-git commit -m "chore: initialize from claude-config research-package-py template"
+git commit -m "chore: initialize from agent-harness research-package-py template"
 
 # Verify
 /verify
@@ -205,7 +227,7 @@ cd myhandle.github.io
 
 # 2. Open Claude Code + run scaffold
 claude
-/init-claude-config
+/init-agent-harness
 ```
 
 Answer:
@@ -236,8 +258,8 @@ myhandle.github.io/
     │   ├── preview/SKILL.md          ← python3 -m http.server
     │   ├── verify-visual/SKILL.md    ← chrome-devtools MCP
     │   ├── i18n-sync/SKILL.md        ← locale parity check
-    │   ├── long-running-tasks/       ← from claude-config
-    │   └── privacy-redact/           ← from claude-config
+    │   ├── long-running-tasks/       ← from agent-harness
+    │   └── privacy-redact/           ← from agent-harness
 ```
 
 ### Post-setup commands
@@ -262,24 +284,24 @@ find . -type f \( -name "*.html" -o -name "*.json" -o -name "*.md" \) -exec sed 
 # Initialize git + push to GitHub
 git init -b main
 git add .
-git commit -m "chore: initialize from claude-config personal-cite-static template"
+git commit -m "chore: initialize from agent-harness personal-cite-static template"
 gh repo create myhandle/myhandle.github.io --public --source=. --push
 ```
 
 ---
 
-## 3. Add claude-config to an existing project
+## 3. Add agent-harness to an existing project
 
 ### Scenario
 
-You already have a working project. You want to retrofit it with `claude-config`'s conventions without overwriting your code.
+You already have a working project. You want to retrofit it with `agent-harness`'s conventions without overwriting your code.
 
 ### Steps
 
 ```bash
 cd my-existing-project
 claude
-/init-claude-config
+/init-agent-harness
 ```
 
 The skill detects the existing project (has manifest files / has CLAUDE.md / has .git):
@@ -300,7 +322,7 @@ For context tags, pick those matching the existing project's nature. Skill won't
 
 - Your source code
 - Your existing `pyproject.toml` / `package.json`
-- Your existing `.gitignore` (only appended-to if missing claude-config patterns)
+- Your existing `.gitignore` (only appended-to if missing agent-harness patterns)
 - Your existing `README.md`
 
 ---
@@ -316,7 +338,7 @@ You like the `output-brevity` rule generally, but for *this specific project* yo
 Edit the project's `CLAUDE.md`, comment out the offending `@import`:
 
 ```markdown
-<!-- @~/.claude/claude-config/rules/output-brevity/snippet.md -->
+<!-- @~/.claude/agent-harness/rules/output-brevity/snippet.md -->
 ```
 
 Done. Other rules still apply.
@@ -335,7 +357,7 @@ Project-specific text appears AFTER the imported snippets, so it wins.
 
 ### Option C: Customize globally (affects all consumers)
 
-If the rule itself is wrong (not just project-specific), submit a PR to `claude-config` with the correction. See section 5.
+If the rule itself is wrong (not just project-specific), submit a PR to `agent-harness` with the correction. See section 5.
 
 ---
 
@@ -348,7 +370,7 @@ You discover a new behavior worth standardizing (e.g., "always run `prettier --c
 ### Steps
 
 ```bash
-cd ~/.claude/claude-config
+cd ~/.claude/agent-harness
 claude
 
 # For a rule:
@@ -373,12 +395,12 @@ If you want to cut a release, see section 7.
 
 ---
 
-## 6. Update claude-config to the latest version
+## 6. Update agent-harness to the latest version
 
 ### Local clone (Option B install)
 
 ```bash
-cd ~/.claude/claude-config
+cd ~/.claude/agent-harness
 git pull origin main
 ```
 
@@ -396,17 +418,17 @@ To lock to a specific version in a downstream project:
 
 ```markdown
 <!-- Pin to v0.1.0 instead of main -->
-@https://raw.githubusercontent.com/jajupmochi/claude-config/v0.1.0/rules/<rule>/snippet.md
+@https://raw.githubusercontent.com/jajupmochi/agent-harness/v0.1.0/rules/<rule>/snippet.md
 ```
 
-For local clones: `git checkout v0.1.0` in `~/.claude/claude-config/`.
+For local clones: `git checkout v0.1.0` in `~/.claude/agent-harness/`.
 
 ---
 
 ## 7. Publish a new version (maintainer)
 
 ```bash
-cd ~/.claude/claude-config
+cd ~/.claude/agent-harness
 claude
 /publish minor
 ```
@@ -425,15 +447,15 @@ The `/publish` skill (under `.claude/skills/publish/SKILL.md`):
 
 ## Troubleshooting
 
-### `/init-claude-config` not found
+### `/init-agent-harness` not found
 
 The setup skill isn't in your CC environment yet:
 
-- **Plugin install**: rerun `/plugin install jajupmochi/claude-config`
+- **Plugin install**: rerun `/plugin install jajupmochi/agent-harness`
 - **Local clone**: symlink the skill into `~/.claude/skills/`:
 
   ```bash
-  ln -s ~/.claude/claude-config/setup/init-claude-config ~/.claude/skills/init-claude-config
+  ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness
   ```
 
 - **Raw URL** (advanced): manual since SKILL.md isn't auto-loaded. Easier to clone or install the plugin.
@@ -443,7 +465,7 @@ The setup skill isn't in your CC environment yet:
 Check that:
 
 1. Your project's `CLAUDE.md` actually has the `@import` lines (or the snippets inlined)
-2. The path resolves correctly (`@~/.claude/claude-config/rules/...` for local clone — note the tilde)
+2. The path resolves correctly (`@~/.claude/agent-harness/rules/...` for local clone — note the tilde)
 3. CC has restarted after CLAUDE.md changes (sometimes needed for `@import` resolution)
 
 ### Hook not firing
@@ -460,5 +482,5 @@ If the hook errors at runtime (e.g., `uv run` not found), make sure `uv` is in `
 
 ### Need help
 
-- Issue tracker: https://github.com/jajupmochi/claude-config/issues
+- Issue tracker: https://github.com/jajupmochi/agent-harness/issues
 - Existing discussions: see closed issues for common questions

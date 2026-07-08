@@ -12,11 +12,11 @@
 
 Three ways to make a skill available to Claude in a downstream project:
 
-1. **Symlink** — `ln -s ~/.claude/claude-config/skills/general/<name> <project>/.claude/skills/<name>`
+1. **Symlink** — `ln -s ~/.claude/agent-harness/skills/general/<name> <project>/.claude/skills/<name>`
 2. **Copy** — copy the directory verbatim
-3. **Plugin** (P10+) — `/plugin install jajupmochi/claude-config` registers all skills
+3. **Plugin** (P10+) — `/plugin install jajupmochi/agent-harness` registers all skills
 
-The `setup/init-claude-config` skill (P8) does this automatically based on project type.
+The `setup/init-agent-harness` skill (P8) does this automatically based on project type.
 
 Once available, Claude can invoke a skill via the `Skill` tool, or the user via `/<skill-name>`.
 

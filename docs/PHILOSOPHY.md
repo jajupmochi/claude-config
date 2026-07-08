@@ -45,7 +45,7 @@ A 5-page CLAUDE.md captures everything but Claude won't load it all into working
 
 Static-site rules (i18n parity, bilingual docs, visual verification) don't apply to ML research packages. Universal rules (plan-before-edit, Chinese output) apply to everything.
 
-**Resolution:** every rule has a `scope:` field in its frontmatter (e.g. `universal`, `python-research`, `static-site`, `ml-experiment`). The `setup/init-claude-config` skill asks the user which scopes apply per new project, and only writes those rules in.
+**Resolution:** every rule has a `scope:` field in its frontmatter (e.g. `universal`, `python-research`, `static-site`, `ml-experiment`). The `setup/init-agent-harness` skill asks the user which scopes apply per new project, and only writes those rules in.
 
 ## Conventions adopted
 

@@ -14,6 +14,7 @@
 - [Tooling](#tooling)
 - [Templates](#templates)
 - [Setup](#setup)
+- [Codex 适配](#codex-适配)
 
 ## 当前状态
 
@@ -28,8 +29,9 @@
 - P6：工具偏好 ✓
 - P7：项目模板 ✓
 - P8：安装技能 ✓
-- P9：LICENSE + 元技能 + GitHub publish ✓（https://github.com/jajupmochi/claude-config）
+- P9：LICENSE + 元技能 + GitHub publish ✓（https://github.com/jajupmochi/agent-harness）
 - P10：Plugin packaging（`.claude-plugin/plugin.json`）✓
+- P11：Codex adapter（`.codex-plugin`、wrapper skills、`hooks.json`、安装/验证/更新脚本）✓
 
 详见 [docs/PHILOSOPHY.zh.md](docs/PHILOSOPHY.zh.md) 与 README 的"构建历程"。
 
@@ -49,7 +51,7 @@
 | [`writing-style`](rules/writing-style/RULE.md) | personal | 去 AI 味写作习惯。不用连字符拼合修饰词，不用冒号或分号在整句后接一段话，不用风格化填充词（important/crucial/genuinely 等）。改用户自己写的文字时最小化、外科式 |
 | [`tool-proactivity`](rules/tool-proactivity/RULE.md) | personal | 已安装的插件 / skill / MCP 匹配场景时主动调用（含若干"必须先确认"的例外） |
 | [`no-reread-files`](rules/no-reread-files/RULE.md) | personal | 信任本 session 内对文件内容的记忆；除非真的变了不再重读 |
-| [`bilingual-docs`](rules/bilingual-docs/RULE.md) | optional | `NAME.md` + `NAME.zh.md` 双语文档约定（消费方 opt-in via `setup/init-claude-config`） |
+| [`bilingual-docs`](rules/bilingual-docs/RULE.md) | optional | `NAME.md` + `NAME.zh.md` 双语文档约定（消费方 opt-in via `setup/init-agent-harness`） |
 | [`end-of-turn-marker`](rules/end-of-turn-marker/RULE.md) | personal | 每轮以 `[END:FINAL]` / `[END:WAIT]` / `[END:NEEDS_USER]` 单行结束 |
 | [`always-on-verification`](rules/always-on-verification/RULE.md) | research-pkg | 任何 code / test / 结果声明前，调用 `code-verifier`（artifact 真实性）+ `research-critic`（推理链可靠性） |
 | [`autorun-mode`](rules/autorun-mode/RULE.md) | personal | 用户说 "autorun" / "全力跑" / "think a lot" + scope 时：高自主 cadence + 多轮 review + 分支卫生 |
@@ -115,7 +117,7 @@
 | [reference/apt-packages.md](recommendations/reference/apt-packages.md) | always（查询） | apt 包知识表——绝不自动安装 |
 | [reference/vscode-extensions.md](recommendations/reference/vscode-extensions.md) | always（查询） | VS Code 扩展知识表——绝不自动安装；CC-friendly 默认值已标注 |
 
-详见 [`recommendations/README.md`](recommendations/README.md)（context 标签 + `setup/init-claude-config` 如何按项目类型决定安装哪些）。
+详见 [`recommendations/README.md`](recommendations/README.md)（context 标签 + `setup/init-agent-harness` 如何按项目类型决定安装哪些）。
 
 ## Tooling
 
@@ -138,7 +140,7 @@
 | [research-package-py/](templates/research-package-py/TEMPLATE_README.md) | Python 研究包（uv + ruff + pytest） | CLAUDE.template.md、pyproject.template.toml（含研究 extras：torch/data/logging）、.gitignore、.claude/settings.template.json（ruff 格式化钩子）、.claude/skills/verify/ |
 | [personal-cite-static/](templates/personal-cite-static/TEMPLATE_README.md) | 静态个人学术主页（HTML/CSS/JS、i18n、双语） | CLAUDE.template.md（双语 + 视觉验证 + 迭代 round 文件约定）、index.template.html（i18n）、locales/{en,zh}.template.json、.gitignore、.claude/settings.template.json（jq JSON 校验钩子）、.claude/skills/{preview,verify-visual,i18n-sync}/ |
 
-详见 [`templates/README.md`](templates/README.md)。`setup/init-claude-config` 技能（P8）自动完成占位符替换与组合。
+详见 [`templates/README.md`](templates/README.md)。`setup/init-agent-harness` 技能（P8）自动完成占位符替换与组合。
 
 ## Setup
 
@@ -146,6 +148,10 @@
 
 | 技能 | 用途 |
 |---|---|
-| [`init-claude-config`](setup/init-claude-config/SKILL.md) | 交互式 `/init-claude-config` 斜杠命令。问 6 个问题（项目类型、双语策略、终端输出语言、context 标签、消费方式、个人偏好规则），然后从库中组合相应子集的 rules / hooks / skills / templates / tooling 到项目里。 |
+| [`init-agent-harness`](setup/init-agent-harness/SKILL.md) | 交互式 `/init-agent-harness` 斜杠命令。问 6 个问题（项目类型、双语策略、终端输出语言、context 标签、消费方式、个人偏好规则），然后从库中组合相应子集的 rules / hooks / skills / templates / tooling 到项目里。 |
 
 详见 [`setup/README.md`](setup/README.md)。
+
+## Codex 适配
+
+已从 `codex-adapter` 分支融合（2026-07-08）。Claude Code 入口保持不变，Codex 使用独立 manifest 和 wrapper 层。

@@ -1,63 +1,70 @@
 ---
 name: human-readable-output
-description: Write everything the user reads — chat, summaries, committed docs, reports — as plain language a person follows on the first read (what · why · effect). No telegram-style fragments, no process narration, no session-control markers leaking into reports.
+description: Write all output (chat and documents) as complete, natural human sentences and tables, not terse AI shorthand or telegram fragments. Reserve concise phrasing for genuine list and table cells. Use judgment, and prefer tables for structured or comparative information.
 scope: personal
-rationale: The user repeatedly couldn't tell what was actually done from formulaic, fragmented output — terse AI shorthand, internal process narration, and session-control markers (`[END:WAIT]`, "收敛路径") leaking into reports. A summary a person can't decode is worthless. This refines `output-brevity`: stay lean by cutting whole points, not by compressing sentences into cryptic shorthand. On conflict, readability wins.
+rationale: Output exists to be understood by the human reading it, not by the model that wrote it. Phrase-stacked shorthand is dense for the writer but unreadable for the person. A summary the reader cannot follow has failed at its only job, however information-rich it is.
 ---
 
 # human-readable-output
 
-> Say it like a human. Complete sentences, concrete (what · why · effect), understandable on the first read. Never leak internal process narration or session-control markers into anything the user reads.
+> Write so a person understands you on the first read: complete sentences and tables, not AI shorthand.
 
 ## Master TOC
 
 - [Rule](#rule)
-- [What to keep out of user-facing text](#what-to-keep-out-of-user-facing-text)
 - [Why](#why)
-- [Companion rules](#companion-rules)
+- [What to avoid, with rewrites](#what-to-avoid-with-rewrites)
+- [When concise phrasing is fine](#when-concise-phrasing-is-fine)
+- [Prefer tables and short paragraphs](#prefer-tables-and-short-paragraphs)
+- [Relationship to output-brevity](#relationship-to-output-brevity)
+- [Scope and exceptions](#scope-and-exceptions)
+- [Self-check](#self-check)
 
 ## Rule
 
-Everything the user reads must be plain-language and decodable on the first read:
-
-1. **Complete, natural sentences.** Not telegram-style fragments joined by semicolons, not slash-and-parenthesis phrase piles, not undefined acronyms, not dense walls of text. If a person would have to stop and decode it, rewrite it as a sentence.
-2. **Lead with substance, in human words.** Say WHAT you did, WHY, and the EFFECT, so someone who didn't watch understands: "I added a regression test for the validator; it now catches 9 bad configs (verified by a real run)." Not a checklist of opaque fragments.
-3. **No internal process narration in reports.** Don't narrate the plumbing — "收敛路径", "本回合补强", "review-gate 复核中", "下回合 commit-only", "Stop 评审覆盖". That's how the machinery works, not what got done.
-4. **No session-control markers in docs/summaries.** `[END:WAIT]` / `[END:FINAL]` / `[END:NEEDS_USER]` belong to live turn-control only — they must NEVER appear inside a committed doc or a written report.
-5. **Structured content gets structure.** For options with trade-offs, per-item status, pros/cons, or a multi-step plan, use a TABLE or short separated paragraphs over one cramped run-on. Keep prose to short paragraphs of two to four sentences. Bullet/table cells may be concise, but each must be a self-contained, decodable thought.
-6. **Refines `output-brevity`.** Stay lean by cutting whole points, NOT by compressing sentences into shorthand. On any conflict between brevity and readability, readability wins.
-7. **Fence the final summary top AND bottom with a THICK `━` bar — bar and keyword each on their OWN line.** Put a bounded run of `━` (~14–16 chars — must fit ONE line on a phone; a 24-char bar already wrapped) on its own line, the keyword on its own line, another `━` bar on its own line; then the content; then a closing `━` bar:
-
-    ```
-    ━━━━━━━━━━━━━━━━
-    📊 本轮小结
-    ━━━━━━━━━━━━━━━━
-
-    …content…
-
-    ━━━━━━━━━━━━━━━━
-    ```
-
-   The thick `━` bar is far more grabbable than a thin `---`. The reason the bar and keyword go on SEPARATE lines (not inline as `━━━ 本轮小结 ━━━`): an inline bar makes one very long logical line that wraps badly on a phone, burying the keyword mid-wrap. On its own line, a bounded bar stays clean and the keyword stands alone. The same applies to any auto-running post-summary output (e.g. a review-gate review): give it its own `━`-fenced block, don't let it sprawl as raw text.
-8. **Make the key points pop; keep details secondary but present.** Lead a complex summary with a one-line at-a-glance (or a 2–3 item mini-TOC), then a **table** or **bold-keyed nested bullets**: bold the key point like a heading, put the detail on the next line / in a sub-bullet. The reader should grasp the headline at a glance and still find the detail underneath. Don't bury the point in a wall of text.
-9. **Explain every marker/shorthand at least once, every output.** Whenever you use a label, code, or shorthand the reader might not remember — `H1`/`H46`, an experiment tag, a codename, an abbreviation, `a/b/c` option keys, a one-letter flag — give a brief inline gloss of what it means **in that same output**, even if you (or they) defined it before. The reader has forgotten; never assume recall. (Exempt: standard identifiers in code/paths/commits.)
-10. **Tables AND lists must render — put a blank line before AND after them.** A markdown table OR list glued directly to the line above it (no blank line) — especially a `- bullet` / `1.` list sitting right under a `**bold heading**` line — fails to render in many clients (incl. the Claude Code terminal / phone app): the table shows as raw `| … |` text, and the list shows as raw `- …` source or gets swallowed into the paragraph (the user sees "code", not a list). ALWAYS leave a blank line between a heading/paragraph line and the table or list that follows it, and a blank line after the block. Keep a proper table separator (`|---|---|`), and never nest a table inside a blockquote (`>`) or a list item.
-11. **Any flat bullet list with MORE THAN 3 items must be numbered (`1. 2. 3. …`), not `-` dashes — and number every nesting level that also exceeds 3.** Four-plus dashes are hard to scan and impossible to refer back to ("which of the 9 bullets?"). With >3 items: number them, or group them into a shallow hierarchy; within any one level, ≤3 items may stay as `-`, but >3 at that level gets numbered so each is identifiable. (The review-gate's 9-item form list is the canonical offender.)
-
-Exceptions that stay as-is: code, identifiers, file paths, commit messages, log lines, machine-facing text.
-
-## What to keep out of user-facing text
-
-| Keep OUT (machinery) | Put IN (the report) |
-|---|---|
-| `[END:WAIT]`, `[END:FINAL]` | (nothing — these are turn-control only) |
-| "收敛路径 / 本回合补强 / 复核中" | "I added a regression test for the validator; it now catches 9 bad configs" |
-| bare status fragments | "what · why · effect", each with a clickable link |
+Everything the user reads, both chat replies and written documents, must read like a person wrote it for another person. Use complete, natural sentences. Group structured or comparative information into tables or short, clearly separated paragraphs. Do not pack many facts into one cramped line of fragments, slashes, and parentheses. Use your own judgment about where a short phrase helps and where it hurts, rather than applying one compressed style to everything.
 
 ## Why
 
-Output is only useful if the reader understands it and can act on it. Formulaic fragments plus leaked process narration mean the user can't tell what happened — it reads as perfunctory. Plain language, concrete specifics, and working links are the difference between a real report and noise.
+The output is for the human, not the model. A dense, phrase-stacked status line carries a lot of information per character, but the person then has to decode it word by word, and often they simply cannot. A summary the reader cannot follow has failed at its only job, no matter how complete it is. Full sentences and tables cost a few more characters and save the reader the decoding.
 
-## Companion rules
+## What to avoid, with rewrites
 
-Pairs with [`clickable-links`](../clickable-links/RULE.md) (every reference clickable) and [`output-brevity`](../output-brevity/RULE.md) (terse — but terse AND clear, never terse-and-cryptic).
+**Telegram fragments joined by semicolons or commas, with no verbs and no flow.**
+- Avoid: `Top-5 不变;Critic PASS;海投 13(无头 11 + LinkedIn 2);自检 2 天<5 不重挂。`
+- Better: "The top five roles are unchanged and the quality check passed. There are 13 new roles to apply to tonight, 11 from the automated run and 2 from LinkedIn. I also checked the timer's self-renewal, but since it was refreshed only two days ago I did not re-arm it."
+
+**Cramming several facts into one line with slashes and parentheses.**
+- Avoid: `Anthropic 苏黎世 ×2(预训练 RE/RS、后训练 RE;greenhouse 实测 "Zürich, CH")`
+- Better: "Anthropic has two new openings in Zurich, both verified live on their job board: a pre-training research engineer or scientist, and a post-training research engineer."
+
+**Undefined acronyms or internal jargon with no plain gloss.**
+- Avoid: "RE/RS, VLA, ATS JSON, render-seen only."
+- Better: spell it out the first time, for example "research engineer or research scientist", "a vision-language-action model", "read directly from the employer's job-board API", "I could only see the title and could not confirm the posting is still open".
+
+**A wall of dense text where a table or short paragraphs would be clearer.** When you are comparing options, listing the status of several items, or weighing trade-offs, build a table instead of a run-on paragraph.
+
+## When concise phrasing is fine
+
+Brevity is not the enemy; cryptic compression is. These are fine:
+- Bullet points and table cells may be short, as long as each is a self-contained, readable thought rather than a cryptic fragment.
+- A genuine one-line status, for example "Committed as 2c82bb1; gitleaks passed, nothing pushed."
+- Headings and labels.
+
+The test: if a person would have to stop and decode it, rewrite it into a sentence or move it into a table.
+
+## Prefer tables and short paragraphs
+
+For anything structured or comparative, default to a table. Tables beat prose for a set of options and their trade-offs, before-and-after, the status of several items at once, pros and cons, or a plan with steps. Keep ordinary prose in short paragraphs of two to four sentences rather than one large block.
+
+## Relationship to output-brevity
+
+`output-brevity` says cut unnecessary content: do not echo tool output, do not recap what `git diff --stat` already shows, do not reprint an approved plan. This rule governs how the content you DO keep is phrased. Stay lean by dropping whole points, not by compressing sentences into shorthand. When brevity and readability seem to conflict, readability wins: a slightly longer sentence the user understands beats a short one they cannot.
+
+## Scope and exceptions
+
+Applies to both session output and written documents: sweep summaries, `application.md` notes, retrospectives, plans, design docs, anything a person reads. Exceptions that stay as they are: code, identifiers, file paths, commit messages, log lines, and other machine-facing text. Truly private scratch notes can be terse.
+
+## Self-check
+
+Before sending, read it as if you were explaining it aloud to a colleague. If it sounds like a telegram, a configuration dump, or a list of keywords, rewrite it into sentences or a table.

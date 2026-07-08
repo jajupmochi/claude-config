@@ -57,7 +57,7 @@ mv .claude/settings.template.json .claude/settings.json
 # 5. (Optional) Initialize git
 git init -b main
 git add .
-git commit -m "chore: initialize from claude-config research-package-py template"
+git commit -m "chore: initialize from agent-harness research-package-py template"
 ```
 
 ## Imports applied

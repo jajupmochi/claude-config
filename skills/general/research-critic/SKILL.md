@@ -186,4 +186,4 @@ If the answer involves wishful thinking ("they probably won't ask", "reviewers u
 
 ## Provenance
 
-Originally authored as a user-level always-on gate; consolidated into `claude-config` for cross-project reuse. Pairs with `code-verifier` for full claim-defensibility coverage.
+Originally authored as a user-level always-on gate; consolidated into `agent-harness` for cross-project reuse. Pairs with `code-verifier` for full claim-defensibility coverage.

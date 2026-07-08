@@ -1,4 +1,4 @@
-# PUBLISHING.md — How to publish claude-config to external directories
+# PUBLISHING.md — How to publish agent-harness to external directories
 
 > Status of each publishing channel and the exact steps to complete it. Some are automated end-to-end; others require manual form-fill due to platform constraints (Anthropic doesn't accept GitHub PRs to the official plugin marketplace; npm requires interactive `npm login`).
 
@@ -15,10 +15,10 @@
 
 | Channel | What was auto-done by the assistant | What you need to do manually |
 |---|---|---|
-| 1. awesome-claude-code (`hesreallyhim/awesome-claude-code`) | Forked the repo, added a row to `THE_RESOURCES_TABLE.csv`, pushed branch `add-claude-config` to fork | **Click the URL in §1 below to open the PR** (gh CLI hit a cross-repo permission quirk; one click in browser finalizes it) |
+| 1. awesome-claude-code (`hesreallyhim/awesome-claude-code`) | Forked the repo, added a row to `THE_RESOURCES_TABLE.csv`, pushed branch `add-agent-harness` to fork | **Click the URL in §1 below to open the PR** (gh CLI hit a cross-repo permission quirk; one click in browser finalizes it) |
 | 2. Anthropic plugin marketplace (clau.de form) | Nothing — Anthropic doesn't accept programmatic submissions | **Fill in the form at https://clau.de/plugin-directory-submission** with the prepared text in §2 |
 | 3. claudemarketplaces.com / buildwithclaude.com | Nothing — these auto-aggregate from GitHub repos with `.claude-plugin/plugin.json` | Probably auto-listed within ~24h. Check the site after a day. Optional: fill any form to expedite |
-| 4. npm registry | Created `package.json` + `bin/install.js`; verified name `claude-config` is available on npm | **Run `npm login` + `npm publish`** in `~/.claude/claude-config` (must be you — npm 2FA requires your token in keychain) |
+| 4. npm registry | Created `package.json` + `bin/install.js`; verified name `agent-harness` is available on npm | **Run `npm login` + `npm publish`** in `~/.claude/agent-harness` (must be you — npm 2FA requires your token in keychain) |
 | 5. GitHub Topics | Nothing — needs `gh repo edit` (could be auto if you want; see §5 for the command) | Run the `gh repo edit` one-liner in §5 |
 
 ---
@@ -31,9 +31,9 @@ The Awesome Claude Code list at [hesreallyhim/awesome-claude-code](https://githu
 
 1. Forked `hesreallyhim/awesome-claude-code` into `jajupmochi/awesome-claude-code`
 2. Synced the fork with upstream main
-3. Created branch `add-claude-config`
+3. Created branch `add-agent-harness`
 4. Appended one CSV row with the resource metadata (ID, name, category=`Agent Skills`, sub-category=`General`, link, description, license=`MIT`, dates, etc.)
-5. Committed with message: `Add resource: claude-config`
+5. Committed with message: `Add resource: agent-harness`
 6. Pushed the branch to the fork
 
 ### Why I couldn't open the PR programmatically
@@ -51,7 +51,7 @@ GitHub will pre-fill the source/target. **Use the prepared title + body below** 
 ### PR title
 
 ```
-Add resource: claude-config
+Add resource: agent-harness
 ```
 
 ### PR body (paste this if not auto-filled)
@@ -59,17 +59,17 @@ Add resource: claude-config
 ````markdown
 ### Resource Information
 
-- **Display Name**: claude-config
+- **Display Name**: agent-harness
 - **Category**: Agent Skills
 - **Sub-Category**: General
-- **Primary Link**: https://github.com/jajupmochi/claude-config
+- **Primary Link**: https://github.com/jajupmochi/agent-harness
 - **Author Name**: jajupmochi
 - **Author Link**: https://github.com/jajupmochi
 - **License**: MIT
 
 ### Description
 
-Curated Claude Code config library: 9 workflow rules (pre-edit confirmation, phased planning, plugin preflight, autonomous UI iteration loop with chrome-devtools, output brevity, tool proactivity, no-reread-files, chinese-output, bilingual-docs), 5 skills (verify-template, preview-template, long-running-tasks, verify-visual, privacy-redact), 2 hooks (ruff format-on-edit + jq JSON validity), 12 plugin/tool recommendation lists, and 2 project templates (Python research package + static personal site). Run `/init-claude-config` post-install to scaffold any project with the matching subset.
+Curated Claude Code config library: 9 workflow rules (pre-edit confirmation, phased planning, plugin preflight, autonomous UI iteration loop with chrome-devtools, output brevity, tool proactivity, no-reread-files, chinese-output, bilingual-docs), 5 skills (verify-template, preview-template, long-running-tasks, verify-visual, privacy-redact), 2 hooks (ruff format-on-edit + jq JSON validity), 12 plugin/tool recommendation lists, and 2 project templates (Python research package + static personal site). Run `/init-agent-harness` post-install to scaffold any project with the matching subset.
 
 Six install methods verified by a GitHub Actions install matrix: npx, /plugin interactive, /plugin install direct, local clone, raw URL @imports, copy-paste prompt. Privacy/secret scan workflow with gitleaks + custom patterns. Bilingual top-level docs, 4 meta-skills for self-extension.
 
@@ -101,18 +101,18 @@ The form fields (based on the official docs and example submissions) are typical
 
 | Field | Value |
 |---|---|
-| **Plugin name** | `claude-config` |
-| **GitHub repository URL** | `https://github.com/jajupmochi/claude-config` |
+| **Plugin name** | `agent-harness` |
+| **GitHub repository URL** | `https://github.com/jajupmochi/agent-harness` |
 | **Plugin manifest path** | `.claude-plugin/plugin.json` |
 | **Version** | `0.1.0` |
 | **Author / GitHub handle** | `jajupmochi` |
 | **License** | `MIT` |
 | **Category** | `Skills` (primary) — or `Tooling` if "Skills" doesn't fit |
 | **Tags / keywords** | `claude-code`, `skills`, `hooks`, `scaffold`, `config`, `workflow`, `rules`, `templates` |
-| **Short description** (one-liner) | `Curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Run /init-claude-config to scaffold any project.` |
+| **Short description** (one-liner) | `Curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Run /init-agent-harness to scaffold any project.` |
 | **Long description** | (Use the awesome-claude-code description from §1 above — it covers the same ground) |
-| **Documentation URL** | `https://github.com/jajupmochi/claude-config#readme` |
-| **Issue tracker URL** | `https://github.com/jajupmochi/claude-config/issues` |
+| **Documentation URL** | `https://github.com/jajupmochi/agent-harness#readme` |
+| **Issue tracker URL** | `https://github.com/jajupmochi/agent-harness/issues` |
 | **Demo / video URL** | (optional — leave blank unless you record one) |
 | **Screenshots** | (optional — could attach the README "Build history" table or the install matrix CI badge) |
 
@@ -128,7 +128,7 @@ Timeline: per Anthropic's docs, "basic automated review" → minutes to hours. "
 
 After submitting, you can check the plugin's appearance at:
 - https://claude.com/plugins (official directory)
-- https://github.com/anthropics/claude-plugins-official/blob/main/.claude-plugin/marketplace.json (raw marketplace manifest — search for `claude-config`)
+- https://github.com/anthropics/claude-plugins-official/blob/main/.claude-plugin/marketplace.json (raw marketplace manifest — search for `agent-harness`)
 
 ---
 
@@ -145,8 +145,8 @@ Most likely they **auto-discover** any GitHub repo with `.claude-plugin/plugin.j
 
 1. Make sure GitHub Topics are set on the repo (see §5) — especially `claude-code`, `skills`, `hooks`
 2. Wait ~24 hours, then check:
-   - https://claudemarketplaces.com/ → search for `claude-config`
-   - https://buildwithclaude.com/ → search for `claude-config`
+   - https://claudemarketplaces.com/ → search for `agent-harness`
+   - https://buildwithclaude.com/ → search for `agent-harness`
 3. If not auto-listed after 48h, look for a "Submit" button on each site (some have a form)
 
 No action prepared in advance because the auto-discovery may already cover us.
@@ -155,7 +155,7 @@ No action prepared in advance because the auto-discovery may already cover us.
 
 ## 4. npm registry (manual `npm login` + `npm publish`)
 
-The package name `claude-config` is **available on npm** (verified — `npm view claude-config` returns 404). The repo already has a valid `package.json` + `bin/install.js`.
+The package name `agent-harness` is **available on npm** (verified — `npm view agent-harness` returns 404). The repo already has a valid `package.json` + `bin/install.js`.
 
 ### Why it's manual
 
@@ -172,7 +172,7 @@ I can prepare everything but the actual publish must come from your machine afte
 # 1. (One time) Create an npm account at https://www.npmjs.com/signup if you don't have one
 
 # 2. Log in (interactive — opens browser or prompts for OTP)
-cd ~/.claude/claude-config   # or wherever you've cloned
+cd ~/.claude/agent-harness   # or wherever you've cloned
 npm login
 
 # 3. Verify you're logged in as the right user
@@ -183,20 +183,20 @@ cat package.json | jq '{name, version, bin, files}'
 npm publish --access=public
 
 # 5. Verify
-npm view claude-config
+npm view agent-harness
 ```
 
 After publish, the install command becomes:
 
 ```bash
 # Old (from GitHub):
-npx github:jajupmochi/claude-config
+npx github:jajupmochi/agent-harness
 
 # New (from npm — slightly faster, registered):
-npx claude-config
+npx agent-harness
 ```
 
-You should update `README.md` / `USAGE.md` to mention the new npm-registry path as preferred. (Or run `/init-claude-config` in `~/.claude/claude-config` and let CC do it for you.)
+You should update `README.md` / `USAGE.md` to mention the new npm-registry path as preferred. (Or run `/init-agent-harness` in `~/.claude/agent-harness` and let CC do it for you.)
 
 ### Versioning going forward
 
@@ -204,7 +204,7 @@ For future releases, bump the version in `package.json` AND in `.claude-plugin/p
 
 ```bash
 # Use the /publish meta-skill defined in .claude/skills/publish/SKILL.md
-cd ~/.claude/claude-config
+cd ~/.claude/agent-harness
 claude
 /publish patch    # or minor / major
 
@@ -223,10 +223,10 @@ GitHub Topics make the repo discoverable in GitHub search and on third-party agg
 ### Run this once
 
 ```bash
-gh repo edit jajupmochi/claude-config \
+gh repo edit jajupmochi/agent-harness \
   --add-topic claude-code \
   --add-topic claude-skills \
-  --add-topic claude-config \
+  --add-topic agent-harness \
   --add-topic claude-plugin \
   --add-topic scaffold \
   --add-topic workflow-rules \
@@ -239,7 +239,7 @@ gh repo edit jajupmochi/claude-config \
 ### Verify
 
 ```bash
-gh repo view jajupmochi/claude-config --json repositoryTopics -q '.repositoryTopics[].name'
+gh repo view jajupmochi/agent-harness --json repositoryTopics -q '.repositoryTopics[].name'
 ```
 
 After topics are set, the repo will start appearing in:
@@ -278,4 +278,4 @@ Future enhancement: extend `/publish` to do all 3 manifest bumps + npm publish i
 | **Anthropic plugin marketplace** | Fill the submission form | https://clau.de/plugin-directory-submission |
 | **3rd-party aggregators** | Wait + verify | https://claudemarketplaces.com/ + https://buildwithclaude.com/ |
 | **npm publish** | Run `npm login` + `npm publish` | `npm whoami && npm publish --access=public` |
-| **GitHub Topics** | Add discoverability tags | `gh repo edit jajupmochi/claude-config --add-topic claude-code …` (full command in §5) |
+| **GitHub Topics** | Add discoverability tags | `gh repo edit jajupmochi/agent-harness --add-topic claude-code …` (full command in §5) |

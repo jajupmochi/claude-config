@@ -23,6 +23,10 @@ rationale: Asking "should I use chrome-devtools?" every time wastes a round-trip
 
 This rule still respects `plugin-preflight` (verify installed + not deprecated) for first-time-this-session invocations.
 
+## Codex Plugins
+
+For Codex-specific plugin recommendations, see [`recommendations/codex-plugins.md`](../../recommendations/codex-plugins.md). The same auto-invocation rules apply to Codex plugins (superpowers, chrome-devtools, figma, replayio, etc.).
+
 ## Why
 
 If the user has installed `frontend-design`, `chrome-devtools`, `playwright`, etc., they have already implicitly authorized "use these when they fit." Asking each time is friction that compounds across a long session.

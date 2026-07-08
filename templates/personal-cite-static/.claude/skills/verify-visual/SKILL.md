@@ -51,7 +51,7 @@ When iterating via `index_v{N}_round{M}.html` files (per the iterative workflow)
 
 ## Lighthouse integration
 
-For performance / SEO / a11y audits beyond visual, use chrome-devtools MCP's `lighthouse_audit` (Chrome's built-in Lighthouse — zero install). For headless / CI runs, see `claude-config/recommendations/web-auditing.md`.
+For performance / SEO / a11y audits beyond visual, use chrome-devtools MCP's `lighthouse_audit` (Chrome's built-in Lighthouse — zero install). For headless / CI runs, see `agent-harness/recommendations/web-auditing.md`.
 
 ## Companion rules
 

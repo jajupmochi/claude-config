@@ -32,5 +32,5 @@ Adjust the source paths if your package structure differs:
 
 ## Companion
 
-- Generic template: `claude-config/skills/general/verify-template/SKILL.md`
+- Generic template: `agent-harness/skills/general/verify-template/SKILL.md`
 - Hook: ruff format-on-edit auto-runs after Claude edits — `/verify` covers the broader gate (mypy + pytest)

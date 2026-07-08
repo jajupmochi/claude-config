@@ -49,7 +49,7 @@ mv .claude/settings.template.json .claude/settings.json
 # 2. (Optional) Initialize git
 git init -b main
 git add .
-git commit -m "chore: initialize from claude-config personal-cite-static template"
+git commit -m "chore: initialize from agent-harness personal-cite-static template"
 
 # 3. Run dev server
 python3 -m http.server 8000
@@ -63,7 +63,7 @@ python3 -m http.server 8000
 
 ## Imports applied
 
-The `CLAUDE.template.md` is configured to `@import` these rules from `claude-config`:
+The `CLAUDE.template.md` is configured to `@import` these rules from `agent-harness`:
 
 - `pre-edit-confirmation` (universal)
 - `phased-planning` (universal)
