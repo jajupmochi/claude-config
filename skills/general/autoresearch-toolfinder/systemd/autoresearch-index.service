@@ -1,0 +1,9 @@
+[Unit]
+Description=Refresh autoresearch-toolfinder index from upstream awesome-lists
+Documentation=https://github.com/jajupmochi/claude-config
+
+[Service]
+Type=oneshot
+# Runs against the LIVE skill copy under ~/.claude (stable path, not a /media mount).
+ExecStart=/usr/local/bin/python3 %h/.claude/skills/autoresearch-toolfinder/scripts/update_index.py
+Nice=10

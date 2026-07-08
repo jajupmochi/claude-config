@@ -1,0 +1,20 @@
+# review-gate config.  Copy to review-gate.conf (next to the hook scripts) to override defaults.
+#
+# block_commit: 0 = `git commit` is free (DEFAULT — the AI review at Stop still runs and surfaces
+#                   findings, it just never blocks committing);
+#               1 = also DENY commits, the same NON-FATAL way as push (denies the commit command but
+#                   the agent continues its other work; you/the user commit manually).
+# Asked once at first autopilot setup; default is 0 (do not block commits).
+block_commit=0
+#
+# stop_mode: how the Stop-hook review is delivered. You CANNOT have BOTH "enforced" and "no error label" in
+# current Claude Code (verified against the official hooks docs) — pick one; enforcement is the default:
+#   block    = DEFAULT. `decision:block` — BLOCKS the stop to FORCE one un-skippable review round. On
+#              Claude Code >= 2.1.174 a blocking Stop hook is displayed as "Stop hook error:" (cosmetic — the
+#              review still runs; 2.1.150 displayed the same block as "Stop hook feedback:"). This is the
+#              enforced gate — recommended.
+#   feedback = `hookSpecificOutput.additionalContext` — clean "Stop hook additional context" label (NOT an
+#              error), BUT the docs confirm it does NOT block: the turn ends and the review is used the NEXT
+#              turn, so it is SKIPPABLE / advisory, NOT enforced. Needs CC >= 2.1.152 (else ignored entirely).
+#              Choose this only if a clean label matters more to you than actually enforcing the review.
+stop_mode=block

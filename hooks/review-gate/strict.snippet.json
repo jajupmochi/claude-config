@@ -1,0 +1,16 @@
+{
+  "_comment": "OPT-IN strict layer: model-judged deep review at every Stop via an experimental agent hook. Adds latency + tokens each code turn. Merge this Stop hook IN ADDITION to settings.snippet.json when you want hook-enforced AI review (not just the deterministic gate). Agent hooks are experimental.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "timeout": 120,
+            "prompt": "Review ONLY the code changed in this turn. First get the changed files (e.g. `cat \"$HOME/.claude/review-state/\"*.changed` then `git diff -- <files>` or read them). Check four dimensions: (1) correctness & logic, edge cases, error handling; (2) security — injection, secrets/keys, unsafe exec/eval, path traversal, OWASP; (3) fake-run / over-claims — any 'it works / tests pass / results show X' must be backed by a real run; (4) test adequacy and fit with surrounding code conventions. If there is a genuine blocking issue, return {\"ok\": false, \"reason\": \"<specific, numbered findings and how to fix>\"}. If the changes are clean, or there are no code changes this turn, return {\"ok\": true}. Block only on real problems; once they are addressed, return ok:true so the session is not wedged."
+          }
+        ]
+      }
+    ]
+  }
+}

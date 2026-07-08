@@ -31,6 +31,8 @@ Once available, Claude can invoke a skill via the `Skill` tool, or the user via 
 | [`privacy-redact`](general/privacy-redact/SKILL.md) | general | `/privacy-redact <file>` | Scan a file for usernames, absolute paths, secrets, project codenames; redact with placeholders |
 | [`code-verifier`](general/code-verifier/SKILL.md) | general | auto / `/code-verifier` | Three-layer gate before any "tests pass" / "code works" / "results show X" claim — detects FAKE-RUN patterns (hardcoded results, `assert True`, mocks-only tests, etc.) |
 | [`research-critic`](general/research-critic/SKILL.md) | general | auto / `/research-critic` | Six-question audit on every research claim (falsifiability, design, fair comparison, leakage, proportional conclusion, alternatives ruled out) |
+| [`system-cleanup`](general/system-cleanup/SKILL.md) | general | auto / `/system-cleanup` | Diagnose a full Linux disk then give a prioritized, risk-tagged cleanup (safe user-level deletions + sudo items for the user); covers VS Code WebStorage bloat, old kernels, snap/journal/apt/docker, NTFS data-disk write failures. Ships `cleanup.sh`. |
+| [`autoresearch-toolfinder`](general/autoresearch-toolfinder/SKILL.md) | general | auto / `/autoresearch-toolfinder` | Find the right autoresearch / research-agent tool from a local cached index of two awesome-autoresearch lists (alvinreal + yibie, 545 entries); `query.py` returns only the matching few (never loads the whole catalog into context); weekly systemd auto-refresh + SHA-based upstream update tracking |
 
 Future buckets (populated in P7 with templates):
 

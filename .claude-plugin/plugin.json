@@ -28,6 +28,8 @@
     "skills/general/long-running-tasks",
     "skills/general/verify-visual",
     "skills/general/privacy-redact",
+    "skills/general/autoresearch-toolfinder",
+    "skills/general/autopilot",
     "setup/init-claude-config"
   ],
   "rules": [
@@ -43,7 +45,8 @@
   ],
   "hooks": [
     "hooks/ruff-format-on-edit",
-    "hooks/jq-validate-json"
+    "hooks/jq-validate-json",
+    "hooks/review-gate"
   ],
   "templates": [
     "templates/research-package-py",

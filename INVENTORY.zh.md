@@ -60,7 +60,7 @@
 
 ## Skills
 
-✅ general 桶 7 个技能 + 索引 README。初始 5 个在 P4 填充（2026-04-29）；2 个新增于 2026-05-21（从用户级 always-on 验证 gates 蒸馏）。
+✅ general 桶 8 个技能 + 索引 README。初始 5 个在 P4 填充（2026-04-29）；2 个新增于 2026-05-21（从用户级 always-on 验证 gates 蒸馏）；1 个新增于 2026-05-31（`system-cleanup`，从一次真实的磁盘清理 session 蒸馏）。
 
 | 技能 | 桶 | 触发 | 用途 |
 |---|---|---|---|
@@ -71,6 +71,7 @@
 | [`privacy-redact`](skills/general/privacy-redact/SKILL.md) | general | `/privacy-redact <file>` | 扫描并 redact 用户名、绝对路径、密钥、代号 |
 | [`code-verifier`](skills/general/code-verifier/SKILL.md) | general | 自动 / `/code-verifier` | "tests pass" / "code works" / "结果是 X" 前的三层门禁——检测 FAKE-RUN 模式（硬编码结果、`assert True`、纯 mock 测试等） |
 | [`research-critic`](skills/general/research-critic/SKILL.md) | general | 自动 / `/research-critic` | 六问审计：可证伪性 · 设计与假设匹配 · 公平比较 · 泄漏 · 结论与证据匹配 · 替代解释排除 |
+| [`system-cleanup`](skills/general/system-cleanup/SKILL.md) | general | 自动 / `/system-cleanup` | 诊断爆满的 Linux 磁盘（df/du/dpkg/snap/docker）→ 按优先级、带风险标签的清理；安全的用户级删除 + sudo 项交给用户跑；覆盖 VS Code WebStorage 膨胀、旧内核、NTFS 数据盘写入失败。附 `cleanup.sh`。 |
 
 后续桶（将在 P7 模板里填充）：
 

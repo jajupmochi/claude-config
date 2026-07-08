@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly refresh of autoresearch-toolfinder index
+Documentation=https://github.com/jajupmochi/claude-config
+
+[Timer]
+OnCalendar=Sun *-*-* 04:00:00
+Persistent=true
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target

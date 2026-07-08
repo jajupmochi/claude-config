@@ -32,6 +32,9 @@ The `setup/init-claude-config` skill (P8) does this composition automatically ba
 | [`writing-style`](writing-style/RULE.md) | personal | De-AI prose tics. No hyphen-joined compound modifiers, no colon or semicolon opening a trailing clause, no filler emphasis words. Edit the user's own text minimally |
 | [`tool-proactivity`](tool-proactivity/RULE.md) | personal | Installed skills / plugins fire without asking |
 | [`no-reread-files`](no-reread-files/RULE.md) | personal | Trust in-session memory of file contents |
+| [`clickable-links`](clickable-links/RULE.md) | personal | Every commit / file / line / PR / doc / source reference is a FULL clickable link — never a bare hash, partial path, or half URL |
+| [`human-readable-output`](human-readable-output/RULE.md) | personal | User-facing output/docs say it like a human (what · why · effect); no process narration or session-control markers leaking into reports; final summary set off + key points first |
+| [`design-artifacts`](design-artifacts/RULE.md) | personal | Designed an API / UI? List endpoints with clickable LOCAL test links (Swagger/Storybook) + give the live preview link + embed a screenshot — in the doc AND the summary |
 | [`bilingual-docs`](bilingual-docs/RULE.md) | optional | `NAME.md` + `NAME.zh.md` convention for human-facing docs |
 | [`end-of-turn-marker`](end-of-turn-marker/RULE.md) | personal | Every turn ends with `[END:FINAL]` / `[END:WAIT]` / `[END:NEEDS_USER]` on its own line |
 | [`always-on-verification`](always-on-verification/RULE.md) | research-pkg | Before any code / test / results claim, invoke `code-verifier` (artifact authenticity) and/or `research-critic` (inferential soundness) |

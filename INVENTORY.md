@@ -41,6 +41,8 @@ See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) and README's "Build history" for de
 |---|---|---|
 | [`chinese-output`](rules/chinese-output/RULE.md) | personal | Final user-facing output in Chinese; intermediate stays English |
 | [`pre-edit-confirmation`](rules/pre-edit-confirmation/RULE.md) | universal | List exact targets + 1-line plan + wait for explicit "go" before any Edit / Write |
+| [`root-cause-before-fix`](rules/root-cause-before-fix/RULE.md) | personal | Before fixing any bug: git log/blame + compare with baseline branch + "why now?" (regression vs latent) — never patch-first |
+| [`fallback-discipline`](rules/fallback-discipline/RULE.md) | personal | Fallback/pass judged by scenario: deploy allows but must log detail; test/dev must fix-on-spot or raise, never silently hide a bug |
 | [`phased-planning`](rules/phased-planning/RULE.md) | universal | Break tasks (3+ files OR > ~5 tool calls OR multi-step) into numbered phases with per-phase pause |
 | [`plugin-preflight`](rules/plugin-preflight/RULE.md) | universal | Verify plugin / skill / command is installed AND not deprecated before invoking |
 | [`ui-iteration-loop`](rules/ui-iteration-loop/RULE.md) | ui-project | Autonomous 8-iteration UI redesign loop with chrome-devtools screenshots and 4-axis self-critique |
@@ -60,7 +62,7 @@ See [`rules/README.md`](rules/README.md) for usage details and scope-tag definit
 
 ## Skills
 
-✅ 7 general-bucket skills + index README. Initial 5 populated in P4 (2026-04-29); 2 added 2026-05-21 from user-level always-on gates.
+✅ 8 general-bucket skills + index README. Initial 5 populated in P4 (2026-04-29); 2 added 2026-05-21 from user-level always-on gates; 1 added 2026-05-31 (`system-cleanup`, distilled from a real disk-cleanup session).
 
 | Skill | Bucket | Trigger | Purpose |
 |---|---|---|---|
@@ -71,6 +73,7 @@ See [`rules/README.md`](rules/README.md) for usage details and scope-tag definit
 | [`privacy-redact`](skills/general/privacy-redact/SKILL.md) | general | `/privacy-redact <file>` | Scan + redact usernames, absolute paths, secrets, codenames |
 | [`code-verifier`](skills/general/code-verifier/SKILL.md) | general | auto / `/code-verifier` | Three-layer gate before any "tests pass" / "code works" / "results show X" claim — detects FAKE-RUN patterns |
 | [`research-critic`](skills/general/research-critic/SKILL.md) | general | auto / `/research-critic` | Six-question audit on every research claim (falsifiability, design, fair comparison, leakage, proportional conclusion, alternatives) |
+| [`system-cleanup`](skills/general/system-cleanup/SKILL.md) | general | auto / `/system-cleanup` | Diagnose a full Linux disk (df/du/dpkg/snap/docker) → prioritized, risk-tagged cleanup; safe user-level deletions + sudo items handed to the user; covers VS Code WebStorage bloat, old kernels, NTFS data-disk write failures. Ships `cleanup.sh`. |
 
 Future buckets (populated in P7 with templates):
 

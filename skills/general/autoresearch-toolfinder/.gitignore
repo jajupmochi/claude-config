@@ -1,0 +1,5 @@
+# Generated catalog (large, rebuilt by scripts/update_index.py or the weekly timer).
+# state.json IS tracked — it is the tiny per-source SHA + sync record (update tracking).
+data/index.json
+__pycache__/
+*.pyc
