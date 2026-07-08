@@ -77,7 +77,7 @@ ${count}. Last commit: \`${recent_msg}\` ⚠️ (non-conventional format)"
 fi
 
 # Build the full message
-msg="${divider}\n🔍 review-gate 审查\n${divider}\n\n${items}\n\n${divider}\n${marker}"
+msg="${divider}\n🔍 review-gate 审查 · Review\n${divider}\n\n${items}\n\n${divider}\n${marker}"
 
 # Emit
 jq -n --arg msg "$msg" '{

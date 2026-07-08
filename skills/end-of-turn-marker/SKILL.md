@@ -1,55 +1,52 @@
 ---
 name: end-of-turn-marker
-description: Every turn MUST end with one of three markers in a visible divider block: [END:FINAL], [END:WAIT], or [END:NEEDS_USER]. The marker format uses box-drawing characters for visibility.
+description: Every turn MUST end with a visible divider header followed by numbered summary items. Use [END:FINAL], [END:WAIT], or [END:NEEDS_USER] embedded in the divider.
 policy:
   allow_implicit_invocation: true
 ---
 
 # end-of-turn-marker
 
-> Every user-facing turn ends with exactly one marker in a visible divider block.
+Every user-facing turn ends with a divider block. The divider is the SECTION HEADER. Numbered summary items follow below it.
 
-Source rule: `rules/end-of-turn-marker/RULE.md`
-
-## The three markers
-
-Display each marker in its own prominent block at the very end of EVERY turn:
-
-### [END:FINAL] — Task complete
+## Format
 
 ```
 ━━━━━━━━━━━━━━━━━━━━
 ✅ 完成 · Complete
 ━━━━━━━━━━━━━━━━━━━━
-[END:FINAL]
+1. First change or fix
+2. Second change or fix
+3. Third change or fix
 ```
 
-### [END:WAIT] — Background work continues
-
-```
-━━━━━━━━━━━━━━━━━━━━
-⏳ 等待中 · Waiting
-<what is being awaited>
-━━━━━━━━━━━━━━━━━━━━
-[END:WAIT]
-```
-
-### [END:NEEDS_USER] — User input required
+OR:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━
 🤚 需要用户 · Needs User
-<what decision is needed>
 ━━━━━━━━━━━━━━━━━━━━
-[END:NEEDS_USER]
+1. 需要确认：merge 到 main？
+2. 有 3 个文件未提交，是否推送？
 ```
 
-## Usage
+OR:
 
-After every turn, add the appropriate marker block as the LAST content. Never put text after it. Never use multiple markers in one turn.
+```
+━━━━━━━━━━━━━━━━━━━━
+⏳ 等待中 · Waiting
+━━━━━━━━━━━━━━━━━━━━
+1. dev server 运行在 port 3000
+2. 等待测试完成后继续
+```
 
-## Integration
+## Rules
 
-- The `review-gate` Stop hook automatically emits a formatted review block with the correct marker
-- Codex should append the marker block at the end of every visible turn output
-- The marker helps the user and downstream automation understand session state
+1. The divider block is ALWAYS at the very end of the turn
+2. Numbered items follow the divider, one per line
+3. Use [END:FINAL], [END:WAIT], or [END:NEEDS_USER] as the LAST line after all items
+4. Never put content AFTER the [END:*] marker
+5. If review-gate fires, its output replaces/supplements the summary items
+
+## Integration with review-gate
+The review-gate Stop hook output should format neatly with the marker divider.
