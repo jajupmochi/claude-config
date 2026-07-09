@@ -10,11 +10,12 @@ import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import * as claude from "./adapters/claude.mjs";
 import * as codex from "./adapters/codex.mjs";
+import * as opencode from "./adapters/opencode.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const SOURCE = join(ROOT, "adapters", "manifest.source.json");
-// Projectors run in this order. The opencode projector lands in a later WS-A phase.
-const PROJECTORS = [claude, codex];
+// Projectors run in this order.
+const PROJECTORS = [claude, codex, opencode];
 
 function firstDiff(a, b) {
   let i = 0;

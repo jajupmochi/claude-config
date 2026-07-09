@@ -131,5 +131,21 @@
       "brandColor": "#2563EB",
       "screenshots": []
     }
+  },
+  "opencode": {
+    "_doc": "opencode has NO static plugin manifest (plugins are JS). We emit a real opencode.json (JSONC-compatible). rules -> instructions[]; hooks -> plugin[] (names only; the hook LOGIC is a separate JS port, tracked in WS-A A.2 / WS-C). opencode reads .claude/skills/ natively, so skills need no translation. model/small_model are editable defaults (task 10). Source: opencode.ai/docs.",
+    "schema": "https://opencode.ai/config.json",
+    "model": "anthropic/claude-sonnet-4-5",
+    "small_model": "anthropic/claude-haiku-4-5",
+    "instructions": [
+      "rules/*/RULE.md",
+      ".claude/skills/*/SKILL.md",
+      "AGENTS.md"
+    ],
+    "plugin": [
+      "opencode-review-gate",
+      "opencode-ruff-format",
+      "opencode-jq-validate"
+    ]
   }
 }

@@ -8,13 +8,14 @@ import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import * as claude from "./claude.mjs";
 import * as codex from "./codex.mjs";
+import * as opencode from "./opencode.mjs";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url))); // adapters/ -> repo root
 const source = JSON.parse(readFileSync(join(ROOT, "adapters", "manifest.source.json"), "utf8"));
 
 let pass = 0;
 let fail = 0;
-for (const p of [claude, codex]) {
+for (const p of [claude, codex, opencode]) {
   const out = p.render(source);
   const cur = readFileSync(resolve(ROOT, p.target), "utf8");
   if (out === cur) {

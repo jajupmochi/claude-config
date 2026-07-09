@@ -46,6 +46,7 @@
     ".claude-plugin/",
     "hooks.json",
     ".codex-plugin/",
+    "opencode.json",
     "README.md",
     "README.zh.md",
     "USAGE.md",
