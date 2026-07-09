@@ -1,0 +1,98 @@
+{
+  "_doc": "CANONICAL source of truth for the per-agent plugin manifests. Hand-edit THIS file; the .claude-plugin/ and .codex-plugin/ manifests are GENERATED from it by `node build.mjs` (adapters/*.mjs). `node build.mjs --check` fails if a generated manifest drifts from this source. See docs/strategy/agent-harness-overhaul-2026-07-09/ws-a-design.md.",
+  "shared": {
+    "name": "agent-harness",
+    "version": "0.1.0",
+    "author": { "name": "Linlin Jia", "github": "jajupmochi" },
+    "license": "MIT",
+    "homepage": "https://github.com/jajupmochi/agent-harness",
+    "repository": { "type": "git", "url": "https://github.com/jajupmochi/agent-harness" }
+  },
+  "inventory": {
+    "skills": [
+      "setup/init-agent-config",
+      "skills/general/verify-template",
+      "skills/general/preview-template",
+      "skills/general/long-running-tasks",
+      "skills/general/verify-visual",
+      "skills/general/privacy-redact",
+      "skills/general/code-verifier",
+      "skills/general/research-critic",
+      "skills/general/system-cleanup",
+      "skills/general/autoresearch-toolfinder",
+      "skills/general/autopilot"
+    ],
+    "rules": [
+      "rules/chinese-output",
+      "rules/pre-edit-confirmation",
+      "rules/phased-planning",
+      "rules/plugin-preflight",
+      "rules/ui-iteration-loop",
+      "rules/output-brevity",
+      "rules/human-readable-output",
+      "rules/writing-style",
+      "rules/clickable-links",
+      "rules/design-artifacts",
+      "rules/tool-proactivity",
+      "rules/no-reread-files",
+      "rules/bilingual-docs",
+      "rules/end-of-turn-marker",
+      "rules/always-on-verification",
+      "rules/autorun-mode",
+      "rules/multi-round-redesign",
+      "rules/latex-edit-policy"
+    ],
+    "hooks": [
+      "hooks/ruff-format-on-edit",
+      "hooks/jq-validate-json",
+      "hooks/review-gate"
+    ],
+    "templates": [
+      "templates/research-package-py",
+      "templates/personal-cite-static"
+    ],
+    "recommendations": [
+      "recommendations/cc-plugins.md",
+      "recommendations/cc-marketplaces-and-skill-bundles.md",
+      "recommendations/cli-tools.md",
+      "recommendations/js-ui-and-design.md",
+      "recommendations/js-animation-and-3d.md",
+      "recommendations/js-build-test-style.md",
+      "recommendations/js-state-data.md",
+      "recommendations/web-auditing.md",
+      "recommendations/image-video-pdf.md",
+      "recommendations/docs-tools.md",
+      "recommendations/ml-research.md",
+      "recommendations/orchestra-ml-skills.md",
+      "recommendations/ai-coding-tools.md",
+      "recommendations/cluster-hpc.md",
+      "recommendations/reference-projects.md",
+      "recommendations/reference/apt-packages.md",
+      "recommendations/reference/vscode-extensions.md"
+    ],
+    "tooling": [
+      "tooling/python-uv-ruff",
+      "tooling/node-nvm",
+      "tooling/permissions-allowlist"
+    ]
+  },
+  "claude": {
+    "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+    "description": "Linlin's curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Install once, then run /init-agent-config in any new project to scaffold it with the relevant subset.",
+    "keywords": [
+      "claude-code",
+      "skills",
+      "hooks",
+      "workflow-rules",
+      "scaffold",
+      "research-package",
+      "static-site",
+      "ml-research",
+      "codex-adapter"
+    ],
+    "notes": [
+      "Claude Code uses .claude-plugin/plugin.json. Codex uses .codex-plugin/plugin.json and root hooks.json; keeping them separate preserves Claude Code behavior while making the adapter discoverable by Codex.",
+      "When either plugin spec changes, update the corresponding manifest without removing fields used by the other agent's discovery path."
+    ]
+  }
+}

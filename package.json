@@ -40,6 +40,8 @@
     "setup/",
     "docs/",
     "scripts/",
+    "adapters/",
+    "build.mjs",
     ".claude/",
     ".claude-plugin/",
     "hooks.json",
@@ -54,6 +56,9 @@
     "LICENSE"
   ],
   "scripts": {
+    "build": "node build.mjs",
+    "check:manifests": "node build.mjs --check",
+    "test:projection": "node adapters/test-projection.mjs",
     "install:codex": "node scripts/install-codex-local.js",
     "verify:codex": "node scripts/verify-codex-adapter.js",
     "activate:codex": "node scripts/install-codex-local.js",
