@@ -90,14 +90,18 @@ Templates live in `skills/.task-orchestrator-templates/`. Each template is a sub
 
 ### Available templates
 
+Each is a directory under `skills/.task-orchestrator-templates/` containing a `SKILL.md`.
+
 | Template | Task | Auto-selects when |
 |---|---|---|
-| `workflow-fix.md` | Fix CI/CD workflow failures | task mentions "fix workflow" or "fix CI" or "fix actions" |
-| `hook-add.md` | Add a new hook (Claude + Codex) | task mentions "add hook" |
-| `skill-create.md` | Create a new skill (Claude source + Codex wrapper) | task mentions "create skill" or "new skill" |
-| `feature-audit.md` | Audit existing features for gaps | task mentions "audit" or "check" or "verify all" |
-| `rename-project.md` | Rename project across all files | task mentions "rename" |
-| `dependency-update.md` | Update dependencies safely | task mentions "update" or "upgrade" dependencies |
+| `feature-audit/` | Audit existing features for gaps | task mentions "audit" or "check" or "verify all" |
+| `workflow-fix/` | Fix CI/CD workflow failures | task mentions "fix workflow" or "fix CI" or "fix actions" |
+
+For task types without a template, derive the plan from the RESEARCH→DESIGN→IMPLEMENT→VERIFY pipeline directly — do not reference a template that has no directory.
+
+### Planned templates (NOT yet shipped — must NOT be auto-selected)
+
+On the roadmap but no `SKILL.md` exists yet, so the orchestrator must not load or advertise them as available: `hook-add` (add a hook, Claude + Codex), `skill-create` (Claude source + Codex wrapper), `rename-project` (rename across all files), `dependency-update` (safe dependency upgrades). Add a directory + `SKILL.md` before wiring any of these in — otherwise it is a dead knob.
 
 ### Template self-improvement protocol
 
