@@ -1,8 +1,8 @@
 ---
 name: code-verifier
-description: Audit whether code, tests, scripts, or reported results are genuine before claiming success.
+description: Audit whether code, tests, scripts, or reported results are genuine before claiming success. Use before saying tests pass, code works, a script ran, training converged, or results show a conclusion.
 policy:
-  allow_implicit_invocation: true Use before saying tests pass, code works, a script ran, training converged, or results show a conclusion.
+  allow_implicit_invocation: true
 ---
 
 # code-verifier

@@ -25,7 +25,7 @@ import urllib.request
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(HERE, "data")
-UA = {"User-Agent": "autoresearch-toolfinder/1.0 (+jajupmochi/claude-config)"}
+UA = {"User-Agent": "autoresearch-toolfinder/1.0 (+jajupmochi/agent-harness)"}
 
 SOURCES = [
     {"key": "alvinreal", "owner": "alvinreal", "repo": "awesome-autoresearch",

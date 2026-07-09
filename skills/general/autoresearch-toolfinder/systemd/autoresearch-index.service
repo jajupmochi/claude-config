@@ -1,6 +1,6 @@
 [Unit]
 Description=Refresh autoresearch-toolfinder index from upstream awesome-lists
-Documentation=https://github.com/jajupmochi/claude-config
+Documentation=https://github.com/jajupmochi/agent-harness
 
 [Service]
 Type=oneshot

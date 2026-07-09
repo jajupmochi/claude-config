@@ -1,6 +1,6 @@
 [Unit]
 Description=Weekly refresh of autoresearch-toolfinder index
-Documentation=https://github.com/jajupmochi/claude-config
+Documentation=https://github.com/jajupmochi/agent-harness
 
 [Timer]
 OnCalendar=Sun *-*-* 04:00:00

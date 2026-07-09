@@ -8,7 +8,7 @@ version-history:
   - version: 1
     date: 2026-07-08
     author: codex/deepseek-v3
-    changes: Initial template extracted from claude-config workflow fix sessions
+    changes: Initial template extracted from agent-harness workflow fix sessions
 ---
 
 # workflow-fix-template

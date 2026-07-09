@@ -15,7 +15,7 @@ import urllib.request
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SP = os.path.join(HERE, "data", "state.json")
-UA = {"User-Agent": "autoresearch-toolfinder/1.0 (+jajupmochi/claude-config)"}
+UA = {"User-Agent": "autoresearch-toolfinder/1.0 (+jajupmochi/agent-harness)"}
 
 
 def head_sha(owner: str, repo: str, branch: str) -> str:
