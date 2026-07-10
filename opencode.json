@@ -7,9 +7,5 @@
     ".claude/skills/*/SKILL.md",
     "AGENTS.md"
   ],
-  "plugin": [
-    "opencode-review-gate",
-    "opencode-ruff-format",
-    "opencode-jq-validate"
-  ]
+  "plugin": []
 }

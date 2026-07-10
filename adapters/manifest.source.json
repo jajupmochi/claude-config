@@ -142,10 +142,7 @@
       ".claude/skills/*/SKILL.md",
       "AGENTS.md"
     ],
-    "plugin": [
-      "opencode-review-gate",
-      "opencode-ruff-format",
-      "opencode-jq-validate"
-    ]
+    "_plugin_note": "opencode auto-discovers local plugins from .opencode/plugins/*.js (e.g. review-gate.js), so they are NOT listed here. `plugin[]` is only for npm-published plugin names; we have none, so it is empty (an earlier version wrongly listed non-existent npm names = dead refs).",
+    "plugin": []
   }
 }
