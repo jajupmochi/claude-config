@@ -23,6 +23,7 @@ Dependency-free. `--ts` is injectable for deterministic tests; it defaults to to
 """
 import argparse
 import datetime
+import json
 import os
 import re
 import sys
@@ -130,6 +131,41 @@ def cmd_index(args):
     return 0
 
 
+def _graph_path(args):
+    return os.path.join(_proj_dir(args), "graph.json")
+
+
+def _load_graph(args):
+    p = _graph_path(args)
+    if os.path.isfile(p):
+        try:
+            with open(p, encoding="utf-8") as f:
+                return json.load(f)
+        except (ValueError, OSError):
+            return {}
+    return {}
+
+
+def _path_id(path):
+    m = re.match(r"(\d+)-", os.path.basename(path))
+    return m.group(1) if m else None
+
+
+def cmd_link(args):
+    """Record a directed edge round A -> round B in graph.json (ids normalized to 4 digits)."""
+    a = f"{int(args.from_id):04d}"
+    b = f"{int(args.to_id):04d}"
+    g = _load_graph(args)
+    g.setdefault(a, [])
+    if b not in g[a]:
+        g[a].append(b)
+    os.makedirs(_proj_dir(args), exist_ok=True)
+    with open(_graph_path(args), "w", encoding="utf-8") as f:
+        json.dump(g, f, indent=2, sort_keys=True)
+    print(f"{a} -> {b}")
+    return 0
+
+
 def _tokens(text):
     return re.findall(r"[a-z0-9]+", text.lower())
 
@@ -161,6 +197,28 @@ def cmd_recall(args):
             score += sum(_fuzzy_hits(t, toks) for t in terms)
         if score > 0 or not terms:
             scored.append((score, p))
+    # graph overlay: pull in rounds LINKED to a keyword hit (1 hop, undirected), with a small score, so
+    # related context surfaces even when it shares no query keyword. Requires --graph and query terms.
+    if getattr(args, "graph", False) and terms:
+        g = _load_graph(args)
+        adj = {}
+        for a, bs in g.items():
+            for b in bs:
+                adj.setdefault(a, set()).add(b)
+                adj.setdefault(b, set()).add(a)
+        id2path = {}
+        for p in _round_files(args):
+            i = _path_id(p)
+            if i:
+                id2path[i] = p
+        already = {p for _, p in scored}
+        hit_ids = [_path_id(p) for s, p in scored if s > 0]
+        for hid in hit_ids:
+            for nb in adj.get(hid, ()):
+                np = id2path.get(nb)
+                if np and np not in already:
+                    scored.append((1, np))  # linked-in (no direct keyword match)
+                    already.add(np)
     scored.sort(key=lambda x: (-x[0], x[1]))
     for score, p in scored[: args.top]:
         print(f"{score}\t{p}")
@@ -170,7 +228,7 @@ def cmd_recall(args):
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="mem.py")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name in ("record", "index", "recall"):
+    for name in ("record", "index", "recall", "link"):
         s = sub.add_parser(name)
         s.add_argument("--project", required=True)
         s.add_argument("--root", default=None)
@@ -183,8 +241,12 @@ def main(argv=None):
             s.add_argument("--query", default="")
             s.add_argument("--top", type=int, default=10)
             s.add_argument("--fuzzy", action="store_true", help="also match similar keywords (variant forms) to boost recall")
+            s.add_argument("--graph", action="store_true", help="also pull in rounds linked (1 hop) to a keyword hit")
+        if name == "link":
+            s.add_argument("--from", dest="from_id", required=True, help="source round id")
+            s.add_argument("--to", dest="to_id", required=True, help="target round id")
     args = ap.parse_args(argv)
-    return {"record": cmd_record, "index": cmd_index, "recall": cmd_recall}[args.cmd](args)
+    return {"record": cmd_record, "index": cmd_index, "recall": cmd_recall, "link": cmd_link}[args.cmd](args)
 
 
 if __name__ == "__main__":

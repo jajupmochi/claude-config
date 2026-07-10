@@ -91,7 +91,24 @@ def run():
             assert out_fuzzy.strip() != "", "fuzzy recall should match the variant 'memories'"
             assert int(out_fuzzy.split("\t")[0]) >= 1
 
-    print("mem.py: all 8 tests PASS")
+        # 9. graph overlay: a round with NO query keyword is pulled in when LINKED to a keyword hit
+        with tempfile.TemporaryDirectory() as root3:
+            b3 = ["--root", root3, "--project", "p"]
+            _run(["record", *b3, "--kind", "note", "--title", "t1", "--ts", "2026-07-10"], stdin="talks about widgets\n")   # 0001 (hit)
+            _run(["record", *b3, "--kind", "note", "--title", "t2", "--ts", "2026-07-10"], stdin="totally unrelated prose\n")  # 0002 (linked, no keyword)
+            rc, out = _run(["link", *b3, "--from", "1", "--to", "2"])
+            assert rc == 0 and out.strip() == "0001 -> 0002"
+            # plain recall for 'widgets' -> only round 1
+            _, out_plain = _run(["recall", *b3, "--query", "widgets"])
+            paths_plain = [ln.split("\t")[1] for ln in out_plain.strip().splitlines() if ln]
+            assert len(paths_plain) == 1 and paths_plain[0].endswith("0001-note.md")
+            # --graph recall -> round 1 (keyword) AND round 2 (linked in)
+            _, out_graph = _run(["recall", *b3, "--query", "widgets", "--graph"])
+            paths_graph = [ln.split("\t")[1] for ln in out_graph.strip().splitlines() if ln]
+            assert any(p.endswith("0001-note.md") for p in paths_graph)
+            assert any(p.endswith("0002-note.md") for p in paths_graph), "linked round pulled in by --graph"
+
+    print("mem.py: all 9 tests PASS")
     return 0
 
 

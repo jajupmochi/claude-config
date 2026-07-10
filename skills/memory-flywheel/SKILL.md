@@ -44,6 +44,10 @@ and *reads what recall returns*. This keeps memory cheap, reproducible, and fron
 
 ## Status
 
-v0.1 core (record / index / keyword-recall), tested (`test_mem.py`, 6/6). Planned: similar-keyword + graph
-edges for higher recall, a supervising hook that reminds the agent to record, and a `--ts`-driven eval harness
-(LongMemEval/LoCoMo-style: recall, lossiness-delta, tokens) — all designed in the research doc, not yet built.
+Extra recall knobs: `recall --fuzzy` matches similar/variant keywords (memory↔memories); `link --from A --to B`
+records a graph edge and `recall --graph` pulls in rounds linked to a keyword hit (1 hop) so related context
+surfaces without a shared keyword.
+
+v0.2 (record / index / recall + `--fuzzy` + `link` & `--graph` overlay), tested (`test_mem.py`, 9/9). Planned:
+a supervising hook that reminds the agent to record, and a `--ts`-driven eval harness (LongMemEval/LoCoMo-style:
+recall, lossiness-delta, tokens) — designed in the research doc, not yet built.
