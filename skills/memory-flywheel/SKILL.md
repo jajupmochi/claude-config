@@ -48,6 +48,10 @@ Extra recall knobs: `recall --fuzzy` matches similar/variant keywords (memory↔
 records a graph edge and `recall --graph` pulls in rounds linked to a keyword hit (1 hop) so related context
 surfaces without a shared keyword.
 
-v0.2 (record / index / recall + `--fuzzy` + `link` & `--graph` overlay), tested (`test_mem.py`, 9/9). Planned:
-a supervising hook that reminds the agent to record, and a `--ts`-driven eval harness (LongMemEval/LoCoMo-style:
-recall, lossiness-delta, tokens) — designed in the research doc, not yet built.
+**Evaluation:** `scripts/mem_eval.py --fixtures f.json` runs recall over a synthetic corpus + gold-labelled
+queries and reports recall@k (see `eval-fixtures.example.json`). Plug real sessions + gold labels into the same
+JSON to measure on live data. Deterministic; tested (`test_mem_eval.py`, 3/3).
+
+v0.3 (record / index / recall + `--fuzzy` + `link` & `--graph` overlay + runnable eval harness), tested
+(`test_mem.py` 9/9, `test_mem_eval.py` 3/3). Planned: a supervising hook that reminds the agent to record, and
+extending the eval harness with the lossiness-delta / descent-efficiency / flywheel-gain metrics from the paper.

@@ -1,0 +1,14 @@
+{
+  "_doc": "EXAMPLE fixtures for mem_eval.py. Rounds are recorded in order (ids 1..N). `relevant` lists the round ids a query SHOULD retrieve. Swap in real session rounds + gold labels to measure on live data.",
+  "rounds": [
+    { "kind": "research", "title": "survey", "keywords": "widgets", "body": "notes about widgets and gadgets" },
+    { "kind": "design", "title": "schema", "keywords": "schema", "body": "the storage schema design" },
+    { "kind": "note", "title": "followup", "keywords": "", "body": "a follow-up with no shared keyword" }
+  ],
+  "links": [[1, 3]],
+  "queries": [
+    { "query": "widgets", "relevant": [1] },
+    { "query": "widgets", "graph": true, "relevant": [1, 3] },
+    { "query": "schema", "relevant": [2] }
+  ]
+}
