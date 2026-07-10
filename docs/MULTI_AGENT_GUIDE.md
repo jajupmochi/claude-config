@@ -29,7 +29,7 @@ agent-neutral logic in a **core** and give each agent a thin **shim** that adapt
   - Claude: `hooks/review-gate/scripts/gate.sh` → wraps core output in Claude's `decision:block` JSON.
   - Codex: `scripts/codex_review_gate.sh` → feeds core its git-detected changes, wraps in Codex's
     `systemMessage`/`decision` JSON, adds Codex-only git guards.
-  - opencode: `.opencode/plugins/review-gate.js` (+ tested `lib/run-core.mjs`) → calls core on `session.idle`.
+  - opencode: `.opencode/plugin/review-gate.js` (+ tested `lib/run-core.mjs`) → calls core on `session.idle`.
 - **Add a new agent = add one shim** over the same core. The reviewed *logic* lives in exactly one place.
 
 ## Native-format bridges (map one artifact to each agent's discovery path)
@@ -38,7 +38,7 @@ agent-neutral logic in a **core** and give each agent a thin **shim** that adapt
 |---|---|---|---|
 | **Skills** | `.claude/skills/<name>/SKILL.md` (+ plugin manifest `skills[]`) | `skills/` glob in `.codex-plugin/plugin.json` | reads `.claude/skills/` **natively** (no translation) |
 | **Rules** | plugin manifest `rules[]` | (bundled with skills) | `instructions[]` glob in `opencode.json` |
-| **Hooks** | `.claude-plugin` + `settings.json` hook wiring | root `hooks.json` + `scripts/*.sh` | JS plugin in `.opencode/plugins/*.js` (auto-discovered) |
+| **Hooks** | `.claude-plugin` + `settings.json` hook wiring | root `hooks.json` + `scripts/*.sh` | JS plugin in `.opencode/plugin/*.js` (auto-discovered) |
 | **Model tiers** | advisory for sub-agent routing (can't switch mid-session) | external tooling (cc-switch) | `model`/`small_model` generated from `models.config.json` |
 
 ## Checklist — generalizing a new tool

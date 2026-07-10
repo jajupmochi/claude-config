@@ -148,7 +148,7 @@
       ".claude/skills/*/SKILL.md",
       "AGENTS.md"
     ],
-    "_plugin_note": "opencode auto-discovers local plugins from .opencode/plugins/*.js (e.g. review-gate.js), so they are NOT listed here. `plugin[]` is only for npm-published plugin names; we have none, so it is empty (an earlier version wrongly listed non-existent npm names = dead refs).",
+    "_plugin_note": "opencode auto-discovers local project plugins from .opencode/plugin/ (SINGULAR — verified against the opencode 1.3.17 binary and its own tip 'Add .ts/.js files to .opencode/plugin/ for event hooks'; the plural .opencode/plugins/ is NOT scanned). So ship the plugin file there and it needs no `plugin[]` entry. `plugin[]` is only for npm/git-published external modules (e.g. the user's live config loads superpowers via git); we have none, so it stays empty. (Earlier this note wrongly said plural — that mistake left review-gate.js in an unscanned dir so it never loaded.)",
     "plugin": []
   }
 }

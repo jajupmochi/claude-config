@@ -15,7 +15,7 @@ token/memory/model tooling. This is the one-page map of what shipped, how to use
 | 8 | TUI | `recommendations/tui-for-agents.md` (survey) + `tui-installer` (ask-first, dry-run installer). |
 | 9 | Prompt library | `prompt-library` — privacy-gated add/index/find/scan. |
 | 10 | Adaptive model | `adapters/models.config.json` + `scripts/resolve_model.mjs` (consumed by the opencode projector). |
-| 11 | opencode support | `opencode.json` generated from canonical source; `.opencode/plugins/review-gate.js` + tested helper. |
+| 11 | opencode support | `opencode.json` generated from canonical source; `.opencode/plugin/review-gate.js` + tested helper. |
 | 12 | Generalize plugins | `docs/MULTI_AGENT_GUIDE.md` (the two patterns + native-format bridges). |
 | 13 | Design modes | `rules/design-modes` (prototyping vs scaling). |
 | 14 | Codex ecosystem | (done earlier, light). |
@@ -50,12 +50,16 @@ laden) and `docs/papers/`.
 2. **Machine configuration** — applying the 3-agent config + install migration on the real workstation is
    live-state work to do with the user present.
 3. **Supervising hook** (task 5) — a live Stop/PostToolUse hook (delicate; acts on live turns).
-4. **opencode hook real-machine verification** (task 11) — needs an opencode install.
+4. ~~**opencode hook real-machine verification** (task 11)~~ — **DONE (2026-07-10).** Verified against the real
+   opencode 1.3.17 binary: `opencode debug config --print-logs --log-level DEBUG` shows the plugin
+   `loading plugin` and lists it in the resolved `plugin_origins`. This surfaced and fixed a real bug — the
+   plugin shipped in `.opencode/plugins/` (plural), but opencode only auto-discovers `.opencode/plugin/`
+   (singular), so it had never loaded; renamed the dir and corrected the manifest note + docs.
 5. **Eval on real data** — `mem_eval.py` runs on synthetic fixtures; real sessions + gold labels give real numbers.
 
 ## File map (new/changed homes)
 
 `adapters/` (projectors + model config) · `build.mjs` · `hooks/review-gate/scripts/{core,gate}.sh` +
-`scripts/codex_review_gate.sh` + `.opencode/plugins/` · `skills/{memory-flywheel,prompt-library,
+`scripts/codex_review_gate.sh` + `.opencode/plugin/` · `skills/{memory-flywheel,prompt-library,
 task-relationship-analysis,agent-update-watcher,tui-installer}/` · `rules/{test-first,design-modes}/` ·
 `recommendations/tui-for-agents.md` · `docs/{MULTI_AGENT_GUIDE,papers/memory-flywheel-design,OVERHAUL_DELIVERY}.md`.

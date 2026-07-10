@@ -1,4 +1,4 @@
-// Tests for the opencode review-gate helper (lib/run-core.mjs). Run: node .opencode/plugins/review-gate.test.mjs
+// Tests for the opencode review-gate helper (lib/run-core.mjs). Run: node .opencode/plugin/review-gate.test.mjs
 // Verifies the core.sh invocation (the part that does NOT need an opencode install): a code change yields
 // the shared forms review + block; a non-git dir yields an empty, non-blocking result.
 import { execFileSync } from "node:child_process";
@@ -8,7 +8,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runReviewCore } from "./lib/run-core.mjs";
 
-const REPO = dirname(dirname(dirname(fileURLToPath(import.meta.url)))); // .opencode/plugins/ -> repo root
+const REPO = dirname(dirname(dirname(fileURLToPath(import.meta.url)))); // .opencode/plugin/ -> repo root
 const CORE = join(REPO, "hooks", "review-gate", "scripts", "core.sh");
 let pass = 0, fail = 0;
 const chk = (n, got, want) => { if (got === want) { console.log(`  ok: ${n}`); pass++; } else { console.error(`  FAIL: ${n} (got ${JSON.stringify(got)} want ${JSON.stringify(want)})`); fail++; } };

@@ -1,4 +1,4 @@
-// .opencode/plugins/lib/run-core.mjs
+// .opencode/plugin/lib/run-core.mjs
 // Verifiable helper for the opencode review-gate plugin: run the SHARED review-gate core.sh
 // (hooks/review-gate/scripts/core.sh — the same forms logic Claude & Codex use) over git-detected
 // changes, and return { review, block }. This layer does NOT depend on opencode's plugin API, so it is

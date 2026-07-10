@@ -1,4 +1,4 @@
-// .opencode/plugins/review-gate.js — opencode review-gate plugin.
+// .opencode/plugin/review-gate.js — opencode review-gate plugin.
 // On session idle, runs the SHARED review-gate core.sh (the SAME 12-form logic Claude & Codex use) over
 // the project's git changes and surfaces the review. The heavy lifting is in lib/run-core.mjs (unit-tested
 // without opencode; see review-gate.test.mjs).
