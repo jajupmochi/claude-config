@@ -36,7 +36,8 @@
     "skills/general/system-cleanup",
     "skills/general/autoresearch-toolfinder",
     "skills/general/autopilot",
-    "skills/memory-flywheel"
+    "skills/memory-flywheel",
+    "skills/task-relationship-analysis"
   ],
   "rules": [
     "rules/chinese-output",
