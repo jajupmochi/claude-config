@@ -1,86 +1,90 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# codex_review_gate.sh — Codex Stop-hook.
+# Now delivers the SAME 12-form review as Claude (via the shared review-gate core.sh) AND keeps Codex's
+# git working-tree guards. Blocks the stop when a code review is due OR a guard trips.
+# The forms LOGIC lives in hooks/review-gate/scripts/core.sh (shared, agent-neutral); this shim only
+# feeds it Codex's git-detected changes and wraps the result in Codex's native systemMessage/decision JSON.
+set -uo pipefail
 input="$(cat || true)"
 
-branch="$(git branch --show-current 2>/dev/null || echo "unknown")"
 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-cd "$repo_root"
+cd "$repo_root" || exit 0
+branch="$(git branch --show-current 2>/dev/null || echo "unknown")"
 
-# Gather state
-staged="$(git diff --cached --name-only 2>/dev/null)"
-unstaged="$(git diff --name-only 2>/dev/null)"
-untracked="$(git ls-files --others --exclude-standard 2>/dev/null)"
-total_changes=$( (echo "$staged"; echo "$unstaged"; echo "$untracked") | grep -c . || true )
+# --- session id for round-tracking: from the hook payload if present, else a per-branch key. filesystem-safe.
+sid=""
+if command -v jq >/dev/null 2>&1; then sid="$(printf '%s' "$input" | jq -r '.session_id // empty' 2>/dev/null)"; fi
+[ -n "$sid" ] || sid="codex-$branch"
+sid="$(printf '%s' "$sid" | tr -c 'A-Za-z0-9._-' '_')"
 
-# Destructive ops check
+# --- hand Codex's changed files (staged + unstaged + untracked, absolute) to core.sh via its state file
+state_dir="$HOME/.codex/review-state"; mkdir -p "$state_dir" 2>/dev/null || true
+{ git diff --cached --name-only; git diff --name-only; git ls-files --others --exclude-standard; } 2>/dev/null \
+  | sort -u | grep . | sed "s#^#$repo_root/#" > "$state_dir/$sid.changed" 2>/dev/null || true
+
+# --- forms review from the SHARED core (agent-neutral). Empty stdout => no forms review due this turn.
+core="${RG_CORE:-$repo_root/hooks/review-gate/scripts/core.sh}"
+forms=""
+[ -f "$core" ] && forms="$(RG_STATE_DIR="$state_dir" RG_SID="$sid" bash "$core" 2>/dev/null || true)"
+
+# --- Codex git working-tree guards (preserved) ---
+staged="$(git diff --cached --name-only 2>/dev/null || true)"
+unstaged="$(git diff --name-only 2>/dev/null || true)"
+untracked="$(git ls-files --others --exclude-standard 2>/dev/null || true)"
+total_changes=$( { printf '%s\n' "$staged"; printf '%s\n' "$unstaged"; printf '%s\n' "$untracked"; } | grep -c . || true )
 destructive_ops=""
-if git log --oneline -5 --all 2>/dev/null | grep -qiE 'rm -rf|git reset --hard|force push|DROP TABLE|DELETE FROM' 2>/dev/null; then destructive_ops="yes"; fi
+if git log --oneline -5 --all 2>/dev/null | grep -qiE 'rm -rf|git reset --hard|force push|DROP TABLE|DELETE FROM'; then destructive_ops="yes"; fi
+protected="no"; case "$branch" in main|master|production|release/*) protected="yes" ;; esac
+recent_msg="$(git log --oneline -1 --format='%s' 2>/dev/null || echo "")"
 
-# Protected branch
-protected="no"
-case "$branch" in main|master|production|release/*) protected="yes" ;; esac
-
-# Build formatted output
-divider="━━━━━━━━━━━━━━━━━━━━━━━━━━"
-items=""
-count=0
-marker="[END:FINAL]"
-
-# Item 1: session summary
-count=$((count + 1))
-items="${items}${count}. Session complete on branch \`${branch}\`"
-
-# Item 2: change audit
+count=0; block="no"; guard_items=""
+count=$((count+1)); guard_items="${count}. Session on branch \`${branch}\`"
 if [ "$total_changes" -gt 0 ]; then
-  count=$((count + 1))
-  items="${items}
-${count}. Uncommitted changes: ${total_changes} file(s)"
-  if [ -n "$staged" ]; then items="${items}
-   Staged: $(echo "$staged" | head -3 | tr '\n' ' ' | sed 's/ $//')"; fi
-  if [ -n "$unstaged" ]; then items="${items}
-   Modified: $(echo "$unstaged" | head -3 | tr '\n' ' ' | sed 's/ $//')"; fi
-  marker="[END:NEEDS_USER]"
+  count=$((count+1)); guard_items="${guard_items}
+${count}. Uncommitted changes: ${total_changes} file(s)"; block="yes"
 else
-  count=$((count + 1))
-  items="${items}
+  count=$((count+1)); guard_items="${guard_items}
 ${count}. Working tree clean ✓"
 fi
-
-# Item 3: destructive ops
-if [ "$destructive_ops" = "yes" ]; then
-  count=$((count + 1))
-  items="${items}
-${count}. ⚠️  Recent destructive git operations detected — review before pushing"
-  marker="[END:NEEDS_USER]"
-fi
-
-# Item 4: protected branch
-if [ "$protected" = "yes" ]; then
-  count=$((count + 1))
-  items="${items}
-${count}. Protected branch (\`${branch}\`) — force push disabled, review required"
-  marker="[END:NEEDS_USER]"
-fi
-
-# Item 5: commit message check
-recent_msg="$(git log --oneline -1 --format='%s' 2>/dev/null || echo "")"
-count=$((count + 1))
-if [ -n "$recent_msg" ]; then
-  if echo "$recent_msg" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\([^)]+\))?: .'; then
-    items="${items}
-${count}. Last commit: \`${recent_msg}\` ✓ (conventional format)"
+if [ "$destructive_ops" = "yes" ]; then count=$((count+1)); guard_items="${guard_items}
+${count}. ⚠️  Recent destructive git operations — review before pushing"; block="yes"; fi
+if [ "$protected" = "yes" ]; then count=$((count+1)); guard_items="${guard_items}
+${count}. Protected branch (\`${branch}\`) — review required"; block="yes"; fi
+if [ -n "$recent_msg" ]; then count=$((count+1))
+  if printf '%s' "$recent_msg" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\([^)]+\))?: .'; then
+    guard_items="${guard_items}
+${count}. Last commit: \`${recent_msg}\` ✓ (conventional)"
   else
-    items="${items}
-${count}. Last commit: \`${recent_msg}\` ⚠️ (non-conventional format)"
-    marker="[END:NEEDS_USER]"
+    guard_items="${guard_items}
+${count}. Last commit: \`${recent_msg}\` ⚠️ (non-conventional format)"; block="yes"
   fi
 fi
 
-# Build the full message
-msg="${divider}\n🔍 review-gate 审查 · Review\n${divider}\n\n${items}\n\n${divider}\n${marker}"
+# --- combine: forms review (if due) + git guards; block if either applies ---
+div="━━━━━━━━━━━━━━━━━━━━━━━━━━"
+if [ -n "$forms" ]; then
+  block="yes"
+  msg="${forms}
 
-# Emit
-jq -n --arg msg "$msg" '{
-  systemMessage: $msg,
-  decision: (if $msg | contains("[END:NEEDS_USER]") then "block" else "" end)
-}'
+${div}
+**Codex git-guards**
+${div}
+${guard_items}"
+else
+  msg="${div}
+🔍 review-gate 审查 · Review
+${div}
+
+${guard_items}
+
+${div}"
+fi
+marker="[END:FINAL]"; [ "$block" = "yes" ] && marker="[END:NEEDS_USER]"
+msg="${msg}
+${marker}"
+
+if command -v jq >/dev/null 2>&1; then
+  jq -n --arg msg "$msg" --arg block "$block" '{systemMessage:$msg, decision:(if $block=="yes" then "block" else "" end)}'
+else
+  printf '%s\n' "$msg"
+fi
