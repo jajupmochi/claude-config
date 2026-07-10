@@ -54,7 +54,7 @@ def run():
         assert rc == 0
         lines = [ln for ln in out.strip().splitlines() if ln]
         assert lines and lines[0].endswith("0001-research.md"), f"recall top = round 1, got {out!r}"
-        assert int(lines[0].split("\t")[0]) >= 2, "score counts both terms"
+        assert float(lines[0].split("\t")[0]) > 0, "matching round has a positive (idf-weighted) score"
 
         # 4. recall for a term in neither round -> no rows
         rc, out = _run(["recall", *base, "--query", "nonexistentxyz"])
@@ -89,7 +89,7 @@ def run():
             # fuzzy: 'memory' matches 'memories' via shared 4-char prefix -> a hit
             _, out_fuzzy = _run(["recall", *b2, "--query", "memory", "--fuzzy"])
             assert out_fuzzy.strip() != "", "fuzzy recall should match the variant 'memories'"
-            assert int(out_fuzzy.split("\t")[0]) >= 1
+            assert float(out_fuzzy.split("\t")[0]) > 0, "fuzzy hit has a positive (idf-weighted) score"
 
         # 9. graph overlay: a round with NO query keyword is pulled in when LINKED to a keyword hit
         with tempfile.TemporaryDirectory() as root3:
@@ -108,7 +108,23 @@ def run():
             assert any(p.endswith("0001-note.md") for p in paths_graph)
             assert any(p.endswith("0002-note.md") for p in paths_graph), "linked round pulled in by --graph"
 
-    print("mem.py: all 9 tests PASS")
+        # 10. IDF weighting: a rare discriminative term must beat common terms stuffed into other docs.
+        # Without IDF this is the real "researchgate drowned by load/chrome" miss the recall eval surfaced.
+        with tempfile.TemporaryDirectory() as root4:
+            b4 = ["--root", root4, "--project", "p"]
+            # round 1: the ONLY doc mentioning "researchgate", once; also has the common words once each
+            _run(["record", *b4, "--kind", "note", "--title", "t1", "--ts", "2026-07-10"],
+                 stdin="researchgate won't load in chrome\n")  # 0001 (the truly relevant one)
+            # rounds 2 & 3: NO "researchgate", but the common query words repeated many times
+            _run(["record", *b4, "--kind", "note", "--title", "t2", "--ts", "2026-07-10"],
+                 stdin="load load load chrome chrome chrome load chrome\n")  # 0002 (common-word heavy)
+            _run(["record", *b4, "--kind", "note", "--title", "t3", "--ts", "2026-07-10"],
+                 stdin="chrome load chrome load chrome load chrome load\n")  # 0003 (common-word heavy)
+            _, out_idf = _run(["recall", *b4, "--query", "researchgate load chrome", "--top", "1"])
+            top = [ln for ln in out_idf.strip().splitlines() if ln][0]
+            assert top.endswith("0001-note.md"), f"idf must rank the rare-term doc first, got {out_idf!r}"
+
+    print("mem.py: all 10 tests PASS")
     return 0
 
 

@@ -24,6 +24,7 @@ Dependency-free. `--ts` is injectable for deterministic tests; it defaults to to
 import argparse
 import datetime
 import json
+import math
 import os
 import re
 import sys
@@ -188,13 +189,23 @@ def _fuzzy_hits(term, tokens):
 def cmd_recall(args):
     terms = [t.lower() for t in (args.query or "").split() if t]
     fuzzy = getattr(args, "fuzzy", False)
+    files = _round_files(args)
+    texts = {p: _read(p).lower() for p in files}
+    # IDF weighting: rare query terms are more discriminative than common ones. Weight each term's
+    # contribution by idf = ln((N+1)/(df+1)) (smoothed standard IDF, always >= 0; a term present in EVERY
+    # round -> 0, i.e. non-discriminative). Without this, raw term-frequency SUM lets a doc packed with
+    # common query words (e.g. "load", "chrome") outrank the ONE doc actually about the rare term (e.g.
+    # "researchgate") — a real miss found via the real-data recall eval (2026-07-10). NOTE: NO +1 floor, on
+    # purpose — a floor keeps common terms at weight 1.0 and re-introduces the very swamping we are fixing.
+    n_docs = len(files) or 1
+    idf = {t: math.log((n_docs + 1) / (sum(1 for p in files if t in texts[p]) + 1)) for t in terms}
     scored = []
-    for p in _round_files(args):
-        text = _read(p).lower()
-        score = sum(text.count(t) for t in terms) if terms else 0
+    for p in files:
+        text = texts[p]
+        score = sum(text.count(t) * idf[t] for t in terms) if terms else 0
         if fuzzy and terms:
             toks = _tokens(text)
-            score += sum(_fuzzy_hits(t, toks) for t in terms)
+            score += sum(_fuzzy_hits(t, toks) * idf[t] for t in terms)
         if score > 0 or not terms:
             scored.append((score, p))
     # graph overlay: pull in rounds LINKED to a keyword hit (1 hop, undirected), with a small score, so
@@ -217,11 +228,14 @@ def cmd_recall(args):
             for nb in adj.get(hid, ()):
                 np = id2path.get(nb)
                 if np and np not in already:
-                    scored.append((1, np))  # linked-in (no direct keyword match)
+                    # linked-in (no direct keyword match): a tiny score so it is INCLUDED but always ranks
+                    # BELOW any direct keyword hit (direct hits are idf-weighted and can be < 1, so a
+                    # constant 1 here could wrongly outrank them).
+                    scored.append((1e-6, np))
                     already.add(np)
     scored.sort(key=lambda x: (-x[0], x[1]))
     for score, p in scored[: args.top]:
-        print(f"{score}\t{p}")
+        print(f"{score:.4g}\t{p}")
     return 0
 
 
