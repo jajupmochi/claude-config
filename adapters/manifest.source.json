@@ -140,12 +140,12 @@
     }
   },
   "opencode": {
-    "_doc": "opencode has NO static plugin manifest (plugins are JS). We emit a real opencode.json (JSONC-compatible). rules -> instructions[]; hooks -> plugin[] (names only; the hook LOGIC is a separate JS port, tracked in WS-A A.2 / WS-C). opencode reads .claude/skills/ natively, so skills need no translation. model/small_model are editable defaults (task 10). Source: opencode.ai/docs.",
+    "_doc": "opencode has NO static plugin manifest (plugins are JS). We emit a real opencode.json (JSONC-compatible). rules -> instructions[] (always-on context). SKILLS are NOT loaded via instructions: opencode reads skills natively from its skill dir ~/.config/opencode/skills/ (verified against opencode 1.3.17 — there is NO project-level .claude/skills or .opencode/skill auto-discovery), so they are DEPLOYED there by bin/deploy-skills.mjs (on-demand, not always-on). model/small_model are editable defaults (task 10). Source: opencode.ai/docs + real-binary verification 2026-07-10.",
     "_model_note": "model / small_model are NOT set here — they are generated from adapters/models.config.json (agents.opencode.high / .small) so task 10 has ONE source of truth for model tiers.",
     "schema": "https://opencode.ai/config.json",
+    "_instructions_note": "SKILLS are handled by bin/deploy-skills.mjs (native ~/.config/opencode/skills/), NOT here. instructions[] is for always-on RULE.md context only. The earlier '.claude/skills/*/SKILL.md' entry was WRONG — in-repo that glob matches only the 3 new-* templates, and loading skills as always-on instructions defeats on-demand token savings; removed.",
     "instructions": [
       "rules/*/RULE.md",
-      ".claude/skills/*/SKILL.md",
       "AGENTS.md"
     ],
     "_plugin_note": "opencode auto-discovers local project plugins from .opencode/plugin/ (SINGULAR — verified against the opencode 1.3.17 binary and its own tip 'Add .ts/.js files to .opencode/plugin/ for event hooks'; the plural .opencode/plugins/ is NOT scanned). So ship the plugin file there and it needs no `plugin[]` entry. `plugin[]` is only for npm/git-published external modules (e.g. the user's live config loads superpowers via git); we have none, so it stays empty. (Earlier this note wrongly said plural — that mistake left review-gate.js in an unscanned dir so it never loaded.)",

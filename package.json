@@ -62,6 +62,8 @@
     "check:manifests": "node build.mjs --check",
     "test:projection": "node adapters/test-projection.mjs",
     "test:opencode-review": "node .opencode/plugin/review-gate.test.mjs",
+    "test:deploy-skills": "node bin/deploy-skills.test.mjs",
+    "deploy:skills": "node bin/deploy-skills.mjs",
     "install:codex": "node scripts/install-codex-local.js",
     "verify:codex": "node scripts/verify-codex-adapter.js",
     "activate:codex": "node scripts/install-codex-local.js",

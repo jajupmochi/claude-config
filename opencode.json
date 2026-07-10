@@ -4,7 +4,6 @@
   "small_model": "anthropic/claude-haiku-4-5",
   "instructions": [
     "rules/*/RULE.md",
-    ".claude/skills/*/SKILL.md",
     "AGENTS.md"
   ],
   "plugin": []
