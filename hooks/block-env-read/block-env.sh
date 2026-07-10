@@ -15,6 +15,11 @@ f="$(printf '%s' "$IN" | jq -r '.tool_input.file_path // .tool_input.path // emp
 base="$(basename "$f" 2>/dev/null)"
 
 case "$base" in
+  .env.example | .env.sample | .env.template | .env.dist | .env.*.example)
+    # secret-free templates by convention (committed to the repo) → readable; the agent often needs these to
+    # learn which vars a project expects.
+    exit 0
+    ;;
   .env | .env.* | *.env)
     echo "Blocked reading '$base': dotenv files are denied to keep secrets out of the transcript. If you need a value from it, ask the user for that specific value." >&2
     exit 2

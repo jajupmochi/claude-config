@@ -16,8 +16,10 @@ work touches real frontend repos that carry API keys in dotenv files. A hard blo
 ## Scope
 
 Covers the **Read** tool (the common vector). Reading `.env` via a Bash command (`cat .env`) is not covered
-here — pair with a permissions allowlist if you need that. `.env.example` is intentionally still blocked by the
-`.env.*` pattern; rename real templates to `env.example` (no leading dot) if you want them readable.
+here — pair with a permissions allowlist if you need that. **Secret-free templates are allowed**:
+`.env.example`, `.env.sample`, `.env.template`, `.env.dist`, and `.env.*.example` are readable (the agent often
+needs them to learn which variables a project expects); real dotenv files (`.env`, `.env.local`,
+`.env.production`, …) are blocked.
 
 ## Install
 
