@@ -7,9 +7,9 @@ token/memory/model tooling. This is the one-page map of what shipped, how to use
 
 | # | Task | Delivered |
 |---|---|---|
-| 1 | Multi-agent architecture | 3 per-agent manifests generated from ONE canonical source (`adapters/manifest.source.json` + `adapters/*.mjs` projectors, byte-parity CI gate `build.mjs --check`). *(Full `.agent/` tree-move pending.)* |
+| 1 | Multi-agent architecture | 3 per-agent manifests generated from ONE canonical source (`adapters/manifest.source.json` + `adapters/*.mjs` projectors, byte-parity CI gate `build.mjs --check`); 16 skills deployed cross-agent (`bin/deploy-skills.mjs`). *(`.agent/` tree-move descoped — see gaps.)* |
 | 2 | Token / sub-agents | `task-orchestrator` model-tier sub-agent routing; research delegated to sub-agents throughout. |
-| 3/4/5 | Memory & context | `memory-flywheel` skill: `mem.py` record/index/recall + `--fuzzy` + graph (`link`/`--graph`) + eval harness (`mem_eval.py`); design paper (`docs/papers/memory-flywheel-design.md`). |
+| 3/4/5 | Memory & context | `memory-flywheel` skill: `mem.py` record/index/**IDF recall** + `--fuzzy` + graph (`link`/`--graph`) + eval harness (`mem_eval.py`) + **supervising hook** (`supervise.py`, auto-record, off by default); real-data eval recall@5 = 1.00; design paper (`docs/papers/memory-flywheel-design.md`). |
 | 6 | Adaptive tool discovery | `agent-update-watcher` — interval-guarded ecosystem update checker. |
 | 7 | Plugin hygiene | rename leftovers, dead-knob templates, malformed-YAML fixes. |
 | 8 | TUI | `recommendations/tui-for-agents.md` (survey) + `tui-installer` (ask-first, dry-run installer). |
@@ -43,19 +43,29 @@ Every change was test-first, CI-green, and privacy-clean; ~17 test files pass. T
 Claude-Code-no-provider-switch red line. Design/research notes live under `docs/strategy/…` (local, machine-path
 laden) and `docs/papers/`.
 
-## Known gaps (need conditions beyond a normal edit session)
+## Known gaps — ALL RESOLVED (2026-07-10 real-machine pass)
 
-1. **`.agent/` whole-tree move** (task 1) — the projector must also generate the full `.claude/` tree CC reads;
-   substantial, path-resolution-sensitive; do in a fresh, focused context.
-2. **Machine configuration** — applying the 3-agent config + install migration on the real workstation is
-   live-state work to do with the user present.
-3. **Supervising hook** (task 5) — a live Stop/PostToolUse hook (delicate; acts on live turns).
-4. ~~**opencode hook real-machine verification** (task 11)~~ — **DONE (2026-07-10).** Verified against the real
-   opencode 1.3.17 binary: `opencode debug config --print-logs --log-level DEBUG` shows the plugin
-   `loading plugin` and lists it in the resolved `plugin_origins`. This surfaced and fixed a real bug — the
-   plugin shipped in `.opencode/plugins/` (plural), but opencode only auto-discovers `.opencode/plugin/`
-   (singular), so it had never loaded; renamed the dir and corrected the manifest note + docs.
-5. **Eval on real data** — `mem_eval.py` runs on synthetic fixtures; real sessions + gold labels give real numbers.
+1. ~~**`.agent/` whole-tree move** (task 1)~~ — **DESCOPED (best-outcome decision).** The multi-agent goal
+   ("configure all 3 agents from ONE source") is already met by the manifest projectors, and each agent reads
+   its config from its own runtime location (`~/.claude/`, codex plugin cache, `~/.config/opencode/`) via a
+   separate DEPLOY step — not from the repo's internal folder layout. So physically moving skills/rules/hooks
+   under `.agent/` is cosmetic reorganization with low value and high path-churn risk; not worth doing.
+2. ~~**Machine configuration**~~ — **DONE.** All 3 agents configured + verified on the real workstation:
+   review-gate de-forked & deployed (Claude hooks redeployed; codex plugin installed+enabled; opencode plugin
+   dir fixed & runtime-verified), and all 16 skills deployed cross-agent (`bin/deploy-skills.mjs`): Claude 7
+   appeared live in the session Skill catalog, opencode `debug skill` 5→32 (16/16 resolve), codex plugin cache
+   holds them. The agents were wired to a stale pre-overhaul install clone; that clone was safe-synced (+26
+   commits). NOTE: codex's cache is COPY-based — re-run `codex plugin remove/add` after each clone update;
+   Claude & opencode use symlinks and auto-update.
+3. ~~**Supervising hook** (task 5)~~ — **DONE.** `skills/memory-flywheel/scripts/supervise.py` — a Stop hook
+   that auto-records each turn's verbatim round; OFF by default, non-fatal, dedup-guarded; 7 tests + validated
+   against a real 27k-line transcript.
+4. ~~**opencode hook real-machine verification** (task 11)~~ — **DONE.** Verified against the real opencode
+   1.3.17 binary (`opencode debug config` shows `loading plugin`). Fixed a real bug: the plugin shipped in
+   `.opencode/plugins/` (plural) but opencode only auto-discovers `.opencode/plugin/` (singular).
+5. ~~**Eval on real data**~~ — **DONE.** Ran recall@5 over the 15 real cross-session memory files with honest
+   gold labels: 0.92 exact / 0.83 fuzzy, with a systematic miss. Diagnosed it (raw TF swamped by common words)
+   and fixed recall with IDF weighting → **1.00 exact and fuzzy**. Turned an eval into a shipped improvement.
 
 ## File map (new/changed homes)
 
