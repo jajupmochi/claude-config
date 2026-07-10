@@ -12,6 +12,7 @@ import * as opencode from "./opencode.mjs";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url))); // adapters/ -> repo root
 const source = JSON.parse(readFileSync(join(ROOT, "adapters", "manifest.source.json"), "utf8"));
+source.models = JSON.parse(readFileSync(join(ROOT, "adapters", "models.config.json"), "utf8"));
 
 let pass = 0;
 let fail = 0;

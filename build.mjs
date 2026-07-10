@@ -26,6 +26,8 @@ function firstDiff(a, b) {
 function main() {
   const check = process.argv.includes("--check");
   const source = JSON.parse(readFileSync(SOURCE, "utf8"));
+  // Attach the model-tier config (single source of truth for task 10) so projectors can read it.
+  source.models = JSON.parse(readFileSync(join(ROOT, "adapters", "models.config.json"), "utf8"));
   let drift = 0;
   let wrote = 0;
   for (const p of PROJECTORS) {
