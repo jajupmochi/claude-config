@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "agent-harness",
+  "description": "Linlin's agent-harness — a single-plugin marketplace exposing the curated multi-agent workflow rules, skills, and hooks for Claude Code (also adapted for Codex and opencode).",
+  "owner": {
+    "name": "Linlin Jia"
+  },
+  "plugins": [
+    {
+      "name": "agent-harness",
+      "description": "Curated Claude Code configuration: workflow rules, skills, hooks, recommendations, tooling preferences, and project templates. After install, run /init-agent-config in any project to scaffold the relevant subset. NOTE: install this OR the piecemeal per-skill symlinks, not both, to avoid double-loading (see docs/PLUGIN_INSTALL.md).",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "Linlin Jia"
+      }
+    }
+  ]
+}

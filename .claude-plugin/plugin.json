@@ -9,10 +9,7 @@
   },
   "license": "MIT",
   "homepage": "https://github.com/jajupmochi/agent-harness",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jajupmochi/agent-harness"
-  },
+  "repository": "https://github.com/jajupmochi/agent-harness",
   "keywords": [
     "claude-code",
     "skills",
@@ -23,24 +20,6 @@
     "static-site",
     "ml-research",
     "codex-adapter"
-  ],
-  "skills": [
-    "setup/init-agent-config",
-    "skills/general/verify-template",
-    "skills/general/preview-template",
-    "skills/general/long-running-tasks",
-    "skills/general/verify-visual",
-    "skills/general/privacy-redact",
-    "skills/general/code-verifier",
-    "skills/general/research-critic",
-    "skills/general/system-cleanup",
-    "skills/general/autoresearch-toolfinder",
-    "skills/general/autopilot",
-    "skills/memory-flywheel",
-    "skills/task-relationship-analysis",
-    "skills/prompt-library",
-    "skills/agent-update-watcher",
-    "skills/tui-installer"
   ],
   "rules": [
     "rules/chinese-output",
@@ -63,11 +42,6 @@
     "rules/latex-edit-policy",
     "rules/test-first",
     "rules/design-modes"
-  ],
-  "hooks": [
-    "hooks/ruff-format-on-edit",
-    "hooks/jq-validate-json",
-    "hooks/review-gate"
   ],
   "templates": [
     "templates/research-package-py",
