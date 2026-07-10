@@ -22,7 +22,8 @@
       "skills/general/autoresearch-toolfinder",
       "skills/general/autopilot",
       "skills/memory-flywheel",
-      "skills/task-relationship-analysis"
+      "skills/task-relationship-analysis",
+      "skills/prompt-library"
     ],
     "rules": [
       "rules/chinese-output",
