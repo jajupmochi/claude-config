@@ -1,0 +1,18 @@
+# memory-flywheel supervisor config.  Copy to `supervise.conf` (next to supervise.py) to turn it ON.
+#
+# The supervisor is a Stop hook that AUTO-RECORDS each turn's verbatim round into the per-project memory
+# flywheel, so you don't have to call `mem.py record` by hand. It is deterministic plumbing (no model call);
+# the recorded content is your own turn's raw I/O.
+#
+# OFF BY DEFAULT. It does nothing until enabled here OR via env AGENT_HARNESS_MEM_SUPERVISE=1. Even wired
+# into settings.json it stays inert until you opt in, so shipping it is safe.
+#
+#   supervise = on
+#
+# When on, it writes rounds under ~/.agent-harness/memory/<project>/ (interval/dedup-guarded: at most once
+# per unchanged turn). Any error is logged to ~/.agent-harness/memory/supervise-errors.log and the turn is
+# never blocked.
+#
+# To wire it as a Stop hook (only after opting in), add to ~/.claude/settings.json hooks.Stop:
+#   { "type": "command", "command": "python3 $HOME/.claude/claude-config/skills/memory-flywheel/scripts/supervise.py" }
+supervise = off
