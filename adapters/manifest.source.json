@@ -24,7 +24,8 @@
       "skills/memory-flywheel",
       "skills/task-relationship-analysis",
       "skills/prompt-library",
-      "skills/agent-update-watcher"
+      "skills/agent-update-watcher",
+      "skills/tui-installer"
     ],
     "rules": [
       "rules/chinese-output",
