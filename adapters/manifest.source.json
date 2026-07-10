@@ -23,7 +23,8 @@
       "skills/general/autopilot",
       "skills/memory-flywheel",
       "skills/task-relationship-analysis",
-      "skills/prompt-library"
+      "skills/prompt-library",
+      "skills/agent-update-watcher"
     ],
     "rules": [
       "rules/chinese-output",

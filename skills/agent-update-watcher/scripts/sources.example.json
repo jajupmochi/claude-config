@@ -1,0 +1,8 @@
+{
+  "_doc": "EXAMPLE config for check_updates.py. Copy to a local sources.json and set real current_version values. `url` is where a release/version feed lives; the thin fetch that turns urls into a --snapshot {name: latest} map is caller-supplied (kept out of this deterministic checker). kind: cli|plugin|skill.",
+  "sources": [
+    { "name": "claude-code", "kind": "cli", "current_version": "0.0.0", "url": "https://github.com/anthropics/claude-code/releases" },
+    { "name": "codex", "kind": "cli", "current_version": "0.0.0", "url": "https://github.com/openai/codex/releases" },
+    { "name": "opencode", "kind": "cli", "current_version": "0.0.0", "url": "https://github.com/sst/opencode/releases" }
+  ]
+}
