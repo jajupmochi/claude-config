@@ -130,12 +130,35 @@ def cmd_index(args):
     return 0
 
 
+def _tokens(text):
+    return re.findall(r"[a-z0-9]+", text.lower())
+
+
+def _fuzzy_hits(term, tokens):
+    """Count tokens SIMILAR to (but not identical to) term — catches variant forms (memory↔memories,
+    design↔designs) that exact substring match misses. Deterministic: substring-either-way or a shared
+    4-char prefix, both terms >=4 chars. Exact matches are skipped (already counted by the exact scorer)."""
+    if len(term) < 4:
+        return 0
+    n = 0
+    for tok in tokens:
+        if tok == term or len(tok) < 4:
+            continue
+        if term in tok or tok in term or term[:4] == tok[:4]:
+            n += 1
+    return n
+
+
 def cmd_recall(args):
     terms = [t.lower() for t in (args.query or "").split() if t]
+    fuzzy = getattr(args, "fuzzy", False)
     scored = []
     for p in _round_files(args):
         text = _read(p).lower()
         score = sum(text.count(t) for t in terms) if terms else 0
+        if fuzzy and terms:
+            toks = _tokens(text)
+            score += sum(_fuzzy_hits(t, toks) for t in terms)
         if score > 0 or not terms:
             scored.append((score, p))
     scored.sort(key=lambda x: (-x[0], x[1]))
@@ -159,6 +182,7 @@ def main(argv=None):
         if name == "recall":
             s.add_argument("--query", default="")
             s.add_argument("--top", type=int, default=10)
+            s.add_argument("--fuzzy", action="store_true", help="also match similar keywords (variant forms) to boost recall")
     args = ap.parse_args(argv)
     return {"record": cmd_record, "index": cmd_index, "recall": cmd_recall}[args.cmd](args)
 

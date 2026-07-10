@@ -79,7 +79,19 @@ def run():
         bare_pipes = row.replace("\\|", "")
         assert bare_pipes.count("|") == 5, f"row stays 4 columns, got {bare_pipes.count('|')} pipes: {row!r}"
 
-    print("mem.py: all 7 tests PASS")
+        # 8. fuzzy recall matches VARIANT forms that exact recall misses
+        with tempfile.TemporaryDirectory() as root2:
+            b2 = ["--root", root2, "--project", "p"]
+            _run(["record", *b2, "--kind", "note", "--title", "t", "--ts", "2026-07-10"], stdin="notes about memories and designs\n")
+            # exact: querying 'memory' should NOT match 'memories' (differs after the prefix)
+            _, out_exact = _run(["recall", *b2, "--query", "memory"])
+            assert out_exact.strip() == "", f"exact recall shouldn't match variant, got {out_exact!r}"
+            # fuzzy: 'memory' matches 'memories' via shared 4-char prefix -> a hit
+            _, out_fuzzy = _run(["recall", *b2, "--query", "memory", "--fuzzy"])
+            assert out_fuzzy.strip() != "", "fuzzy recall should match the variant 'memories'"
+            assert int(out_fuzzy.split("\t")[0]) >= 1
+
+    print("mem.py: all 8 tests PASS")
     return 0
 
 
