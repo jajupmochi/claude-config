@@ -76,6 +76,7 @@ See [`rules/README.md`](rules/README.md) for usage details and scope-tag definit
 | [`code-verifier`](skills/general/code-verifier/SKILL.md) | general | auto / `/code-verifier` | Three-layer gate before any "tests pass" / "code works" / "results show X" claim — detects FAKE-RUN patterns |
 | [`research-critic`](skills/general/research-critic/SKILL.md) | general | auto / `/research-critic` | Six-question audit on every research claim (falsifiability, design, fair comparison, leakage, proportional conclusion, alternatives) |
 | [`system-cleanup`](skills/general/system-cleanup/SKILL.md) | general | auto / `/system-cleanup` | Diagnose a full Linux disk (df/du/dpkg/snap/docker) → prioritized, risk-tagged cleanup; safe user-level deletions + sudo items handed to the user; covers VS Code WebStorage bloat, old kernels, NTFS data-disk write failures. Ships `cleanup.sh`. |
+| [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | general | auto on figma.com URL / `/figma-fetch <node-url>` | Connect the official Figma MCP (OAuth), fetch a design node (code/vector/bitmap/screenshot) to a gitignored `.design-imports/`, then rebuild per-screen with existing components. Encodes the 6 tested gotchas (PKCE expiry, Code Connect paywall, empty variables, low-fi snapshots, 7-day asset URLs, no browser-scraping). |
 
 Future buckets (populated in P7 with templates):
 

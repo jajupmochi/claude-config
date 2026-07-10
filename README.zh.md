@@ -31,7 +31,7 @@
 | Agent | 插件 manifest | 技能 | 钩子 | 安装技能 |
 |---|---|---|---|---|
 | **Claude Code** | `.claude-plugin/plugin.json` | `skills/general/*`（7 个源技能） | `hooks/*`（3 个配方） | `/init-agent-config` |
-| **Codex** | `.codex-plugin/plugin.json` | `skills/*`（12 个包装技能） | `hooks.json`（3 个脚本） | `/skills` → `init-codex-config` |
+| **Codex** | `.codex-plugin/plugin.json` | `skills/*`（13 个包装技能） | `hooks.json`（3 个脚本） | `/skills` → `init-codex-config` |
 | **其他 Agent** | 通过 `agent-config-adapter` 技能 | 见适配工作流 | 见适配工作流 | — |
 
 **四个目标：**
@@ -90,7 +90,7 @@ agent-harness/
 │   ├── chinese-output/                   ← 以及另外 14 条…
 │   └── <规则名>/RULE.md + snippet.md
 │
-├── skills/                               ← Codex 12 个包装技能 + 源目录
+├── skills/                               ← Codex 13 个包装技能 + 源目录
 │   ├── general/                          ← 7 个 Claude 源技能
 │   ├── init-codex-config/                ← Codex 安装技能
 │   ├── agent-config-adapter/             ← 跨 Agent 迁移工作流
@@ -152,7 +152,7 @@ agent-harness/
 
 ## 可复用技能（12）
 
-Codex 的 `/skills` 中显示 12 个技能。Claude Code 使用 `skills/general/` 下的 7 个源技能。Codex 包装技能在配置后自动加载。
+Codex 的 `/skills` 中显示 13 个技能。Claude Code 使用 `skills/general/` 下的 7 个源技能。Codex 包装技能在配置后自动加载。
 
 | 技能 | 自动加载 | 用途 |
 |---|---|---|
@@ -167,6 +167,7 @@ Codex 的 `/skills` 中显示 12 个技能。Claude Code 使用 `skills/general/
 | [`privacy-redact`](skills/privacy-redact/SKILL.md) | — | 扫描用户名、绝对路径、token、代号；用占位符替换 |
 | [`system-cleanup`](skills/system-cleanup/SKILL.md) | — | 释放磁盘空间：uv 缓存、huggingface、JetBrains、Docker、pip |
 | [`autoresearch-toolfinder`](skills/autoresearch-toolfinder/SKILL.md) | — | 发现 ML 研究工具（自动安装、每周定时） |
+| [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | — | 用官方 Figma MCP 做 design-to-code：OAuth 连接、把代码/资源/截图抓到 gitignore 的 `.design-imports/`、用现有组件重建；内置 6 个实测坑。附 `/figma-fetch` |
 | [`general`](skills/general/SKILL.md) | — | 源目录索引——映射 Claude 源技能到 Codex 包装 |
 
 ## 钩子（6：3 Claude + 3 Codex）

@@ -111,12 +111,16 @@ jobs:
       - name: Validate .claude-plugin/plugin.json structure
         run: |
           jq empty .claude-plugin/plugin.json
-          # Required fields per plugin spec (best-effort, spec is evolving):
-          jq -e '.name and .version and .description and .skills and .author' .claude-plugin/plugin.json \
+          # Required fields per plugin spec (best-effort, spec is evolving).
+          # NOTE: skills/hooks are intentionally ABSENT from plugin.json — Claude Code auto-discovers skills
+          # from top-level skills/*/SKILL.md, and hooks are delivered via ~/.claude/settings.json (a plugin
+          # hook would double-fire review-gate). See adapters/claude.mjs. So the skill list is validated from
+          # the CANONICAL inventory below, not from plugin.json.
+          jq -e '.name and .version and .description and .author' .claude-plugin/plugin.json \
             > /dev/null || { echo "::error::plugin.json missing required fields"; exit 1; }
 
-          # Verify referenced skill paths exist
-          for skill in $(jq -r '.skills[]' .claude-plugin/plugin.json); do
+          # Verify referenced skill paths exist (from the canonical manifest, not plugin.json)
+          for skill in $(jq -r '.inventory.skills[]' adapters/manifest.source.json); do
             test -d "${skill}" || { echo "::error::Referenced skill missing: ${skill}"; exit 1; }
             test -f "${skill}/SKILL.md" || { echo "::error::SKILL.md missing in ${skill}"; exit 1; }
           done

@@ -74,6 +74,7 @@
 | [`code-verifier`](skills/general/code-verifier/SKILL.md) | general | 自动 / `/code-verifier` | "tests pass" / "code works" / "结果是 X" 前的三层门禁——检测 FAKE-RUN 模式（硬编码结果、`assert True`、纯 mock 测试等） |
 | [`research-critic`](skills/general/research-critic/SKILL.md) | general | 自动 / `/research-critic` | 六问审计：可证伪性 · 设计与假设匹配 · 公平比较 · 泄漏 · 结论与证据匹配 · 替代解释排除 |
 | [`system-cleanup`](skills/general/system-cleanup/SKILL.md) | general | 自动 / `/system-cleanup` | 诊断爆满的 Linux 磁盘（df/du/dpkg/snap/docker）→ 按优先级、带风险标签的清理；安全的用户级删除 + sudo 项交给用户跑；覆盖 VS Code WebStorage 膨胀、旧内核、NTFS 数据盘写入失败。附 `cleanup.sh`。 |
+| [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | general | figma.com URL 时自动 / `/figma-fetch <node-url>` | 连接官方 Figma MCP（OAuth），把设计节点（代码/矢量/位图/截图）抓到 gitignore 的 `.design-imports/`，再用现有组件逐屏重建；内置 6 个实测坑（PKCE 过期、Code Connect 付费墙、变量为空、低保真快照、7 天资源 URL 过期、不用浏览器爬取）。 |
 
 后续桶（将在 P7 模板里填充）：
 

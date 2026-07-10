@@ -12,7 +12,7 @@
 - [Quick Start](#quick-start)
 - [Repository structure](#repository-structure)
 - [Workflow rules (15+)](#workflow-rules-15)
-- [Reusable skills (12)](#reusable-skills-12)
+- [Reusable skills (13)](#reusable-skills-13)
 - [Hooks (6: 3 Claude + 3 Codex)](#hooks-6-3-claude--3-codex)
 - [Recommendations (17 lists)](#recommendations-17-lists)
 - [Project templates](#project-templates)
@@ -31,7 +31,7 @@ AI agent usage conventions accumulated since early 2026 — rules, hooks, skills
 | Agent | Plugin manifest | Skills | Hooks | Setup skill |
 |---|---|---|---|---|
 | **Claude Code** | `.claude-plugin/plugin.json` | `skills/general/*` (7 source skills) | `hooks/*` (3 recipes) | `/init-agent-config` |
-| **Codex** | `.codex-plugin/plugin.json` | `skills/*` (12 wrapper skills) | `hooks.json` (3 scripts) | `/skills` → `init-codex-config` |
+| **Codex** | `.codex-plugin/plugin.json` | `skills/*` (13 wrapper skills) | `hooks.json` (3 scripts) | `/skills` → `init-codex-config` |
 | **Other agents** | Via `agent-config-adapter` skill | See adapter workflow | See adapter workflow | — |
 
 **Four aims:**
@@ -90,7 +90,7 @@ agent-harness/
 │   ├── chinese-output/                   ← and 14 more …
 │   └── <rule-name>/RULE.md + snippet.md
 │
-├── skills/                               ← 12 wrapper skills for Codex + source catalog
+├── skills/                               ← 13 wrapper skills for Codex + source catalog
 │   ├── general/                          ← 7 Claude source skills
 │   ├── init-codex-config/                ← Codex setup skill
 │   ├── agent-config-adapter/             ← cross-agent migration workflow
@@ -150,9 +150,9 @@ Each ships as `RULE.md` (full content, rationale, examples, exceptions) + `snipp
 | [`multi-round-redesign`](rules/multi-round-redesign/RULE.md) | ui-project | N-round UI redesign with date-stamped outputs + discipline |
 | [`latex-edit-policy`](rules/latex-edit-policy/RULE.md) | research-pkg | Hard fixes direct; content edits comment-don't-delete |
 
-## Reusable skills (12)
+## Reusable skills (13)
 
-12 skills appear in Codex `/skills`. Claude Code uses 7 source skills under `skills/general/`. Codex wrappers auto-load where configured.
+13 skills appear in Codex `/skills`. Claude Code uses 7 source skills under `skills/general/`. Codex wrappers auto-load where configured.
 
 | Skill | Auto-load | Purpose |
 |---|---|---|
@@ -167,6 +167,7 @@ Each ships as `RULE.md` (full content, rationale, examples, exceptions) + `snipp
 | [`privacy-redact`](skills/privacy-redact/SKILL.md) | — | Scan for usernames, paths, tokens, codenames; redact with placeholders |
 | [`system-cleanup`](skills/system-cleanup/SKILL.md) | — | Free disk space: uv cache, huggingface, JetBrains, Docker, pip |
 | [`autoresearch-toolfinder`](skills/autoresearch-toolfinder/SKILL.md) | — | Discover ML research tools (auto-install, weekly timer) |
+| [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | — | Figma design-to-code via the official MCP: OAuth connect, fetch code/assets/screenshot to a gitignored `.design-imports/`, rebuild with existing components; encodes 6 tested gotchas. Ships `/figma-fetch` |
 | [`general`](skills/general/SKILL.md) | — | Source catalog index — maps Claude source skills to Codex wrappers |
 
 ## Hooks (6: 3 Claude + 3 Codex)
@@ -289,7 +290,7 @@ See [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) for formal specs, inventory-s
 | P11 | 2026-07-08 | Codex adapter: .codex-plugin, 12 wrapper skills, hooks.json, install/verify/update scripts |
 | P12 | 2026-07-08 | Multi-agent rename (agent-harness), review-gate Stop hook, visual-verify for non-vision models, code-verifier auto-load, commit discipline enforcement |
 
-**Total surface:** 15+ rules + 12 skills + 6 hooks (dual-agent) + 17 recommendation lists + 3 tooling templates + 2 project templates + 2 setup skills + 8 scripts + bilingual docs + 2 plugin manifests.
+**Total surface:** 15+ rules + 13 skills + 6 hooks (dual-agent) + 17 recommendation lists + 3 tooling templates + 2 project templates + 2 setup skills + 8 scripts + bilingual docs + 2 plugin manifests.
 
 ## Contributing
 
