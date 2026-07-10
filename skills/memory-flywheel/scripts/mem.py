@@ -192,13 +192,17 @@ def cmd_recall(args):
     files = _round_files(args)
     texts = {p: _read(p).lower() for p in files}
     # IDF weighting: rare query terms are more discriminative than common ones. Weight each term's
-    # contribution by idf = ln((N+1)/(df+1)) (smoothed standard IDF, always >= 0; a term present in EVERY
-    # round -> 0, i.e. non-discriminative). Without this, raw term-frequency SUM lets a doc packed with
-    # common query words (e.g. "load", "chrome") outrank the ONE doc actually about the rare term (e.g.
-    # "researchgate") — a real miss found via the real-data recall eval (2026-07-10). NOTE: NO +1 floor, on
-    # purpose — a floor keeps common terms at weight 1.0 and re-introduces the very swamping we are fixing.
+    # contribution by idf = ln((N+1)/(df+1)) + EPS. Without this, raw term-frequency SUM lets a doc packed
+    # with common query words (e.g. "load", "chrome") outrank the ONE doc actually about the rare term (e.g.
+    # "researchgate") — a real miss found via the real-data recall eval (2026-07-10).
+    # EPS (a TINY floor, not +1) is deliberate and does two jobs: (a) a term present in EVERY round has
+    # ln-part 0, but EPS keeps its weight just above zero so a MATCH still scores > 0 — otherwise a
+    # single-round project (N=1, df=1 -> ln(2/2)=0) or a term common to all rounds would recall NOTHING even
+    # though the term IS present; (b) EPS is far smaller than any rare term's ln-part, so it does NOT
+    # re-introduce the common-word swamping a +1 floor would.
+    EPS = 1e-3
     n_docs = len(files) or 1
-    idf = {t: math.log((n_docs + 1) / (sum(1 for p in files if t in texts[p]) + 1)) for t in terms}
+    idf = {t: math.log((n_docs + 1) / (sum(1 for p in files if t in texts[p]) + 1)) + EPS for t in terms}
     scored = []
     for p in files:
         text = texts[p]

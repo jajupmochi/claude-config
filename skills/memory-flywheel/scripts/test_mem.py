@@ -124,7 +124,20 @@ def run():
             top = [ln for ln in out_idf.strip().splitlines() if ln][0]
             assert top.endswith("0001-note.md"), f"idf must rank the rare-term doc first, got {out_idf!r}"
 
-    print("mem.py: all 10 tests PASS")
+        # 11. tiny-corpus / all-rounds term: IDF must NOT zero out a real match. With a single round (df=N)
+        # the ln-part is 0, so the EPS floor is what keeps a present term recallable — regression guard.
+        with tempfile.TemporaryDirectory() as root5:
+            b5 = ["--root", root5, "--project", "p"]
+            _run(["record", *b5, "--kind", "note", "--title", "t1", "--ts", "2026-07-10"], stdin="only widget here\n")  # 0001
+            _, out1 = _run(["recall", *b5, "--query", "widget"])
+            paths1 = [ln.split("\t")[1] for ln in out1.strip().splitlines() if ln]
+            assert paths1 and paths1[0].endswith("0001-note.md"), f"single-round recall must find the term, got {out1!r}"
+            # add a 2nd round that ALSO has 'widget' -> df==N==2 (ln-part 0); both must still be recallable
+            _run(["record", *b5, "--kind", "note", "--title", "t2", "--ts", "2026-07-10"], stdin="another widget too\n")  # 0002
+            _, out2 = _run(["recall", *b5, "--query", "widget"])
+            assert len([ln for ln in out2.strip().splitlines() if ln]) == 2, f"term common to all rounds must still recall all, got {out2!r}"
+
+    print("mem.py: all 11 tests PASS")
     return 0
 
 
