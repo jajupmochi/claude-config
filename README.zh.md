@@ -232,7 +232,7 @@ Codex 的 `/skills` 中显示 13 个技能。Claude Code 使用 `skills/general/
 graph TD
     subgraph "agent-harness Repository"
         CC[".claude-plugin/<br/>plugin.json<br/><br/>hooks/ (3 recipes)<br/>skills/general/ (7 src)<br/>setup/init-…"]
-        CX[".codex-plugin/<br/>plugin.json<br/><br/>hooks.json (3 scripts)<br/>skills/ (12 wrappers)<br/>scripts/ (9 tools)"]
+        CX[".codex-plugin/<br/>plugin.json<br/><br/>hooks.json (3 scripts)<br/>skills/ (13 wrappers)<br/>scripts/ (9 tools)"]
         SHARED["rules/ (15+)<br/>recommendations/ (17)<br/>tooling/ (3)<br/>templates/ (2)"]
     end
 
@@ -290,7 +290,7 @@ cp scripts/codex_commit_msg.sh .git/hooks/commit-msg
 | P11 | 2026-07-08 | Codex 适配：.codex-plugin、12 个包装技能、hooks.json、安装/验证/更新脚本 |
 | P12 | 2026-07-08 | 多 Agent 重命名（agent-harness）、review-gate Stop 钩子、非视觉模型视觉验证、code-verifier 自动加载、约定式提交强制执行 |
 
-**总覆盖：** 15+ 条规则 + 12 个技能 + 6 个钩子（双 Agent）+ 17 份推荐清单 + 3 类工具模板 + 2 个项目模板 + 2 个安装技能 + 8 个脚本 + 双语文档 + 2 个插件 manifest。
+**总覆盖：** 15+ 条规则 + 13 个技能 + 6 个钩子（双 Agent）+ 17 份推荐清单 + 3 类工具模板 + 2 个项目模板 + 2 个安装技能 + 8 个脚本 + 双语文档 + 2 个插件 manifest。
 
 ## 贡献
 

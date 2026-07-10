@@ -232,7 +232,7 @@ Minimal-but-complete starters.
 graph TD
     subgraph "agent-harness Repository"
         CC[".claude-plugin/<br/>plugin.json<br/><br/>hooks/ (3 recipes)<br/>skills/general/ (7 src)<br/>setup/init-…"]
-        CX[".codex-plugin/<br/>plugin.json<br/><br/>hooks.json (3 scripts)<br/>skills/ (12 wrappers)<br/>scripts/ (9 tools)"]
+        CX[".codex-plugin/<br/>plugin.json<br/><br/>hooks.json (3 scripts)<br/>skills/ (13 wrappers)<br/>scripts/ (9 tools)"]
         SHARED["rules/ (15+)<br/>recommendations/ (17)<br/>tooling/ (3)<br/>templates/ (2)"]
     end
 

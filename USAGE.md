@@ -385,6 +385,10 @@ claude
 
 Each meta-skill scaffolds the right files (with frontmatter + body templates), reminds you to update `INVENTORY.md` in the same edit batch, and asks for confirmation before committing.
 
+> **Skill placement for Claude Code discovery:** put a skill you want Claude to auto-discover at the **top level**
+> `skills/<kebab-name>/` — Claude Code's plugin loader scans `skills/*/SKILL.md` only **one level deep**, not
+> `skills/<bucket>/*`. (Codex and opencode see both.) See the note in `/new-skill`.
+
 After commit, push:
 
 ```bash

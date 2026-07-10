@@ -20,7 +20,7 @@
 
 | Bundle | Source | Description |
 |---|---|---|
-| **agent-harness skills** | This repository | 12 skills: code-verifier, research-critic, verify-visual, task-orchestrator, etc. |
+| **agent-harness skills** | This repository | 13 skills: code-verifier, research-critic, verify-visual, task-orchestrator, figma-design-fetch, etc. |
 | **superpowers skills** | Plugin | Batch tasks, subagents, session orchestration |
 | **openai-docs** | System | Official Codex and OpenAI documentation |
 | **plugin-creator** | System | Validate and publish Codex plugins |

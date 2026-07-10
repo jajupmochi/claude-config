@@ -20,6 +20,13 @@ E.g.: `/new-skill general/find-duplicates` or `/new-skill research-pkg/new-exper
 - Verify `skills/<bucket>/<kebab-name>/` does not already exist
 - Verify `<bucket>` is one of: `general/`, `research-pkg/`, `static-site/`, `productivity/`, `personal/` — or ask the user to add a new bucket if needed
 
+> ⚠️ **Claude Code plugin discovery is TOP-LEVEL only.** CC auto-discovers `skills/<name>/SKILL.md` **one level
+> deep** — it does NOT scan `skills/<bucket>/<name>/`. So a skill you want Claude to auto-discover MUST live at
+> the top level `skills/<kebab-name>/` (like `memory-flywheel`, `tui-installer`, `figma-design-fetch`). The
+> `skills/general/*` copies are reached by Codex (`skills/` glob) and opencode (deploy-skills), NOT by the CC
+> plugin. If the skill should be Claude-discoverable, create it at `skills/<kebab-name>/` (bucket is then just
+> an organizational tag in INVENTORY, not a path level).
+
 ## Steps
 
 1. **Create directory**:

@@ -385,6 +385,10 @@ claude
 
 每个元技能 scaffold 出对应文件（含 frontmatter + 内容模板），提醒同 batch 更新 `INVENTORY.md`，提交前要你确认。
 
+> **技能放置位置（关系 Claude Code 能否发现）：** 想让 Claude 自动发现的技能要放在**顶层** `skills/<kebab-name>/`
+> —— Claude Code 插件加载器只扫 `skills/*/SKILL.md` **一级**,不扫 `skills/<bucket>/*`。（Codex 和 opencode 两级都看得到。）
+> 详见 `/new-skill` 里的说明。
+
 提交后 push：
 
 ```bash
