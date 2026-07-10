@@ -107,6 +107,11 @@ def cmd_record(args):
     return 0
 
 
+def _cell(v):
+    """Make a value safe inside a Markdown table cell: escape pipes, flatten newlines."""
+    return str(v).replace("\\", "\\\\").replace("|", "\\|").replace("\n", " ").strip()
+
+
 def cmd_index(args):
     os.makedirs(_proj_dir(args), exist_ok=True)
     rows = []
@@ -118,7 +123,7 @@ def cmd_index(args):
         out += ["| id | kind | title | keywords |", "|---|---|---|---|"]
         for r in rows:
             kw = ", ".join(r.get("keywords", [])) if isinstance(r.get("keywords"), list) else (r.get("keywords") or "")
-            out.append(f"| {r.get('id','')} | {r.get('kind','')} | {r.get('title','')} | {kw} |")
+            out.append(f"| {_cell(r.get('id',''))} | {_cell(r.get('kind',''))} | {_cell(r.get('title',''))} | {_cell(kw)} |")
     idx = os.path.join(_proj_dir(args), "INDEX.md")
     with open(idx, "w", encoding="utf-8") as f:
         f.write("\n".join(out) + "\n")

@@ -70,7 +70,16 @@ def run():
         idx_b = open(os.path.join(root, "demo", "INDEX.md"), encoding="utf-8").read()
         assert idx_a == idx_b, "index idempotent"
 
-    print("mem.py: all 6 tests PASS")
+        # 7. a title containing '|' must NOT break the Markdown table (escaped, row stays 4 columns)
+        _run(["record", *base, "--kind", "note", "--title", "a | b pipe", "--ts", "2026-07-10"], stdin="x\n")
+        idx = open(os.path.join(root, "demo", "INDEX.md"), encoding="utf-8").read()
+        row = [ln for ln in idx.splitlines() if ln.startswith("| 0003")][0]
+        assert "\\|" in row, "pipe in title is escaped"
+        # a well-formed row has exactly 5 '|' (4 columns): leading, 3 separators, trailing — un-escaped ones
+        bare_pipes = row.replace("\\|", "")
+        assert bare_pipes.count("|") == 5, f"row stays 4 columns, got {bare_pipes.count('|')} pipes: {row!r}"
+
+    print("mem.py: all 7 tests PASS")
     return 0
 
 
