@@ -70,6 +70,29 @@ The orchestrator adapts its strictness based on detected capabilities:
 | **Medium-capability** | Codex | GPT-4, Claude 3.5 | Templates are GUIDELINES. Follow pipeline but allow adaptation. Full verify. |
 | **Low-capability** | Codex | DeepSeek, Gemini, local | Templates are MANDATORY. Strict pipeline enforced. No deviation without explicit approval. Extra verification gates. |
 
+### Model-tier sub-agent routing (token thrift, task 10)
+
+Model tiers per agent are declared once in `adapters/models.config.json` (high/mid/small) and resolved by
+`scripts/resolve_model.mjs`:
+
+```
+node scripts/resolve_model.mjs <agent> <tier|task-kind>   # e.g. claude research -> claude-opus-4-8
+```
+
+Use it to cut token cost WITHOUT losing quality on the hard steps:
+
+- **Claude Code** cannot switch model mid-session, so run the MAIN loop on `high` and delegate the cheap,
+  mechanical, or verify steps to SUB-AGENTS resolved to `mid`/`small` (e.g. `resolve_model.mjs claude mechanical`).
+  Guard: only delegate when the sub-agent's token-in is less than the tokens saved by the smaller model —
+  spawning a sub-agent that re-reads a huge context on a small model can cost MORE. Measure before defaulting.
+- **opencode** switches natively; its `model`/`small_model` in `opencode.json` are generated from this same
+  config, so the tiers already apply.
+- **Codex** switches via external tooling (cc-switch / provider config). NEVER auto-configure provider
+  switching for Claude Code (account-ban risk).
+
+Map task-kinds → tiers via the config's `task_tier` (research/design → high, implement/verify → mid,
+mechanical → small) so the RESEARCH→DESIGN→IMPLEMENT→VERIFY pipeline can pick a sensible model per stage.
+
 ### Capability detection
 
 ```bash
