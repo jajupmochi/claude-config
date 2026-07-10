@@ -23,6 +23,7 @@ The `setup/init-agent-harness` skill (P8) does this composition automatically ba
 | [cc-plugins.md](cc-plugins.md) | always | 37 Claude Code plugins (workflow, integrations, specialized) |
 | [cc-marketplaces-and-skill-bundles.md](cc-marketplaces-and-skill-bundles.md) | always | 4 third-party marketplaces + 9 skill bundles via `npx skills add` |
 | [cli-tools.md](cli-tools.md) | always (selectively) | System (jq, gh, ripgrep, fd, …) + Python user CLIs (uv, ruff, mkdocs, hf, gpustat, …) |
+| [tui-for-agents.md](tui-for-agents.md) | agent-workflow / terminal-first | Terminal/TUI stack for driving MULTIPLE AI coding agents (multi-session, sub-agents, diff review, HITL): claude-squad + Zellij/tmux + lazygit + delta; honest gaps on agent-to-agent interaction |
 | [js-ui-and-design.md](js-ui-and-design.md) | ui-project | Lucide icons, Radix UI full set, Chakra UI, lenis, d3, visx, recharts, monaco, tanstack table, shadcn ecosystem; icon explorers (yesicon, svgl) |
 | [js-animation-and-3d.md](js-animation-and-3d.md) | ui-project + 3d-or-animation | motion, gsap, anime.js, lottie-react, tailwindcss-animate, math-curve-loaders; three, R3F, drei, mediapipe; animated icon catalogues (itshover, useanimations); HTML→video (HyperFrames, Remotion); React Native motion |
 | [js-build-test-style.md](js-build-test-style.md) | ui-project | vite, next, electron, vitest, playwright, storybook, tailwindcss + ecosystem, prettier |
