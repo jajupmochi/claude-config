@@ -76,7 +76,8 @@ See [`rules/README.md`](rules/README.md) for usage details and scope-tag definit
 | [`code-verifier`](skills/general/code-verifier/SKILL.md) | general | auto / `/code-verifier` | Three-layer gate before any "tests pass" / "code works" / "results show X" claim — detects FAKE-RUN patterns |
 | [`research-critic`](skills/general/research-critic/SKILL.md) | general | auto / `/research-critic` | Six-question audit on every research claim (falsifiability, design, fair comparison, leakage, proportional conclusion, alternatives) |
 | [`system-cleanup`](skills/general/system-cleanup/SKILL.md) | general | auto / `/system-cleanup` | Diagnose a full Linux disk (df/du/dpkg/snap/docker) → prioritized, risk-tagged cleanup; safe user-level deletions + sudo items handed to the user; covers VS Code WebStorage bloat, old kernels, NTFS data-disk write failures. Ships `cleanup.sh`. |
-| [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | general | auto on figma.com URL / `/figma-fetch <node-url>` | Connect the official Figma MCP (OAuth), fetch a design node (code/vector/bitmap/screenshot) to a gitignored `.design-imports/`, then rebuild per-screen with existing components. Encodes the 6 tested gotchas (PKCE expiry, Code Connect paywall, empty variables, low-fi snapshots, 7-day asset URLs, no browser-scraping). |
+| [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | general | auto on figma.com URL / `/figma-fetch <node-url>` | Full Figma→code pipeline via the official MCP: OAuth connect, pre-fetch design lint, 5-step flow (extract real values → map to design-system tokens → implement → visual self-check gate → report) to a gitignored `.design-imports/`. Ships `scripts/visual-diff.mjs` (pixelmatch objective gate) + the 6 tested gotchas. |
+| [`figma-authoring-constraints`](skills/figma-authoring-constraints/SKILL.md) | general | auto (designer asks / empty variables / pixel-snapshot output) | The 20 Figma-side authoring constraints (variables/tokens, auto layout, components/variants, naming, Dev Mode/Code Connect, no raster placeholders) that make a design cleanly code-able; the design half of the figma-design-fetch pipeline. |
 
 Future buckets (populated in P7 with templates):
 
@@ -93,6 +94,8 @@ See [`skills/README.md`](skills/README.md) for usage details.
 |---|---|---|---|---|
 | [`ruff-format-on-edit`](hooks/ruff-format-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | research-pkg / any Python | Auto-format Python files with ruff after Claude edits |
 | [`jq-validate-json`](hooks/jq-validate-json/README.md) | `PostToolUse` | `Write\|Edit` | static-site / JSON-config | Block next tool call if Claude wrote invalid JSON to configured paths |
+| [`typecheck-on-edit`](hooks/typecheck-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | frontend / TypeScript | After a `.ts(x)` edit: prettier + `tsc --noEmit`; **type errors exit 2 and block the turn** (Figma→code quality spine) |
+| [`block-env-read`](hooks/block-env-read/README.md) | `PreToolUse` | `Read` | any repo with secrets | Deny reading `.env*` so secrets never enter the transcript (exit 2) |
 
 See [`hooks/README.md`](hooks/README.md) for install instructions.
 

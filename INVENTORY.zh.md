@@ -74,7 +74,8 @@
 | [`code-verifier`](skills/general/code-verifier/SKILL.md) | general | 自动 / `/code-verifier` | "tests pass" / "code works" / "结果是 X" 前的三层门禁——检测 FAKE-RUN 模式（硬编码结果、`assert True`、纯 mock 测试等） |
 | [`research-critic`](skills/general/research-critic/SKILL.md) | general | 自动 / `/research-critic` | 六问审计：可证伪性 · 设计与假设匹配 · 公平比较 · 泄漏 · 结论与证据匹配 · 替代解释排除 |
 | [`system-cleanup`](skills/general/system-cleanup/SKILL.md) | general | 自动 / `/system-cleanup` | 诊断爆满的 Linux 磁盘（df/du/dpkg/snap/docker）→ 按优先级、带风险标签的清理；安全的用户级删除 + sudo 项交给用户跑；覆盖 VS Code WebStorage 膨胀、旧内核、NTFS 数据盘写入失败。附 `cleanup.sh`。 |
-| [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | general | figma.com URL 时自动 / `/figma-fetch <node-url>` | 连接官方 Figma MCP（OAuth），把设计节点（代码/矢量/位图/截图）抓到 gitignore 的 `.design-imports/`，再用现有组件逐屏重建；内置 6 个实测坑（PKCE 过期、Code Connect 付费墙、变量为空、低保真快照、7 天资源 URL 过期、不用浏览器爬取）。 |
+| [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | general | figma.com URL 时自动 / `/figma-fetch <node-url>` | 完整 Figma→代码流水线（官方 MCP）：OAuth 连接、抓取前设计预检 lint、5 步（抽取真实值→映射设计系统 token→实现→视觉自检闸门→汇报）到 gitignore 的 `.design-imports/`；附 `scripts/visual-diff.mjs`（pixelmatch 客观闸门）+ 6 个实测坑。 |
+| [`figma-authoring-constraints`](skills/figma-authoring-constraints/SKILL.md) | general | 设计师询问 / 变量为空 / 出像素快照时自动 | Figma 端 20 条设计规约（变量/token、auto layout、组件/变体、命名、Dev Mode/Code Connect、别用栅格占位），让设计在 Figma 端就干净可出码——figma-design-fetch 流水线的设计侧。 |
 
 后续桶（将在 P7 模板里填充）：
 
@@ -91,6 +92,8 @@
 |---|---|---|---|---|
 | [`ruff-format-on-edit`](hooks/ruff-format-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | research-pkg / 任何 Python 项目 | Claude 编辑 `*.py` 后用 ruff 自动格式化 |
 | [`jq-validate-json`](hooks/jq-validate-json/README.md) | `PostToolUse` | `Write\|Edit` | static-site / JSON 配置项目 | Claude 写入指定路径下无效 JSON 时拦截下次工具调用 |
+| [`typecheck-on-edit`](hooks/typecheck-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | 前端 / TypeScript | `.ts(x)` 编辑后跑 prettier + `tsc --noEmit`；**类型错误 exit 2 阻断本轮**（Figma→代码质量脊梁） |
+| [`block-env-read`](hooks/block-env-read/README.md) | `PreToolUse` | `Read` | 任何含密钥的仓库 | 阻止读 `.env*`，密钥不进 transcript（exit 2） |
 
 详见 [`hooks/README.md`](hooks/README.md)（安装方式）。
 

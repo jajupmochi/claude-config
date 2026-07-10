@@ -13,7 +13,7 @@
 - [仓库结构](#仓库结构)
 - [工作流规则（15+）](#工作流规则15)
 - [可复用技能（12）](#可复用技能12)
-- [钩子（6：3 Claude + 3 Codex）](#钩子63-claude--3-codex)
+- [钩子（8：5 Claude + 3 Codex）](#钩子85-claude--3-codex)
 - [推荐清单（17 类）](#推荐清单17-类)
 - [项目模板](#项目模板)
 - [安装技能](#安装技能)
@@ -31,7 +31,7 @@
 | Agent | 插件 manifest | 技能 | 钩子 | 安装技能 |
 |---|---|---|---|---|
 | **Claude Code** | `.claude-plugin/plugin.json` | `skills/general/*`（7 个源技能） | `hooks/*`（3 个配方） | `/init-agent-config` |
-| **Codex** | `.codex-plugin/plugin.json` | `skills/*`（13 个包装技能） | `hooks.json`（3 个脚本） | `/skills` → `init-codex-config` |
+| **Codex** | `.codex-plugin/plugin.json` | `skills/*`（14 个包装技能） | `hooks.json`（3 个脚本） | `/skills` → `init-codex-config` |
 | **其他 Agent** | 通过 `agent-config-adapter` 技能 | 见适配工作流 | 见适配工作流 | — |
 
 **四个目标：**
@@ -90,7 +90,7 @@ agent-harness/
 │   ├── chinese-output/                   ← 以及另外 14 条…
 │   └── <规则名>/RULE.md + snippet.md
 │
-├── skills/                               ← Codex 13 个包装技能 + 源目录
+├── skills/                               ← Codex 14 个包装技能 + 源目录
 │   ├── general/                          ← 7 个 Claude 源技能
 │   ├── init-codex-config/                ← Codex 安装技能
 │   ├── agent-config-adapter/             ← 跨 Agent 迁移工作流
@@ -152,7 +152,7 @@ agent-harness/
 
 ## 可复用技能（12）
 
-Codex 的 `/skills` 中显示 13 个技能。Claude Code 使用 `skills/general/` 下的 7 个源技能。Codex 包装技能在配置后自动加载。
+Codex 的 `/skills` 中显示 14 个技能。Claude Code 使用 `skills/general/` 下的 7 个源技能。Codex 包装技能在配置后自动加载。
 
 | 技能 | 自动加载 | 用途 |
 |---|---|---|
@@ -167,12 +167,13 @@ Codex 的 `/skills` 中显示 13 个技能。Claude Code 使用 `skills/general/
 | [`privacy-redact`](skills/privacy-redact/SKILL.md) | — | 扫描用户名、绝对路径、token、代号；用占位符替换 |
 | [`system-cleanup`](skills/system-cleanup/SKILL.md) | — | 释放磁盘空间：uv 缓存、huggingface、JetBrains、Docker、pip |
 | [`autoresearch-toolfinder`](skills/autoresearch-toolfinder/SKILL.md) | — | 发现 ML 研究工具（自动安装、每周定时） |
-| [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | — | 用官方 Figma MCP 做 design-to-code：OAuth 连接、把代码/资源/截图抓到 gitignore 的 `.design-imports/`、用现有组件重建；内置 6 个实测坑。附 `/figma-fetch` |
+| [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | — | 完整 Figma→代码流水线（官方 MCP）：OAuth 连接、抓取前设计预检 lint、5 步（抽取→映射设计系统 token→实现→视觉自检闸门→汇报）；附 `visual-diff.mjs`（pixelmatch 客观闸门）+ 6 个实测坑。附 `/figma-fetch` |
+| [`figma-authoring-constraints`](skills/figma-authoring-constraints/SKILL.md) | — | Figma 端 20 条设计规约（变量/token、auto layout、组件/变体、命名、Dev Mode/Code Connect、别用栅格占位）——让设计在 Figma 端就干净可出码 |
 | [`general`](skills/general/SKILL.md) | — | 源目录索引——映射 Claude 源技能到 Codex 包装 |
 
-## 钩子（6：3 Claude + 3 Codex）
+## 钩子（8：5 Claude + 3 Codex）
 
-所有钩子均有 Claude Code 和 Codex 两种实现。
+前三个均有 Claude Code 和 Codex 两种实现；后两个前端/安全钩子为 Claude 侧。
 
 | 钩子 | Agent | 事件 | 作用 |
 |---|---|---|---|
@@ -182,6 +183,8 @@ Codex 的 `/skills` 中显示 13 个技能。Claude Code 使用 `skills/general/
 | | Codex | PostToolUse（Edit|Write|apply_patch） | 同上——无效 JSON 时输出 `decision: "block"` |
 | **review-gate** | Claude | Stop | 会话结束审计未提交变更，保护分支上警告 |
 | | Codex | Stop | 同上——检查 git 状态、最近的破坏性操作、保护分支，**始终输出摘要** |
+| **typecheck-on-edit** | Claude | PostToolUse（Write|Edit） | `.ts(x)` 编辑后跑 prettier + `tsc --noEmit`；类型错误 **exit 2 阻断**（Figma→代码质量脊梁） |
+| **block-env-read** | Claude | PreToolUse（Read） | 阻止读 `.env` / `.env.*`，密钥不进 transcript（exit 2） |
 
 **review-gate 如何工作：** 在会话结束（Stop 事件）时，钩子检查未提交变更、最近的破坏性 git 操作、是否在保护分支上。始终输出状态信息——即使一切正常。确保你永远不会在不知道待处理内容的情况下结束会话。
 
@@ -232,7 +235,7 @@ Codex 的 `/skills` 中显示 13 个技能。Claude Code 使用 `skills/general/
 graph TD
     subgraph "agent-harness Repository"
         CC[".claude-plugin/<br/>plugin.json<br/><br/>hooks/ (3 recipes)<br/>skills/general/ (7 src)<br/>setup/init-…"]
-        CX[".codex-plugin/<br/>plugin.json<br/><br/>hooks.json (3 scripts)<br/>skills/ (13 wrappers)<br/>scripts/ (9 tools)"]
+        CX[".codex-plugin/<br/>plugin.json<br/><br/>hooks.json (3 scripts)<br/>skills/ (14 wrappers)<br/>scripts/ (9 tools)"]
         SHARED["rules/ (15+)<br/>recommendations/ (17)<br/>tooling/ (3)<br/>templates/ (2)"]
     end
 
@@ -290,7 +293,7 @@ cp scripts/codex_commit_msg.sh .git/hooks/commit-msg
 | P11 | 2026-07-08 | Codex 适配：.codex-plugin、12 个包装技能、hooks.json、安装/验证/更新脚本 |
 | P12 | 2026-07-08 | 多 Agent 重命名（agent-harness）、review-gate Stop 钩子、非视觉模型视觉验证、code-verifier 自动加载、约定式提交强制执行 |
 
-**总覆盖：** 15+ 条规则 + 13 个技能 + 6 个钩子（双 Agent）+ 17 份推荐清单 + 3 类工具模板 + 2 个项目模板 + 2 个安装技能 + 8 个脚本 + 双语文档 + 2 个插件 manifest。
+**总覆盖：** 15+ 条规则 + 14 个技能 + 8 个钩子（双 Agent）+ 17 份推荐清单 + 3 类工具模板 + 2 个项目模板 + 2 个安装技能 + 8 个脚本 + 双语文档 + 2 个插件 manifest。
 
 ## 贡献
 

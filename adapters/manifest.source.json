@@ -22,6 +22,7 @@
       "skills/general/autoresearch-toolfinder",
       "skills/general/autopilot",
       "skills/figma-design-fetch",
+      "skills/figma-authoring-constraints",
       "skills/memory-flywheel",
       "skills/task-relationship-analysis",
       "skills/prompt-library",
@@ -53,7 +54,9 @@
     "hooks": [
       "hooks/ruff-format-on-edit",
       "hooks/jq-validate-json",
-      "hooks/review-gate"
+      "hooks/review-gate",
+      "hooks/typecheck-on-edit",
+      "hooks/block-env-read"
     ],
     "templates": [
       "templates/research-package-py",

@@ -27,6 +27,8 @@ Verify the merge with `cat .claude/settings.json | jq .` (any error → fix synt
 |---|---|---|---|---|
 | [`ruff-format-on-edit`](ruff-format-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | research-pkg / any Python project | Auto-format Python files after Claude edits them |
 | [`jq-validate-json`](jq-validate-json/README.md) | `PostToolUse` | `Write\|Edit` | static-site (i18n) / any JSON-config project | Block next tool call if Claude wrote invalid JSON to selected paths |
+| [`typecheck-on-edit`](typecheck-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | frontend / any TypeScript project | After a `.ts(x)` edit: `prettier --write` then `tsc --noEmit`; type errors **exit 2** and block the turn. Ships `typecheck.sh` + tests |
+| [`block-env-read`](block-env-read/README.md) | `PreToolUse` | `Read` | any repo carrying secrets | Deny reading `.env` / `.env.*` / `*.env` so secrets stay out of the transcript (exit 2). Ships `block-env.sh` + tests |
 
 ## Adding a new hook
 

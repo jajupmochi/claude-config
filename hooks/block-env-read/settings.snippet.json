@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/agent-harness/hooks/block-env-read/block-env.sh\"",
+            "timeout": 10,
+            "statusMessage": "Checking for .env access..."
+          }
+        ]
+      }
+    ]
+  }
+}
