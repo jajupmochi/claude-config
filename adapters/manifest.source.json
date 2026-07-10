@@ -43,7 +43,8 @@
       "rules/always-on-verification",
       "rules/autorun-mode",
       "rules/multi-round-redesign",
-      "rules/latex-edit-policy"
+      "rules/latex-edit-policy",
+      "rules/test-first"
     ],
     "hooks": [
       "hooks/ruff-format-on-edit",
