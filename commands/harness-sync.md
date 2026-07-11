@@ -29,8 +29,9 @@ If `OLD == NEW`, say "already up to date" and skip to step 4 (still re-activate 
 Look at what the user is doing THIS session, then from the changed items above pick the ones that matter and
 present a short recommendation. For each: what it is, why it's relevant now, and the action to adopt it. E.g.:
 
-- new/updated **skill** relevant to the current work → "adopt = deploy its symlink (usable next session; runnable
-  now via its `SKILL.md`)"
+- new/updated **skill** relevant to the current work → "adopt = deploy its symlink **and `cat` its `SKILL.md`
+  into this session now → usable IMMEDIATELY (follow it + run its scripts directly; the `Skill()` tool is only a
+  convenience wrapper, not required)"
 - new/changed **rule** (e.g. the `tool-proactivity` skill trigger map) → "adopt = I read it into this session's
   context so it applies now"
 - new **command** / **hook** → name it + one line on when to use it
@@ -51,6 +52,9 @@ node ~/.claude/agent-harness/bin/deploy-skills.mjs --apply --agent claude   # de
 ```bash
 cat ~/.claude/agent-harness/rules/tool-proactivity/RULE.md   # the skill trigger map (must-fire, conditional)
 ls ~/.claude/skills/                                          # skills available to invoke
+# For each NEWLY added skill the user adopted this turn, read its body into context so it is usable NOW
+# (the Skill() tool wrapper only registers next session, but the SKILL.md + its scripts work immediately):
+# cat ~/.claude/skills/<new-skill>/SKILL.md
 ```
 
 For the rest of THIS session, FOLLOW the trigger map — when a trigger holds this turn (3+ tasks →
@@ -62,9 +66,12 @@ resolved model tier), invoke the tool instead of doing its job from memory. Fire
 ## 5. Report + honest caveat
 
 - **Rules** read in this turn are active NOW (they are in this session's context).
-- A **newly added skill** is Skill-tool-invocable only from the **NEXT** session (Claude Code fixes the Skill
-  list at session start); until then run it manually via `~/.claude/skills/<name>/SKILL.md`. Already-loaded
-  skills keep working.
+- A **newly added skill IS usable in THIS session** — a skill is just a `SKILL.md` + scripts, so once you have
+  `cat`-ed its `SKILL.md` into context (step 4) you can follow it and run its scripts directly right now. The
+  only thing that waits for the **next** session is the `Skill(<name>)` **auto-wrapper** (Claude Code fixes the
+  Skill-tool list at session start) — that is a convenience, not the capability. If you specifically want the
+  new skill in the Skill-tool list without a full restart, `/clear` starts a fresh conversation that re-scans
+  skills (but drops the current context); reading the `SKILL.md` keeps your context and loses nothing functional.
 
 For a full plugin (re)install (marketplace + `/commands`), see `docs/PLUGIN_INSTALL.md`; this command is the
 lightweight "pull → recommend → confirm → activate rules in place" path.
