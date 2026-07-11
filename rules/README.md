@@ -43,7 +43,7 @@ The `setup/init-agent-harness` skill (P8) does this composition automatically ba
 | [`latex-edit-policy`](latex-edit-policy/RULE.md) | research-pkg | When editing `.tex`/`.sty`/`.cls`/`.bib`: hard fixes direct, soft (content) edits comment-don't-delete with `% [orig YYYY-MM-DD]` inline backup |
 | [`test-first`](test-first/RULE.md) | personal | Write tests before/alongside any code change, at every level touched; run the FULL suite with a before/after delta, not just the target test |
 | [`design-modes`](design-modes/RULE.md) | personal | Prototyping vs scaling mode — ask up front which one, confirm on switch; sets how much rigor/verification a change gets |
-| [`regression-test-on-bugfix`](regression-test-on-bugfix/RULE.md) | universal | Every bug fix MUST ship a regression test that FAILS on the old code and PASSES after the fix (red→green); a behavioral fix without one is not done. Enforced by review-gate form 11 |
+| [`regression-test-on-bugfix`](regression-test-on-bugfix/RULE.md) | universal | Every bug fix MUST ship a regression test that FAILS on the old code and PASSES after the fix (red→green); a behavioral fix without one is not done |
 
 ## Scope tags
 

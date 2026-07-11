@@ -63,4 +63,4 @@ A behavioral bug fix without such a test is **not done**.
   fixed, lock it with a test.
 - `code-verifier` / `always-on-verification` — audit that the test RUN is genuine (no fake-green) before
   claiming the fix passes.
-- The **review-gate** hook enforces this per code-changing turn (form: "bug fix → regression test present").
+- The **review-gate** hook checks for this on every code-changing turn.
