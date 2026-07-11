@@ -20,7 +20,9 @@ chk "unreviewed change -> emits report" "$r" "yes"
 chk "  round recorded = 1" "$(cat "$T/state/s1.rounds" 2>/dev/null)" "1"
 [ -f "$T/state/s1.reviewed" ] && r=yes || r=no; chk "  reviewed flag set" "$r" "yes"
 echo "$out" | grep -q "Per-function/module AI review" && r=yes || r=no
-chk "  module heuristic fired (form 11 present)" "$r" "yes"
+chk "  module heuristic fired (form 12 present)" "$r" "yes"
+echo "$out" | grep -q "Bug fix → regression test" && r=yes || r=no
+chk "  regression-test-on-bugfix (form 11 present)" "$r" "yes"
 
 # 2. second run on the same state (now reviewed + lint-clean) -> empty stdout (allow stop)
 out2="$(run_core "$T" s1)"
