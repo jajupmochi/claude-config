@@ -56,6 +56,7 @@ job from memory:
 | A **long or multi-session project** — at session start, and at each real milestone | `memory-flywheel` (recall first / record) |
 | About to **publish or commit** a file that may hold paths / emails / secrets / codenames | `privacy-redact` |
 | A **disk is filling up** / "free space" / "系统盘满了" | `system-cleanup` |
+| A **multi-step / heavy / decomposable** task, OR a **long, growing context** | `task-orchestrator` — route stages to model-tier **sub-agents**: main loop on `high`, delegate mechanical/verify to `mid` (`claude-sonnet-5` @ **max** effort, via `resolve_model.mjs claude verify --effort`) or `small`. Send each **independent** sub-task to its OWN sub-agent (isolated small context, returns only the result → keeps the main context lean and cheap). Batch only *related* sub-tasks into one context. **Guard:** delegate only when the sub-agent's token-in is less than the tokens the smaller model saves. |
 
 Everything else (figma-*, tui-installer, verify-*, preview-template, long-running-tasks, agent-update-watcher,
 init-*) stays purely judgment-invoked — fire it when its own `description` trigger fits, no rule needed.
