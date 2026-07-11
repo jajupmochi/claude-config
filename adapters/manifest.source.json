@@ -49,7 +49,8 @@
       "rules/multi-round-redesign",
       "rules/latex-edit-policy",
       "rules/test-first",
-      "rules/design-modes"
+      "rules/design-modes",
+      "rules/regression-test-on-bugfix"
     ],
     "hooks": [
       "hooks/ruff-format-on-edit",

@@ -103,11 +103,12 @@ reason="## review-gate: automatic review of this turn's code
 7. **Modularity** (form: structure) — minimal function/module granularity, reusable, not a conflated block.
 8. **Commit & doc completeness** (form: hygiene) — small named commit(s); docstrings/docs updated for what changed.
 9. **Doc/message/name accuracy** (form: consistency — a GitHub-Copilot-recurring miss) — do user-facing messages, docstrings, examples, and any referenced tool/API/flag NAME match what the code ACTUALLY does, and actually EXIST? (e.g. a message saying \"push\" when the gate covers all remote-publishing; an invented tool/API name; a docstring that omits a real output state; a stale example path.)
-10. **Robustness / adversarial inputs** (form: edge cases — a GitHub-Copilot-recurring miss) — quoting & embedded spaces, regex metacharacters in interpolated values, path assumptions (trailing slash, un-escaped names), boundary/empty inputs, and stale state an early-exit or error branch leaves behind for other components."
+10. **Robustness / adversarial inputs** (form: edge cases — a GitHub-Copilot-recurring miss) — quoting & embedded spaces, regex metacharacters in interpolated values, path assumptions (trailing slash, un-escaped names), boundary/empty inputs, and stale state an early-exit or error branch leaves behind for other components.
+11. **Bug fix → regression test** (rule: \`regression-test-on-bugfix\`) — if this turn FIXES a bug, is there a NEW test that REPRODUCES it (would fail on the pre-fix code, passes now)? A behavioral bug fix without a red→green regression test that locks the bug out is NOT done — add one or state why it's genuinely untestable."
 
 if [ "$has_module" = "yes" ]; then
   reason="$reason
-11. **Per-function/module AI review** (DEFAULT ON) — a minimal function/module changed this turn; review EACH changed function/module individually (correctness, contract/inputs-outputs, side effects)."
+12. **Per-function/module AI review** (DEFAULT ON) — a minimal function/module changed this turn; review EACH changed function/module individually (correctness, contract/inputs-outputs, side effects)."
 fi
 
 if [ "$lint_fail" -ne 0 ]; then
