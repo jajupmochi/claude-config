@@ -76,15 +76,21 @@ Model tiers per agent are declared once in `adapters/models.config.json` (high/m
 `scripts/resolve_model.mjs`:
 
 ```
-node scripts/resolve_model.mjs <agent> <tier|task-kind>   # e.g. claude research -> claude-opus-4-8
+node scripts/resolve_model.mjs <agent> <tier|task-kind>            # e.g. claude research -> claude-opus-4-8
+node scripts/resolve_model.mjs <agent> <tier|task-kind> --effort   # e.g. claude mid      -> max
 ```
+
+Each tier also carries a reasoning **effort** (`adapters/models.config.json` → `effort`). The **`mid`** tier is
+`claude-sonnet-5` at **max** effort — a strong Sonnet-5 run costs far less than Opus but, at max effort, holds
+quality on implement/verify. So when you spawn a `mid` sub-agent, pass `model: claude-sonnet-5, effort: max`.
 
 Use it to cut token cost WITHOUT losing quality on the hard steps:
 
 - **Claude Code** cannot switch model mid-session, so run the MAIN loop on `high` and delegate the cheap,
-  mechanical, or verify steps to SUB-AGENTS resolved to `mid`/`small` (e.g. `resolve_model.mjs claude mechanical`).
-  Guard: only delegate when the sub-agent's token-in is less than the tokens saved by the smaller model —
-  spawning a sub-agent that re-reads a huge context on a small model can cost MORE. Measure before defaulting.
+  mechanical, or verify steps to SUB-AGENTS resolved to `mid`/`small` (e.g. `resolve_model.mjs claude verify`
+  → `claude-sonnet-5` + `--effort` → `max`). Guard: only delegate when the sub-agent's token-in is less than
+  the tokens saved by the smaller model — spawning a sub-agent that re-reads a huge context can cost MORE.
+  Measure before defaulting.
 - **opencode** switches natively; its `model`/`small_model` in `opencode.json` are generated from this same
   config, so the tiers already apply.
 - **Codex** switches via external tooling (cc-switch / provider config). NEVER auto-configure provider

@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { resolveModel } from "./resolve_model.mjs";
+import { resolveModel, resolveEffort } from "./resolve_model.mjs";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const config = JSON.parse(readFileSync(join(ROOT, "adapters", "models.config.json"), "utf8"));
@@ -20,6 +20,16 @@ chk("opencode/small", resolveModel(config, "opencode", "small"), "anthropic/clau
 chk("claude research->high", resolveModel(config, "claude", "research"), "claude-opus-4-8");
 chk("claude mechanical->small", resolveModel(config, "claude", "mechanical"), "claude-haiku-4-5");
 chk("codex implement->mid", resolveModel(config, "codex", "implement"), "gpt-5.5");
+
+// mid tier = Sonnet 5, and its effort = max (the requested change)
+chk("claude/mid model == sonnet-5", resolveModel(config, "claude", "mid"), "claude-sonnet-5");
+chk("claude mid effort == max", resolveEffort(config, "claude", "mid"), "max");
+chk("claude implement->mid effort == max", resolveEffort(config, "claude", "implement"), "max");
+chk("claude verify->mid effort == max", resolveEffort(config, "claude", "verify"), "max");
+chk("claude high effort == high", resolveEffort(config, "claude", "high"), "high");
+chk("claude small effort == low", resolveEffort(config, "claude", "small"), "low");
+// opencode declares no effort here → null (it sets effort via its own config)
+chk("opencode mid effort == null", resolveEffort(config, "opencode", "mid"), null);
 
 // 3. errors: unknown agent / unknown key / agent missing tier
 thr("unknown agent throws", () => resolveModel(config, "nope", "high"));

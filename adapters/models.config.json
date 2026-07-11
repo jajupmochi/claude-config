@@ -4,7 +4,7 @@
   "agents": {
     "claude": {
       "high": "claude-opus-4-8",
-      "mid": "claude-sonnet-4-5",
+      "mid": "claude-sonnet-5",
       "small": "claude-haiku-4-5"
     },
     "codex": {
@@ -16,6 +16,14 @@
       "high": "anthropic/claude-sonnet-4-5",
       "mid": "anthropic/claude-sonnet-4-5",
       "small": "anthropic/claude-haiku-4-5"
+    }
+  },
+  "effort": {
+    "_doc": "Reasoning-effort per Claude tier (Agent-tool effort enum: low|medium|high|xhigh|max). NOT a dead knob: resolve_model.mjs exposes it (`--effort`) and task-orchestrator sub-agent routing uses it — a `mid` sub-agent is spawned as claude-sonnet-5 at MAX effort (a strong Sonnet-5 run costs far less than Opus yet, at max effort, holds quality on implement/verify). opencode/codex set effort via their own config, not here.",
+    "claude": {
+      "high": "high",
+      "mid": "max",
+      "small": "low"
     }
   },
   "task_tier": {

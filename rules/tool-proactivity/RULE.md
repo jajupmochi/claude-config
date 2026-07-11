@@ -14,6 +14,7 @@ rationale: Asking "should I use chrome-devtools?" every time wastes a round-trip
 - [Rule](#rule)
 - [Why](#why)
 - [Default-fire examples](#default-fire-examples)
+- [Skill trigger map (must-fire, conditional)](#skill-trigger-map-must-fire-conditional)
 - [Always-ask exceptions](#always-ask-exceptions)
 - [Format](#format)
 
@@ -39,6 +40,31 @@ The "I don't remember my tools" excuse is not valid — before picking an approa
 - Need to commit + push + open PR → `/commit-push-pr` fires
 - Code review → `/code-review` or `coderabbit` plugin fires
 - Format Python → ruff via the configured `PostToolUse` hook fires (deterministic; no announce needed)
+
+## Skill trigger map (must-fire, CONDITIONAL)
+
+Skills are *offered* to you but fire only if YOU choose to invoke them — so the high-value ones get skipped
+unless a rule pins the trigger. This compact map does that. **Each row is CONDITIONAL: fire the skill only when
+its trigger holds this turn — not every turn.** When a trigger matches, invoke the skill instead of doing its
+job from memory:
+
+| When (trigger) | Fire this skill |
+|---|---|
+| About to claim "tests pass" / "code works" / "results show X" / commit | `code-verifier` (also pinned by `always-on-verification`) |
+| About to write a research claim / interpret a number / design an ablation | `research-critic` (also pinned by `always-on-verification`) |
+| A request with **3+ tasks / features** — before executing | `task-relationship-analysis` |
+| A **long or multi-session project** — at session start, and at each real milestone | `memory-flywheel` (recall first / record) |
+| About to **publish or commit** a file that may hold paths / emails / secrets / codenames | `privacy-redact` |
+| A **disk is filling up** / "free space" / "系统盘满了" | `system-cleanup` |
+
+Everything else (figma-*, tui-installer, verify-*, preview-template, long-running-tasks, agent-update-watcher,
+init-*) stays purely judgment-invoked — fire it when its own `description` trigger fits, no rule needed.
+
+**Token thrift (why this is cheap).** This map is ONE short table (~150 tokens), NOT a re-listing of skill
+bodies — the skill *descriptions* are already always-on (that's how you know they exist). To keep the always-on
+skill set small when you have many skills, install only the **per-project subset** via `/init-agent-config`
+(it picks skills by context tags) instead of carrying the whole catalog into every project. The map enforces
+*use*, not *loading*.
 
 ## Always-ask exceptions
 
