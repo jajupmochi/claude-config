@@ -1,7 +1,7 @@
 # Codex Adaptation Plan
 
-Date: 2026-07-08
-Branch: `codex-adapter`
+Date: 2026-07-14
+Branch: `fix/codex-runtime-adapter`
 
 ## Locations
 
@@ -18,9 +18,9 @@ Branch: `codex-adapter`
 |---|---:|---|---|
 | Plugin manifest | `.claude-plugin/plugin.json` | Claude Code plugin manifest | Add separate `.codex-plugin/plugin.json`; do not change Claude manifest semantics. |
 | Setup skill | `setup/init-agent-harness` | Generates `CLAUDE.md`, `.claude/settings.json`, `.claude/skills` | Add `init-codex-config` wrapper that generates `AGENTS.md`, `.codex/hooks.json`, and `.agents/skills` guidance. |
-| General skills | 7 | Some tool names and workflows assume Claude Code | Add top-level Codex-compatible skill wrappers under `skills/<name>/SKILL.md`. |
+| General skills | 20 tested user links | Some tool names and workflows assume Claude Code | Install an explicit name-to-source map under `~/.agents/skills`; keep plugin skills as an additional discovery surface. |
 | Workflow rules | 16 in inventory | Rules target `CLAUDE.md` imports and Claude Code editing conventions | Keep source rules; expose through Codex setup as AGENTS.md guidance and through `agent-config-adapter`. |
-| Hook recipes | 2 | `.claude/settings.json`, matcher `Write|Edit`, Claude hook stdin fields | Add Codex `hooks.json` with Codex matcher support and stdin field fallbacks. |
+| Hook recipes | 3 commands | `.claude/settings.json`, matcher `Write|Edit`, Claude hook stdin fields | Keep root `hooks.json` as a source template and render absolute commands into user or project Codex hooks. |
 | Recommendations | 15 active lists plus 2 references | Names emphasize Claude Code plugins and marketplaces | Keep lists; add adapter workflow to re-evaluate agent-specific recommendation files before use. |
 | Tooling | 3 categories | Mostly agent-neutral, with Claude settings-local examples | Reuse as references; map permissions examples to Codex approval/sandbox guidance where relevant. |
 | Templates | 2 project starters | Include `CLAUDE.template.md` and `.claude/settings.template.json` | Leave intact for Claude; Codex setup uses them as content source and emits Codex-side files. |
@@ -35,13 +35,17 @@ Codex manual findings:
 - Codex plugin manifests must live at `.codex-plugin/plugin.json`.
 - Local plugins are surfaced through a marketplace file, commonly `~/.agents/plugins/marketplace.json` or repo `.agents/plugins/marketplace.json`.
 - Installed plugin skills can be selected through `/skills`; direct user skills in `~/.agents/skills` also appear in `/skills`.
-- Codex hooks are loaded from `hooks.json`, `config.toml`, project `.codex/`, or enabled plugins. Plugin-bundled hooks can use a root `hooks.json`.
+- Codex hooks are loaded from user/project `hooks.json`, `config.toml`, or enabled plugins. Current plugin docs default to `hooks/hooks.json` unless the manifest declares another path; a root `hooks.json` is not implicitly bundled.
+- Hook commands execute with the session working directory. Relative `./scripts/...` commands are therefore templates, not safe installed commands.
+- Standalone custom Agents are discovered from `~/.codex/agents/*.toml` and can set model, effort, sandbox, and instructions for spawned sessions.
+- A personal marketplace entry with `INSTALLED_BY_DEFAULT` can appear as **Admin Installed** with no enable control. `codex plugin list` is the authoritative local status check.
+- The public `openaiDeveloperDocs` MCP endpoint needs no OAuth. `Status=enabled` with `Auth=Unsupported` means OAuth login is unavailable, not that the transport failed.
 - `apply_patch` matchers can use `Edit` or `Write`, but robust scripts should also handle `apply_patch` and multiple event JSON field shapes.
 
 Local validator findings:
 
 - `.codex-plugin/plugin.json` may use `skills: "./skills/"`.
-- The local validator rejects unsupported manifest fields such as `hooks`, so hooks should be bundled as root `hooks.json`, matching existing Codex plugin examples.
+- The tested local architecture deliberately keeps hooks user-scoped rather than also declaring plugin hooks, preventing duplicate lifecycle execution.
 - The validator checks only immediate subdirectories under `skills/`; every immediate skill directory needs `SKILL.md`.
 
 ## Architecture Decision
@@ -49,7 +53,7 @@ Local validator findings:
 Use one branch and one repository, with agent-specific entrypoints:
 
 - Claude Code keeps `.claude-plugin/`, `CLAUDE.md`, `setup/init-agent-harness`, `.claude/skills`, and Claude hook snippets.
-- Codex gets `.codex-plugin/`, root `hooks.json`, top-level Codex wrapper skills, and Codex install/verification scripts.
+- Codex gets `.codex-plugin/` for policy-installed plugin skills; an explicit 20-skill user set; `codex/` user guidance and custom Agents; and root `hooks.json` rendered to absolute user/project commands.
 - Shared knowledge stays in `rules/`, `recommendations/`, `tooling/`, `templates/`, and source skill bodies.
 
 Alternatives considered:
@@ -80,6 +84,23 @@ Alternatives considered:
    - install script dry-run reports the intended symlinks/marketplace entry
    - Git diff shows Claude manifest/source paths are preserved
 
+## 2026-07-14 Runtime Reconciliation
+
+The deployed machine is the behavioral baseline. The adapter uses one Codex surface per responsibility:
+
+| Source item | Codex surface | Rewrite/install rule | Verification | Isolation risk |
+|---|---|---|---|---|
+| Plugin manifest and top-level skills | personal marketplace + `.codex-plugin/plugin.json` | Keep `INSTALLED_BY_DEFAULT`; do not ask users to enable an Admin Installed entry | `codex plugin list`, `/plugins`, `/skills` | Does not change Claude manifest |
+| Tested skill set | `~/.agents/skills` | Install the explicit 20-entry name-to-source map, including nonuniform paths | isolated-HOME installer test | User files with different targets are not overwritten |
+| Global behavior | `~/.codex/AGENTS.md` | Copy concise `codex/AGENTS.md`; skip different content unless `--force` | byte comparison in installer test | Project rules stay in nearest project `AGENTS.md` |
+| Lifecycle enforcement | `~/.codex/hooks.json` | Render root template commands to absolute repository paths | ruff red→green test, jq synthetic event, review-gate test | Do not also declare plugin hooks |
+| Custom subagents | `~/.codex/agents/*.toml` | Install four canonical profiles from `codex/agents/` | isolated install + TOML parse; runtime model identity may remain unobservable | Parent approval/sandbox remains authoritative |
+| Model tiers | `adapters/models.config.json` + reviewed `config.toml` | high=`sol/xhigh`, mid=`terra/high`, small=`luna/medium`; reviewer is terra/xhigh | `scripts/test_resolve_model.mjs` | Installer does not overwrite `config.toml` |
+| Official Docs MCP | reviewed `config.toml` | Anonymous Streamable HTTP endpoint; no OAuth login step | `codex mcp list`, `/mcp` | MCP config stays separate from AGENTS.md |
+| Existing task fallback | prompt context + explicit scripts | Trust does not prove an old task rebuilt hooks/MCP/Agent catalogs | temporary lifecycle event plus direct script check | New task remains the only full startup-chain proof |
+
+The current-session `harness_explorer` test proved subagent creation and read-only task completion. The collaboration runtime did not expose the spawned model or custom profile, so it is not evidence that `gpt-5.6-terra/high` was selected. The file schema and future fresh-session behavior remain separately verifiable.
+
 ## Future Agent/Model Adaptation Protocol
 
 When adapting this configuration to another agent or to a non-native model routed through an agent:
@@ -97,7 +118,7 @@ When adapting this configuration to another agent or to a non-native model route
 
 ## Current Verification Status
 
-Completed locally on 2026-07-08:
+Completed locally on 2026-07-14:
 
 - `npm run verify:codex` passed.
 - `python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py ~/.claude/agent-harness` passed.
@@ -106,6 +127,10 @@ Completed locally on 2026-07-08:
   - jq hook exits 0 on valid JSON.
   - jq hook exits non-zero with a `decision: "block"` payload on invalid JSON.
 - `scripts/install-codex-local.js` completed idempotently:
-  - Codex wrapper skills are symlinked under `~/.agents/skills`.
+  - The tested 20-skill user set is symlinked under `~/.agents/skills`.
   - Plugin root is symlinked at `~/plugins/agent-harness`.
   - Personal marketplace entry exists at `~/.agents/plugins/marketplace.json`.
+  - User AGENTS/hooks and four custom Agent profiles match the canonical sources after activation.
+- `codex plugin list` reports `agent-harness@personal` as `installed, enabled`; the UI's Admin Installed label is expected.
+- `codex mcp list` reports `openaiDeveloperDocs` as `enabled`; `Auth=Unsupported` is expected for the anonymous endpoint.
+- Current-task native hook dispatch was not observable after late trust, while direct hook events passed. Documentation now requires a real lifecycle event or a new task before claiming native activation.

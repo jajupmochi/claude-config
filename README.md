@@ -12,7 +12,7 @@
 - [Quick Start](#quick-start)
 - [Repository structure](#repository-structure)
 - [Workflow rules (15+)](#workflow-rules-15)
-- [Reusable skills (14)](#reusable-skills-14)
+- [Reusable skills](#reusable-skills)
 - [Hooks (8: 5 Claude + 3 Codex)](#hooks-8-5-claude--3-codex)
 - [Recommendations (17 lists)](#recommendations-17-lists)
 - [Project templates](#project-templates)
@@ -31,7 +31,7 @@ AI agent usage conventions accumulated since early 2026 — rules, hooks, skills
 | Agent | Plugin manifest | Skills | Hooks | Setup skill |
 |---|---|---|---|---|
 | **Claude Code** | `.claude-plugin/plugin.json` | `skills/general/*` (7 source skills) | `hooks/*` (3 recipes) | `/init-agent-config` |
-| **Codex** | `.codex-plugin/plugin.json` | `skills/*` (14 wrapper skills) | `hooks.json` (3 scripts) | `/skills` → `init-codex-config` |
+| **Codex** | `.codex-plugin/plugin.json` | 20 tested user links plus plugin skills | user `~/.codex/hooks.json` rendered from `hooks.json` | `/skills` → `init-codex-config` |
 | **Other agents** | Via `agent-config-adapter` skill | See adapter workflow | See adapter workflow | — |
 
 **Four aims:**
@@ -62,10 +62,10 @@ claude
 git clone https://github.com/jajupmochi/agent-harness.git ~/agent-harness
 cd ~/agent-harness
 npm run verify:codex   # structural checks pass before install
-npm run activate:codex  # symlinks skills → ~/.agents/skills, creates marketplace entry
+npm run activate:codex  # installs 20 skills, user hooks/guidance/agents, and marketplace entry
 
-# Restart Codex → /skills shows agent-harness skills
-# Use /plugins to inspect the local plugin entry
+# Start a new Codex task, then trust hooks with /hooks
+# /plugins may show Admin Installed: INSTALLED_BY_DEFAULT is already enabled
 ```
 
 **6 Claude install methods** in **[USAGE.md §0](USAGE.md#0-install-agent-harness-once-per-machine)**.
@@ -83,14 +83,15 @@ agent-harness/
 │
 ├── .claude-plugin/plugin.json            ← Claude Code plugin manifest
 ├── .codex-plugin/plugin.json             ← Codex plugin manifest
-├── hooks.json                            ← Codex-bundled hooks (ruff, jq, review-gate)
+├── hooks.json                            ← source template for user/project Codex hooks
+├── codex/                                ← user AGENTS.md, model/MCP example, 4 custom Agents
 │
 ├── rules/                                ← 15+ workflow rules
 │   ├── commit-discipline/                ← conventional commit enforcement
 │   ├── chinese-output/                   ← and 14 more …
 │   └── <rule-name>/RULE.md + snippet.md
 │
-├── skills/                               ← 14 wrapper skills for Codex + source catalog
+├── skills/                               ← Codex wrappers + shared source catalog
 │   ├── general/                          ← 7 Claude source skills
 │   ├── init-codex-config/                ← Codex setup skill
 │   ├── agent-config-adapter/             ← cross-agent migration workflow
@@ -150,9 +151,9 @@ Each ships as `RULE.md` (full content, rationale, examples, exceptions) + `snipp
 | [`multi-round-redesign`](rules/multi-round-redesign/RULE.md) | ui-project | N-round UI redesign with date-stamped outputs + discipline |
 | [`latex-edit-policy`](rules/latex-edit-policy/RULE.md) | research-pkg | Hard fixes direct; content edits comment-don't-delete |
 
-## Reusable skills (14)
+## Reusable skills
 
-14 skills appear in Codex `/skills`. Claude Code uses 7 source skills under `skills/general/`. Codex wrappers auto-load where configured.
+The local Codex activator installs the tested 20-skill user set. The plugin can also expose compatible top-level wrappers. Claude Code keeps using its source skills under `skills/general/`; Codex reads full skill instructions only when a description matches or the user invokes one explicitly.
 
 | Skill | Auto-load | Purpose |
 |---|---|---|
@@ -235,7 +236,7 @@ Minimal-but-complete starters.
 graph TD
     subgraph "agent-harness Repository"
         CC[".claude-plugin/<br/>plugin.json<br/><br/>hooks/ (3 recipes)<br/>skills/general/ (7 src)<br/>setup/init-…"]
-        CX[".codex-plugin/<br/>plugin.json<br/><br/>hooks.json (3 scripts)<br/>skills/ (14 wrappers)<br/>scripts/ (9 tools)"]
+        CX[".codex-plugin/<br/>plugin.json<br/><br/>user hooks (3 commands)<br/>20 skill links<br/>4 custom agents"]
         SHARED["rules/ (15+)<br/>recommendations/ (17)<br/>tooling/ (3)<br/>templates/ (2)"]
     end
 
@@ -292,8 +293,9 @@ See [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) for formal specs, inventory-s
 | P10 | 2026-05 | Plugin packaging, additional rules (writing-style, end-of-turn-marker, etc.) |
 | P11 | 2026-07-08 | Codex adapter: .codex-plugin, 12 wrapper skills, hooks.json, install/verify/update scripts |
 | P12 | 2026-07-08 | Multi-agent rename (agent-harness), review-gate Stop hook, visual-verify for non-vision models, code-verifier auto-load, commit discipline enforcement |
+| P13 | 2026-07-14 | Codex runtime reconciliation: reproducible 20-skill install, user hooks, custom Agents, model tiers, Admin-installed and MCP auth semantics |
 
-**Total surface:** 15+ rules + 14 skills + 8 hooks (dual-agent) + 17 recommendation lists + 3 tooling templates + 2 project templates + 2 setup skills + 8 scripts + bilingual docs + 2 plugin manifests.
+**Total surface:** 15+ rules, a tested 20-skill Codex user set, dual-agent hooks, 17 recommendation lists, 3 tooling templates, 2 project templates, bilingual docs, and separate plugin manifests.
 
 ## Contributing
 

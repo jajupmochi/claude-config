@@ -107,6 +107,10 @@ function validateHooks() {
   if (!Array.isArray(postToolUse) || postToolUse.length === 0) {
     errors.push("hooks.json missing hooks.PostToolUse");
   }
+  const stop = hooks.hooks && hooks.hooks.Stop;
+  if (!Array.isArray(stop) || stop.length === 0) {
+    errors.push("hooks.json missing hooks.Stop");
+  }
 }
 
 function main() {
@@ -118,6 +122,12 @@ function main() {
   requireExecutable("scripts/codex-update-safe.js");
   requireExecutable("scripts/codex_ruff_format_on_edit.sh");
   requireExecutable("scripts/codex_jq_validate_json.sh");
+  requireExecutable("scripts/test_codex_ruff_format_on_edit.sh");
+  requireFile("codex/AGENTS.md");
+  requireFile("codex/config.toml.example");
+  for (const file of ["harness-explorer.toml", "harness-mechanical.toml", "harness-reviewer.toml", "harness-worker.toml"]) {
+    requireFile(`codex/agents/${file}`);
+  }
   validateManifest();
   validateSkills();
   validateHooks();

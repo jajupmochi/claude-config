@@ -47,15 +47,21 @@ format_file() {
   esac
   [ -f "$file" ] || return 0
 
-  if command -v uv >/dev/null 2>&1; then
-    uv run ruff format "$file" >/dev/null 2>&1 || true
-    uv run ruff check --fix "$file" >/dev/null 2>&1 || true
-    return 0
-  fi
-
   if command -v ruff >/dev/null 2>&1; then
     ruff format "$file" >/dev/null 2>&1 || true
     ruff check --fix "$file" >/dev/null 2>&1 || true
+    return 0
+  fi
+
+  if command -v uv >/dev/null 2>&1 && uv run --no-sync ruff --version >/dev/null 2>&1; then
+    uv run --no-sync ruff format "$file" >/dev/null 2>&1 || true
+    uv run --no-sync ruff check --fix "$file" >/dev/null 2>&1 || true
+    return 0
+  fi
+
+  if command -v uvx >/dev/null 2>&1; then
+    uvx ruff format "$file" >/dev/null 2>&1 || true
+    uvx ruff check --fix "$file" >/dev/null 2>&1 || true
   fi
 }
 

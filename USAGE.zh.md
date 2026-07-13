@@ -123,11 +123,16 @@ npm run activate:codex
 
 安装脚本会：
 
-1. 把 Codex wrapper skills 软链到 `~/.agents/skills/`。
+1. 把经过实测的 20 个用户技能软链到 `~/.agents/skills/`。
 2. 把本仓库软链到 `~/plugins/agent-harness`。
-3. 创建或更新 `~/.agents/plugins/marketplace.json`。
+3. 用 `INSTALLED_BY_DEFAULT` 创建或更新 `~/.agents/plugins/marketplace.json`。
+4. 安装精简的 `~/.codex/AGENTS.md`；除非使用 `--force`，不会覆盖不同内容。
+5. 把三条 hook 命令渲染成绝对路径，写到 `~/.codex/hooks.json`。
+6. 把四个自定义 Agent 配置安装到 `~/.codex/agents/`。
 
-重启 Codex 或开启新 session 后，用 `/skills` 调用 `init-codex-config` 或 `agent-config-adapter`；用 `/plugins` 查看本地插件条目。
+审阅 `codex/config.toml.example`，把模型、Agent 限制和 Docs MCP 配置合并到现有 `~/.codex/config.toml`；安装器不会覆盖该文件。新建 Codex 任务后，用 `/skills`、`/hooks`、`/plugins` 和 `/mcp` 检查发现状态。`INSTALLED_BY_DEFAULT` 可能显示为 **Admin Installed**，且没有 enable 开关，这是正常的策略安装状态；用 `codex plugin list` 验证。公共 `openaiDeveloperDocs` 端点出现 `Status=enabled` 与 `Auth=Unsupported` 的组合也是健康状态：匿名访问已经足够，所以没有 OAuth 登录流程。
+
+在已经运行的旧任务里信任 hooks，不代表该任务重建了生命周期注册表。如果临时 `apply_patch` 事件没有触发格式化器，本任务应显式运行 hook 脚本，或者新建任务。
 
 如果 Codex CLI 更新报 `Could not find Codex package or platform npm release assets`，运行 `npm run update:codex`。这个 wrapper 会在 latest release 元数据和实际资产短暂不同步时，改用显式 `CODEX_RELEASE` 重试官方安装器。
 

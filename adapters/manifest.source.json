@@ -103,7 +103,7 @@
       "codex-adapter"
     ],
     "notes": [
-      "Claude Code uses .claude-plugin/plugin.json. Codex uses .codex-plugin/plugin.json and root hooks.json; keeping them separate preserves Claude Code behavior while making the adapter discoverable by Codex.",
+      "Claude Code uses .claude-plugin/plugin.json. Codex uses .codex-plugin/plugin.json plus user/project hooks rendered from the root hooks.json template; keeping the entrypoints separate preserves Claude Code behavior.",
       "When either plugin spec changes, update the corresponding manifest without removing fields used by the other agent's discovery path."
     ]
   },

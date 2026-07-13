@@ -165,11 +165,11 @@ Merged from branch `codex-adapter` (2026-07-08). This keeps the Claude Code surf
 | Item | Purpose |
 |---|---|
 | [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json) | Codex plugin manifest with `skills: "./skills/"` |
-| [`hooks.json`](hooks.json) | Plugin-bundled Codex hooks for ruff formatting and JSON validation |
+| [`hooks.json`](hooks.json) | Source template rendered to absolute commands in user or project Codex hooks; not declared as a plugin hook |
+| [`codex/`](codex) | Canonical user guidance, four custom Agent profiles, and review-only model/MCP config example |
 | [`skills/init-codex-config`](skills/init-codex-config/SKILL.md) | Apply agent-harness to Codex projects through `AGENTS.md`, `.codex/hooks.json`, and `.agents/skills` |
 | [`skills/agent-config-adapter`](skills/agent-config-adapter/SKILL.md) | General workflow for adapting an agent configuration to another agent/model route |
-| [`scripts/install-codex-local.js`](scripts/install-codex-local.js) | Symlink skills into `~/.agents/skills`, expose the plugin through the personal marketplace as `INSTALLED_BY_DEFAULT` |
-| [`scripts/verify-codex-adapter.js`](scripts/verify-codex-adapter.js) | Local structural checks for the Codex adapter |
+| [`scripts/install-codex-local.js`](scripts/install-codex-local.js) | Install 20 user skills, policy-installed plugin entry, user AGENTS/hooks, and four custom Agents without overwriting different files by default |
+| [`scripts/verify-codex-adapter.js`](scripts/verify-codex-adapter.js) | Structural checks paired with isolated installer, model-route, ruff, and review-gate tests |
 | [`scripts/codex-update-safe.js`](scripts/codex-update-safe.js) | Safe Codex CLI updater for release-asset rollout windows |
 | [`docs/CODEX_ADAPTATION_PLAN.md`](docs/CODEX_ADAPTATION_PLAN.md) | Full function inventory, research notes, architecture options, and execution plan |
-

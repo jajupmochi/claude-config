@@ -26,7 +26,7 @@
             "type": "command",
             "command": "./scripts/codex_review_gate.sh",
             "timeout": 60,
-            "statusMessage": "review-gate: auditing changes..."
+            "statusMessage": "review-gate: auditing changes"
           }
         ]
       }

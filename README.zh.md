@@ -12,7 +12,7 @@
 - [快速上手](#快速上手)
 - [仓库结构](#仓库结构)
 - [工作流规则（15+）](#工作流规则15)
-- [可复用技能（12）](#可复用技能12)
+- [可复用技能](#可复用技能)
 - [钩子（8：5 Claude + 3 Codex）](#钩子85-claude--3-codex)
 - [推荐清单（17 类）](#推荐清单17-类)
 - [项目模板](#项目模板)
@@ -31,7 +31,7 @@
 | Agent | 插件 manifest | 技能 | 钩子 | 安装技能 |
 |---|---|---|---|---|
 | **Claude Code** | `.claude-plugin/plugin.json` | `skills/general/*`（7 个源技能） | `hooks/*`（3 个配方） | `/init-agent-config` |
-| **Codex** | `.codex-plugin/plugin.json` | `skills/*`（14 个包装技能） | `hooks.json`（3 个脚本） | `/skills` → `init-codex-config` |
+| **Codex** | `.codex-plugin/plugin.json` | 20 个实测用户技能链接 + 插件技能 | 从 `hooks.json` 渲染到用户 `~/.codex/hooks.json` | `/skills` → `init-codex-config` |
 | **其他 Agent** | 通过 `agent-config-adapter` 技能 | 见适配工作流 | 见适配工作流 | — |
 
 **四个目标：**
@@ -62,10 +62,10 @@ claude
 git clone https://github.com/jajupmochi/agent-harness.git ~/agent-harness
 cd ~/agent-harness
 npm run verify:codex   # 结构验证通过后再安装
-npm run activate:codex  # 软链技能 → ~/.agents/skills，创建 marketplace 条目
+npm run activate:codex  # 安装 20 个技能、用户 hooks/指导/Agents 和 marketplace 条目
 
-# 重启 Codex → /skills 显示 agent-harness 技能
-# 用 /plugins 查看本地插件条目
+# 新建 Codex 任务，再用 /hooks 信任钩子
+# /plugins 可能显示 Admin Installed：INSTALLED_BY_DEFAULT 已经启用
 ```
 
 **Claude 6 种安装方式**详见 **[USAGE.zh.md §0](USAGE.zh.md#0-安装-agent-harness每台机器一次)**。
@@ -83,14 +83,15 @@ agent-harness/
 │
 ├── .claude-plugin/plugin.json            ← Claude Code 插件 manifest
 ├── .codex-plugin/plugin.json             ← Codex 插件 manifest
-├── hooks.json                            ← Codex 内置钩子（ruff、jq、review-gate）
+├── hooks.json                            ← Codex 用户级/项目级 hooks 的源模板
+├── codex/                                ← 用户 AGENTS.md、模型/MCP 示例、4 个自定义 Agents
 │
 ├── rules/                                ← 15+ 条工作流规则
 │   ├── commit-discipline/                ← 约定式提交强制执行
 │   ├── chinese-output/                   ← 以及另外 14 条…
 │   └── <规则名>/RULE.md + snippet.md
 │
-├── skills/                               ← Codex 14 个包装技能 + 源目录
+├── skills/                               ← Codex 包装技能 + 共享源目录
 │   ├── general/                          ← 7 个 Claude 源技能
 │   ├── init-codex-config/                ← Codex 安装技能
 │   ├── agent-config-adapter/             ← 跨 Agent 迁移工作流
@@ -150,9 +151,9 @@ agent-harness/
 | [`multi-round-redesign`](rules/multi-round-redesign/RULE.md) | ui-project | N 轮 UI 重设计协议，日期戳输出 + 规范 |
 | [`latex-edit-policy`](rules/latex-edit-policy/RULE.md) | research-pkg | 硬修复直接改；内容编辑注释不删除 |
 
-## 可复用技能（12）
+## 可复用技能
 
-Codex 的 `/skills` 中显示 14 个技能。Claude Code 使用 `skills/general/` 下的 7 个源技能。Codex 包装技能在配置后自动加载。
+Codex 本地激活器安装经过实测的 20 个用户技能；插件还可暴露兼容的顶层包装技能。Claude Code 继续使用 `skills/general/` 下的源技能。Codex 只在描述匹配或显式调用时读取完整技能正文。
 
 | 技能 | 自动加载 | 用途 |
 |---|---|---|
@@ -235,7 +236,7 @@ Codex 的 `/skills` 中显示 14 个技能。Claude Code 使用 `skills/general/
 graph TD
     subgraph "agent-harness Repository"
         CC[".claude-plugin/<br/>plugin.json<br/><br/>hooks/ (3 recipes)<br/>skills/general/ (7 src)<br/>setup/init-…"]
-        CX[".codex-plugin/<br/>plugin.json<br/><br/>hooks.json (3 scripts)<br/>skills/ (14 wrappers)<br/>scripts/ (9 tools)"]
+        CX[".codex-plugin/<br/>plugin.json<br/><br/>用户 hooks（3 条命令）<br/>20 个技能链接<br/>4 个自定义 Agents"]
         SHARED["rules/ (15+)<br/>recommendations/ (17)<br/>tooling/ (3)<br/>templates/ (2)"]
     end
 
@@ -292,8 +293,9 @@ cp scripts/codex_commit_msg.sh .git/hooks/commit-msg
 | P10 | 2026-05 | 插件打包，新增规则（writing-style、end-of-turn-marker 等） |
 | P11 | 2026-07-08 | Codex 适配：.codex-plugin、12 个包装技能、hooks.json、安装/验证/更新脚本 |
 | P12 | 2026-07-08 | 多 Agent 重命名（agent-harness）、review-gate Stop 钩子、非视觉模型视觉验证、code-verifier 自动加载、约定式提交强制执行 |
+| P13 | 2026-07-14 | Codex 运行时对账：可复现的 20 技能安装、用户 hooks、自定义 Agents、模型分层、Admin 安装与 MCP 认证语义 |
 
-**总覆盖：** 15+ 条规则 + 14 个技能 + 8 个钩子（双 Agent）+ 17 份推荐清单 + 3 类工具模板 + 2 个项目模板 + 2 个安装技能 + 8 个脚本 + 双语文档 + 2 个插件 manifest。
+**总覆盖：** 15+ 条规则、经过实测的 Codex 20 技能用户集、双 Agent hooks、17 份推荐清单、3 类工具模板、2 个项目模板、双语文档和独立插件 manifest。
 
 ## 贡献
 

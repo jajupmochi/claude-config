@@ -159,3 +159,12 @@
 ## Codex 适配
 
 已从 `codex-adapter` 分支融合（2026-07-08）。Claude Code 入口保持不变，Codex 使用独立 manifest 和 wrapper 层。
+
+| 条目 | 用途 |
+|---|---|
+| [`.codex-plugin/plugin.json`](.codex-plugin/plugin.json) | Codex 插件 manifest；技能入口使用 `skills: "./skills/"` |
+| [`hooks.json`](hooks.json) | 渲染为用户级或项目级绝对路径 hooks 的源模板；不声明为插件 hook |
+| [`codex/`](codex) | 用户指导、4 个自定义 Agent 和只供审阅的模型/MCP 配置示例 |
+| [`skills/init-codex-config`](skills/init-codex-config/SKILL.md) | 通过 `AGENTS.md`、`.codex/hooks.json` 和 `.agents/skills` 配置 Codex 项目 |
+| [`scripts/install-codex-local.js`](scripts/install-codex-local.js) | 安装 20 个用户技能、策略安装插件条目、用户 AGENTS/hooks 和 4 个自定义 Agents；默认不覆盖不同文件 |
+| [`scripts/verify-codex-adapter.js`](scripts/verify-codex-adapter.js) | 与隔离安装器、模型路由、ruff 和 review-gate 测试组合的结构验证 |

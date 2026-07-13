@@ -123,11 +123,16 @@ npm run activate:codex
 
 The activation script:
 
-1. Symlinks Codex wrapper skills into `~/.agents/skills/`.
+1. Symlinks the tested 20-skill user set into `~/.agents/skills/`.
 2. Symlinks this repository to `~/plugins/agent-harness`.
-3. Creates or updates `~/.agents/plugins/marketplace.json`.
+3. Creates or updates `~/.agents/plugins/marketplace.json` with `INSTALLED_BY_DEFAULT`.
+4. Installs concise user guidance at `~/.codex/AGENTS.md` without overwriting different content unless `--force` is used.
+5. Renders the three hook commands to absolute paths in `~/.codex/hooks.json`.
+6. Installs four custom Agent profiles under `~/.codex/agents/`.
 
-Restart Codex or start a new session, then use `/skills` for `init-codex-config` or `agent-config-adapter`. Use `/plugins` to inspect the local plugin entry.
+Review `codex/config.toml.example` and merge the model, agent limits, and Docs MCP settings into your existing `~/.codex/config.toml`; the installer never overwrites that file. Start a new Codex task, then use `/skills`, `/hooks`, `/plugins`, and `/mcp` to verify discovery. `INSTALLED_BY_DEFAULT` may appear as **Admin Installed** with no enable toggle; verify it with `codex plugin list`. For the public `openaiDeveloperDocs` endpoint, `Status=enabled` with `Auth=Unsupported` is healthy: OAuth is unavailable because anonymous access is sufficient.
+
+Trusting hooks in an already-running task does not prove that task rebuilt its lifecycle registry. If a temporary `apply_patch` event does not trigger the formatter, run the hook scripts explicitly for that task or start a new task.
 
 If Codex CLI update fails with `Could not find Codex package or platform npm release assets`, run `npm run update:codex`. The wrapper retries the official installer with an explicit `CODEX_RELEASE` when the latest release metadata and assets are briefly out of sync.
 

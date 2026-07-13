@@ -48,7 +48,7 @@ questions that affect file writes.
 4. Which personal rules to include: output brevity, tool proactivity,
    no reread, writing style, human-readable output, autorun mode.
 5. Skill scope: repo `.agents/skills` or user `~/.agents/skills`.
-6. Hook scope: project `.codex/hooks.json`, plugin bundled hooks, or no hooks.
+6. Hook scope: project `.codex/hooks.json`, user `~/.codex/hooks.json`, or no hooks. The tested local activation uses user hooks; do not also declare plugin hooks or the same command can run twice.
 
 When the user says `autorun`, choose conservative defaults and continue unless
 a file overwrite, dependency install, network call, or destructive operation
@@ -61,8 +61,8 @@ needs approval.
 2. Generate `AGENTS.md` with concise instructions. Do not paste the full rule
    library. Include references to selected source rule files, for example:
    `Rules source: ~/.claude/agent-harness/rules/phased-planning/RULE.md`.
-3. If hooks are selected, create `.codex/hooks.json` from this plugin's root
-   `hooks.json`, then adjust path globs for the target project.
+3. If project hooks are selected, create `.codex/hooks.json` from this repository's root
+   `hooks.json`, then rewrite every command to a stable absolute or git-root-based path. The root file is a source template, not an automatically discovered plugin hook.
 4. If repo skills are selected, copy the relevant top-level Codex wrapper
    skill directories from this repository into `.agents/skills/`.
 5. If a template is selected, use the corresponding template directory as a
@@ -83,6 +83,7 @@ Run checks proportional to the files written:
   not accidentally claim to be Claude configuration, except in provenance text.
 - `git status --short` to report changed files.
 
-Do not claim that hooks or skills are active in the current Codex session until
-they have been installed in a discovered location and a new session or reload
-has picked them up.
+Do not claim that hooks or skills are active in the current Codex task until
+they have been installed in a discovered location and a real lifecycle event
+or explicit invocation proves that task picked them up. Trusting a hook definition
+does not prove an already-running task rebuilt its lifecycle registry.

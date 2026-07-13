@@ -1,5 +1,5 @@
 {
-  "_doc": "Canonical model-tier map (overhaul task 10, adaptive model). Per agent, per capability tier. Deterministic resolver: scripts/resolve_model.mjs. CONSUMED (not a dead knob): the opencode projector generates opencode.json `model` from agents.opencode.high and `small_model` from agents.opencode.small (test-projection.mjs enforces byte-parity). For Claude Code this map is ADVISORY for SUB-AGENT routing only (CC cannot switch model mid-session): run the main loop on `high`, delegate mechanical/verify work to `mid`/`small` sub-agents to cut token cost. Codex switches models via external tooling (cc-switch/provider config) — out of scope here. NEVER auto-configure provider switching for Claude Code (account-ban risk).",
+  "_doc": "Canonical model-tier map (overhaul task 10, adaptive model). Per agent, per capability tier. Deterministic resolver: scripts/resolve_model.mjs. Codex values mirror the tested local config and custom-agent profiles; opencode values generate opencode.json. Claude values remain advisory for sub-agent routing. NEVER auto-configure provider switching for Claude Code (account-ban risk).",
   "tiers": ["high", "mid", "small"],
   "agents": {
     "claude": {
@@ -8,9 +8,9 @@
       "small": "claude-haiku-4-5"
     },
     "codex": {
-      "high": "gpt-5.5-xhigh",
-      "mid": "gpt-5.5",
-      "small": "deepseek-v4-flash"
+      "high": "gpt-5.6-sol",
+      "mid": "gpt-5.6-terra",
+      "small": "gpt-5.6-luna"
     },
     "opencode": {
       "high": "anthropic/claude-sonnet-4-5",
@@ -19,11 +19,16 @@
     }
   },
   "effort": {
-    "_doc": "Reasoning-effort per Claude tier (Agent-tool effort enum: low|medium|high|xhigh|max). NOT a dead knob: resolve_model.mjs exposes it (`--effort`) and task-orchestrator sub-agent routing uses it — a `mid` sub-agent is spawned as claude-sonnet-5 at MAX effort (a strong Sonnet-5 run costs far less than Opus yet, at max effort, holds quality on implement/verify). opencode/codex set effort via their own config, not here.",
+    "_doc": "Reasoning effort per agent tier. resolve_model.mjs exposes it with --effort. Custom Codex reviewer uses the mid-tier terra model with an explicit xhigh exception in codex/agents/harness-reviewer.toml.",
     "claude": {
       "high": "high",
       "mid": "max",
       "small": "low"
+    },
+    "codex": {
+      "high": "xhigh",
+      "mid": "high",
+      "small": "medium"
     }
   },
   "task_tier": {

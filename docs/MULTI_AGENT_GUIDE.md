@@ -38,7 +38,7 @@ agent-neutral logic in a **core** and give each agent a thin **shim** that adapt
 |---|---|---|---|
 | **Skills** | `~/.claude/skills/<name>` symlink (via `bin/deploy-skills.mjs`) | `skills/` glob in `.codex-plugin/plugin.json` (copied to plugin cache on `codex plugin add`) | `~/.config/opencode/skills/<name>` symlink (via `bin/deploy-skills.mjs`) — opencode has NO project-level skill auto-discovery; verified vs opencode 1.3.17 |
 | **Rules** | plugin manifest `rules[]` | (bundled with skills) | `instructions[]` glob in `opencode.json` |
-| **Hooks** | `.claude-plugin` + `settings.json` hook wiring | root `hooks.json` + `scripts/*.sh` | JS plugin in `.opencode/plugin/*.js` (auto-discovered) |
+| **Hooks** | `.claude-plugin` + `settings.json` hook wiring | root `hooks.json` template rendered to user/project absolute commands + `scripts/*.sh` | JS plugin in `.opencode/plugin/*.js` (auto-discovered) |
 | **Model tiers** | advisory for sub-agent routing (can't switch mid-session) | external tooling (cc-switch) | `model`/`small_model` generated from `models.config.json` |
 
 ## Checklist — generalizing a new tool

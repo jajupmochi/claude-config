@@ -19,7 +19,12 @@ chk("opencode/small", resolveModel(config, "opencode", "small"), "anthropic/clau
 // 2. resolve by task-kind (maps to a tier)
 chk("claude research->high", resolveModel(config, "claude", "research"), "claude-opus-4-8");
 chk("claude mechanical->small", resolveModel(config, "claude", "mechanical"), "claude-haiku-4-5");
-chk("codex implement->mid", resolveModel(config, "codex", "implement"), "gpt-5.5");
+chk("codex high", resolveModel(config, "codex", "high"), "gpt-5.6-sol");
+chk("codex implement->mid", resolveModel(config, "codex", "implement"), "gpt-5.6-terra");
+chk("codex mechanical->small", resolveModel(config, "codex", "mechanical"), "gpt-5.6-luna");
+chk("codex high effort", resolveEffort(config, "codex", "high"), "xhigh");
+chk("codex mid effort", resolveEffort(config, "codex", "mid"), "high");
+chk("codex small effort", resolveEffort(config, "codex", "small"), "medium");
 
 // mid tier = Sonnet 5, and its effort = max (the requested change)
 chk("claude/mid model == sonnet-5", resolveModel(config, "claude", "mid"), "claude-sonnet-5");

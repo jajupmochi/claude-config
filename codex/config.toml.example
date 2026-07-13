@@ -1,0 +1,16 @@
+# Merge these settings into ~/.codex/config.toml after reviewing existing values.
+# The local installer deliberately does not overwrite config.toml.
+model = "gpt-5.6-sol"
+model_reasoning_effort = "xhigh"
+
+[agents]
+max_threads = 4
+max_depth = 1
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+enabled = true
+
+# The public OpenAI documentation endpoint does not require OAuth. In Codex
+# status output, Status=enabled with Auth=Unsupported is a healthy combination:
+# Unsupported describes the unavailable OAuth login flow, not tool connectivity.
