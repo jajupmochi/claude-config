@@ -29,6 +29,41 @@ confirmed before relying on it.
   side-by-side isolation and manual hand-off; true agent-to-agent messaging
   exists only in newer, less-proven tools (see the gaps section).
 
+### Mobile remote profile (recorded 2026-07-15)
+
+For phone access, use a server-side persistent session; the phone is only a thin
+terminal and stores no model/API credentials.
+
+1. **Private transport:** put the phone and Ubuntu host in the same Tailscale
+   tailnet. Prefer Tailscale SSH with a narrow access policy and
+   `action: "check"`, or conventional OpenSSH over the Tailscale address. Do
+   not expose a new public SSH or browser-terminal port only for mobile access.
+   Tailscale documents that SSH is identity/policy controlled and WireGuard
+   encrypted: <https://tailscale.com/docs/features/tailscale-ssh>.
+2. **Persistent server session:** use `tmux new -As agents` for the mobile
+   entry point. This is the best phone default because claude-squad already uses
+   tmux and the session survives app suspension or network changes. Use Zellij
+   as the desktop-first alternative, but do not nest Zellij and tmux merely for
+   decoration.
+3. **iPhone/iPad:** choose **Blink Shell** when Mosh, keyboard customization,
+   and terminal gestures matter; its official quick start supports both
+   `mosh user@host` and `ssh user@host`:
+   <https://docs.blink.sh/>.
+4. **Cross-platform phone client:** choose **Termius** when the same saved-host
+   UI is wanted on iOS and Android. Its official site lists both platforms and
+   SSH support: <https://termius.com/>. Keep private keys device-bound where
+   possible; do not sync project secrets or model tokens into the client.
+5. **Unstable cellular links:** Mosh is optional, not required. It is designed
+   for roaming and intermittent connectivity (<https://mosh.org/>), but it adds
+   a server package and UDP policy surface. Start with Tailscale + SSH + tmux;
+   add Mosh only after that path is working and its UDP range is explicitly
+   allowed.
+
+Operationally: connect to the MagicDNS hostname, run
+`tmux new -As agents`, and reattach after the phone sleeps. For incident
+response or approvals this is excellent; for long diffs and multi-pane
+orchestration, return to a laptop-sized terminal.
+
 ---
 
 ## 1. Terminal multiplexers / workspace TUIs
