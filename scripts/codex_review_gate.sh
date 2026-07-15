@@ -3,7 +3,8 @@
 # Now delivers the SAME 12-form review as Claude (via the shared review-gate core.sh) AND keeps Codex's
 # git working-tree guards. Blocks the stop when a code review is due OR a guard trips.
 # The forms LOGIC lives in hooks/review-gate/scripts/core.sh (shared, agent-neutral); this shim only
-# feeds it Codex's git-detected changes and wraps the result in Codex's native systemMessage/decision JSON.
+# feeds it Codex's git-detected changes and wraps the result in Codex's native
+# Stop-hook JSON. Codex uses continue/stopReason; decision is a Claude-only field.
 set -uo pipefail
 input="$(cat || true)"
 
@@ -84,7 +85,14 @@ msg="${msg}
 ${marker}"
 
 if command -v jq >/dev/null 2>&1; then
-  jq -n --arg msg "$msg" --arg block "$block" '{systemMessage:$msg, decision:(if $block=="yes" then "block" else "" end)}'
+  jq -n --arg msg "$msg" --arg block "$block" '
+    if $block == "yes" then
+      {continue:false, stopReason:$msg, systemMessage:$msg}
+    else
+      {continue:true, systemMessage:$msg}
+    end'
 else
-  printf '%s\n' "$msg"
+  # Exit 0 with no output is the only schema-safe fallback when jq is absent.
+  # Plain text is accepted by some events but is not a portable Stop response.
+  exit 0
 fi

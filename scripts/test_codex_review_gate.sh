@@ -17,11 +17,12 @@ setup(){ T="$(mktemp -d)"; RD="$T/repo"; HD="$T/home"; mkdir -p "$RD" "$HD"
   ( cd "$RD" && git init -q && git config user.email t@t && git config user.name t && git checkout -q -b work ); }
 run(){ ( cd "$RD" && printf '{"session_id":"%s"}' "$1" | RG_CORE="$CORE" HOME="$HD" bash "$GATE" 2>/dev/null ); }
 
-# 1. staged code change -> forms review DELIVERED + git-guards + decision block
+# 1. staged code change -> forms review DELIVERED + git-guards + continue false
 setup
 printf 'package p\nfunc F() int { return 1 }\n' > "$RD/a.go"; ( cd "$RD" && git add a.go )
 out="$(run s1)"
-chk "staged code -> decision block" "$(printf '%s' "$out" | jq -r '.decision')" "block"
+chk "staged code -> continue false" "$(printf '%s' "$out" | jq -r '.continue')" "false"
+chk "  blocking response has stopReason" "$(printf '%s' "$out" | jq -r 'has("stopReason")')" "true"
 sm="$(printf '%s' "$out" | jq -r '.systemMessage')"
 ctn "  forms review present (from core.sh)" "$sm" "review-gate: automatic review"
 ctn "  git-guards section present" "$sm" "Codex git-guards"
@@ -31,7 +32,8 @@ ctn "  changed file listed" "$sm" "a.go"
 setup
 printf 'x\n' > "$RD/f.txt"; ( cd "$RD" && git add f.txt && git commit -q -m "feat: initial" )
 out="$(run s2)"
-chk "clean+conventional -> no block" "$(printf '%s' "$out" | jq -r '.decision')" ""
+chk "clean+conventional -> continue true" "$(printf '%s' "$out" | jq -r '.continue')" "true"
+chk "  passing response omits stopReason" "$(printf '%s' "$out" | jq -r 'has("stopReason")')" "false"
 sm="$(printf '%s' "$out" | jq -r '.systemMessage')"
 ctn "  working tree clean noted" "$sm" "Working tree clean"
 if printf '%s' "$sm" | grep -qF "review-gate: automatic review"; then echo "  FAIL: forms shown on clean tree"; fail=$((fail+1)); else echo "  ok: no forms on clean tree"; pass=$((pass+1)); fi
@@ -40,7 +42,7 @@ if printf '%s' "$sm" | grep -qF "review-gate: automatic review"; then echo "  FA
 setup
 printf 'x\n' > "$RD/f.txt"; ( cd "$RD" && git add f.txt && git commit -q -m "random message" )
 out="$(run s3)"
-chk "non-conventional commit -> block" "$(printf '%s' "$out" | jq -r '.decision')" "block"
+chk "non-conventional commit -> continue false" "$(printf '%s' "$out" | jq -r '.continue')" "false"
 
 # 4. max-rounds: forms suppressed after 3 rounds, but git-guards still block on staged change
 setup
@@ -50,7 +52,7 @@ run s4 >/dev/null; echo 3 > "$HD/.codex/review-state/s4.rounds"
 out="$(run s4)"
 sm="$(printf '%s' "$out" | jq -r '.systemMessage')"
 if printf '%s' "$sm" | grep -qF "review-gate: automatic review"; then echo "  FAIL: forms shown after max rounds"; fail=$((fail+1)); else echo "  ok: forms suppressed after max rounds"; pass=$((pass+1)); fi
-chk "  but staged change still blocks" "$(printf '%s' "$out" | jq -r '.decision')" "block"
+chk "  but staged change still blocks" "$(printf '%s' "$out" | jq -r '.continue')" "false"
 
 echo
 if [ "$fail" -eq 0 ]; then echo "codex_review_gate.sh: all $pass checks PASS"; else echo "codex_review_gate.sh: $fail FAIL / $pass pass"; fi
