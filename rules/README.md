@@ -44,6 +44,8 @@ The `setup/init-agent-harness` skill (P8) does this composition automatically ba
 | [`test-first`](test-first/RULE.md) | personal | Write tests before/alongside any code change, at every level touched; run the FULL suite with a before/after delta, not just the target test |
 | [`design-modes`](design-modes/RULE.md) | personal | Prototyping vs scaling mode — ask up front which one, confirm on switch; sets how much rigor/verification a change gets |
 | [`regression-test-on-bugfix`](regression-test-on-bugfix/RULE.md) | universal | Every bug fix MUST ship a regression test that FAILS on the old code and PASSES after the fix (red→green); a behavioral fix without one is not done |
+| [`incremental-delivery`](incremental-delivery/RULE.md) | universal | Ship completed, independent pieces as they finish (verify → push staging → remote+visual verify → report per piece); don't idle-wait for the whole batch. Hold only genuinely dependent / unverifiable / authorization-gated work |
+| [`parity-restoration`](parity-restoration/RULE.md) | universal | Reconciling env↔env (staging↔prod, 1:1 restore)? Enumerate a component/page PLAN first so nothing is missed, compare each deterministically, then route by direction: reference→target data auto-synced, target→reference additions LISTED for the owner. Never modify the reference |
 
 ## Scope tags
 
