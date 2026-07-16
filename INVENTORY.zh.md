@@ -57,6 +57,16 @@
 | [`autorun-mode`](rules/autorun-mode/RULE.md) | personal | 用户说 "autorun" / "全力跑" / "think a lot" + scope 时：高自主 cadence + 多轮 review + 分支卫生 |
 | [`multi-round-redesign`](rules/multi-round-redesign/RULE.md) | ui-project | N 轮 UI 重设计协议——日期戳子目录里 `00-plan.md` + 每轮 `round-N.html`/`.png`/`.notes.md` + 最终 spec lock + production-lock 轮 |
 | [`latex-edit-policy`](rules/latex-edit-policy/RULE.md) | research-pkg | 编辑 `.tex`/`.sty`/`.cls`/`.bib` 时：hard fix 直接改；soft（内容）改动注释保留原文不删，打 `% [orig YYYY-MM-DD]` 内联备份（LaTeX 内容编辑场景覆盖 output-brevity） |
+| [`clickable-links`](rules/clickable-links/RULE.md) | personal | 每一处 commit / 文件 / 行 / PR / 文档 / 来源引用都是完整可点击链接——绝不用裸 hash、半截路径或残缺 URL |
+| [`design-artifacts`](rules/design-artifacts/RULE.md) | personal | 设计了 API / UI？列出端点 + 可点击的本地测试链接（Swagger/Storybook）+ 给出实时预览链接 + 附截图——文档和小结里都要 |
+| [`test-first`](rules/test-first/RULE.md) | personal | 任何代码改动前/同时写测试，覆盖每一个改动层级；跑完整套件看前后 delta，而非只跑目标测试 |
+| [`design-modes`](rules/design-modes/RULE.md) | personal | 原型模式 vs 规模化模式——开工先问是哪种、切换时确认；决定一次改动要多少严谨度/验证 |
+| [`regression-test-on-bugfix`](rules/regression-test-on-bugfix/RULE.md) | universal | 每个 bug 修复必须附回归测试：旧代码上失败、修复后通过（红→绿）；没有它的行为修复不算完成 |
+| [`incremental-delivery`](rules/incremental-delivery/RULE.md) | universal | 完成的独立部分随做随交付（验证 → 推 staging → 远端+视觉验证 → 逐件汇报）；别干等整批。只有真正依赖/无法验证/需授权的才 hold |
+| [`parity-restoration`](rules/parity-restoration/RULE.md) | universal | 对齐环境↔环境（staging↔prod、1:1 还原）？先枚举组件/页面 PLAN 确保不漏，逐项确定性对比，再按方向归类：reference→target 数据自动同步，target→reference 的新增列出交负责人。绝不改动 reference |
+| [`commit-discipline`](rules/commit-discipline/RULE.md) | universal | 每个 commit 遵循 conventional-commit 格式（`type(scope): description`）；不允许空消息或单词消息。非原生模型下由 `scripts/codex_commit_msg.sh` 装的 commit-msg 钩子强制 |
+| [`root-cause-before-fix`](rules/root-cause-before-fix/RULE.md) | personal | 修任何 bug 前：先复现+定位（`file:line`）、读失败行的历史（`git log -L`/blame）、和 baseline 分支对比以区分回归 vs 既有脆弱性并回答"为什么现在"，追踪坏值到源头，再在正确层级修复并记录。绝不 patch-first |
+| [`fallback-discipline`](rules/fallback-discipline/RULE.md) | personal | fallback / `pass` / 吞异常按场景判定：生产环境允许但必须记录触发点+主路径为何失败；测试/开发默认有罪——当场修或大声抛出，绝不静默藏 bug。分界问题："这个 fallback 触发了，有人会发现吗？" |
 
 详见 [`rules/README.md`](rules/README.md)（用法说明 + scope 标签定义）。
 

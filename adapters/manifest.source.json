@@ -53,7 +53,10 @@
       "rules/design-modes",
       "rules/regression-test-on-bugfix",
       "rules/incremental-delivery",
-      "rules/parity-restoration"
+      "rules/parity-restoration",
+      "rules/commit-discipline",
+      "rules/root-cause-before-fix",
+      "rules/fallback-discipline"
     ],
     "hooks": [
       "hooks/ruff-format-on-edit",

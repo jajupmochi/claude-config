@@ -59,6 +59,14 @@ See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) and README's "Build history" for de
 | [`autorun-mode`](rules/autorun-mode/RULE.md) | personal | When user says "autorun" / "全力跑" / "think a lot" + scope: higher-autonomy cadence + multi-pass review + branch hygiene |
 | [`multi-round-redesign`](rules/multi-round-redesign/RULE.md) | ui-project | N-round UI redesign protocol with date-stamped `00-plan.md` + `round-N.html`/`.png`/`.notes.md` + final spec lock + production-lock round |
 | [`latex-edit-policy`](rules/latex-edit-policy/RULE.md) | research-pkg | When editing `.tex`/`.sty`/`.cls`/`.bib`: hard fixes direct; soft (content) edits comment-don't-delete with `% [orig YYYY-MM-DD]` inline backup (overrides output-brevity for LaTeX content) |
+| [`clickable-links`](rules/clickable-links/RULE.md) | personal | Every commit / file / line / PR / doc / source reference is a FULL clickable link — never a bare hash, partial path, or half URL |
+| [`design-artifacts`](rules/design-artifacts/RULE.md) | personal | Designed an API / UI? List endpoints with clickable LOCAL test links (Swagger/Storybook) + give the live preview link + embed a screenshot — in the doc AND the summary |
+| [`test-first`](rules/test-first/RULE.md) | personal | Write tests before/alongside any code change, at every level touched; run the FULL suite with a before/after delta, not just the target test |
+| [`design-modes`](rules/design-modes/RULE.md) | personal | Prototyping vs scaling mode — ask up front which one, confirm on switch; sets how much rigor/verification a change gets |
+| [`regression-test-on-bugfix`](rules/regression-test-on-bugfix/RULE.md) | universal | Every bug fix MUST ship a regression test that FAILS on the old code and PASSES after the fix (red→green); a behavioral fix without one is not done |
+| [`incremental-delivery`](rules/incremental-delivery/RULE.md) | universal | Ship completed, independent pieces as they finish (verify → push staging → remote+visual verify → report per piece); don't idle-wait for the whole batch. Hold only genuinely dependent / unverifiable / authorization-gated work |
+| [`parity-restoration`](rules/parity-restoration/RULE.md) | universal | Reconciling env↔env (staging↔prod, 1:1 restore)? Enumerate a component/page PLAN first so nothing is missed, compare each deterministically, then route by direction: reference→target data auto-synced, target→reference additions LISTED for the owner. Never modify the reference |
+| [`commit-discipline`](rules/commit-discipline/RULE.md) | universal | Every commit follows conventional-commit format (`type(scope): description`); no empty or one-word messages. For non-native models, the `commit-msg` hook from `scripts/codex_commit_msg.sh` enforces it |
 
 See [`rules/README.md`](rules/README.md) for usage details and scope-tag definitions.
 
