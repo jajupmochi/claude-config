@@ -74,6 +74,7 @@
 | [`code-verifier`](skills/general/code-verifier/SKILL.md) | general | 自动 / `/code-verifier` | "tests pass" / "code works" / "结果是 X" 前的三层门禁——检测 FAKE-RUN 模式（硬编码结果、`assert True`、纯 mock 测试等） |
 | [`research-critic`](skills/general/research-critic/SKILL.md) | general | 自动 / `/research-critic` | 六问审计：可证伪性 · 设计与假设匹配 · 公平比较 · 泄漏 · 结论与证据匹配 · 替代解释排除 |
 | [`system-cleanup`](skills/general/system-cleanup/SKILL.md) | general | 自动 / `/system-cleanup` | 诊断爆满的 Linux 磁盘（df/du/dpkg/snap/docker）→ 按优先级、带风险标签的清理；安全的用户级删除 + sudo 项交给用户跑；覆盖 VS Code WebStorage 膨胀、旧内核、NTFS 数据盘写入失败。附 `cleanup.sh`。 |
+| [`linux-freeze-triage`](skills/general/linux-freeze-triage/SKILL.md) | general | 自动 / `/linux-freeze-triage` | 用证据定位 Linux 死机/黑屏的真正原因（排除休眠、自动升级导致的 NVIDIA 内核/用户态版本错配、OOM、PCIe 链路、DPMS 挂起）；附近零成本看门狗 + 只读诊断套件。附 `diagnose.sh` + `freeze-watch.sh`。 |
 | [`figma-design-fetch`](skills/figma-design-fetch/SKILL.md) | general | figma.com URL 时自动 / `/figma-fetch <node-url>` | 完整 Figma→代码流水线（官方 MCP）：OAuth 连接、抓取前设计预检 lint、5 步（抽取真实值→映射设计系统 token→实现→视觉自检闸门→汇报）到 gitignore 的 `.design-imports/`；附 `scripts/visual-diff.mjs`（pixelmatch 客观闸门）+ 6 个实测坑。 |
 | [`figma-authoring-constraints`](skills/figma-authoring-constraints/SKILL.md) | general | 设计师询问 / 变量为空 / 出像素快照时自动 | Figma 端 20 条设计规约（变量/token、auto layout、组件/变体、命名、Dev Mode/Code Connect、别用栅格占位），让设计在 Figma 端就干净可出码——figma-design-fetch 流水线的设计侧。 |
 
