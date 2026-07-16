@@ -1,6 +1,11 @@
+---
+name: commit-discipline
+description: Every git commit MUST follow conventional-commit format (`type(scope): description`) — valid types feat/fix/docs/style/refactor/perf/test/chore/ci/build/revert. No empty or one-word messages; include a scope when the change touches a specific module. For non-native models (DeepSeek etc.) the `commit-msg` hook from scripts/codex_commit_msg.sh enforces it.
+scope: universal
+---
+
 # commit-discipline
 
-**Scope:** always  
 **Priority:** high
 
 Every git commit MUST follow conventional commit format:
