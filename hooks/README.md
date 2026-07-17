@@ -29,6 +29,7 @@ Verify the merge with `cat .claude/settings.json | jq .` (any error → fix synt
 | [`jq-validate-json`](jq-validate-json/README.md) | `PostToolUse` | `Write\|Edit` | static-site (i18n) / any JSON-config project | Block next tool call if Claude wrote invalid JSON to selected paths |
 | [`typecheck-on-edit`](typecheck-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | frontend / any TypeScript project | After a `.ts(x)` edit: `prettier --write` then `tsc --noEmit`; type errors **exit 2** and block the turn. Ships `typecheck.sh` + tests |
 | [`block-env-read`](block-env-read/README.md) | `PreToolUse` | `Read` | any repo carrying secrets | Deny reading `.env` / `.env.*` / `*.env` so secrets stay out of the transcript (exit 2). Ships `block-env.sh` + tests |
+| [`ssh-guard`](ssh-guard/README.md) | `PreToolUse` | `Bash` | any project with SSH access to hosts | Block SSH username-probing — a 2nd distinct `user@host` in a short burst — the pattern that trips fail2ban and IP-bans you (and your human, via the shared egress IP). Same-user retries pass. Exit 2. Ships `ssh-guard.sh` + 13 tests |
 
 ## Adding a new hook
 

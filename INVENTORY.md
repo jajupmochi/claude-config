@@ -43,6 +43,7 @@ See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) and README's "Build history" for de
 |---|---|---|
 | [`chinese-output`](rules/chinese-output/RULE.md) | personal | Final user-facing output in Chinese; intermediate stays English |
 | [`pre-edit-confirmation`](rules/pre-edit-confirmation/RULE.md) | universal | List exact targets + 1-line plan + wait for explicit "go" before any Edit / Write |
+| [`no-ssh-username-probing`](rules/no-ssh-username-probing/RULE.md) | universal | Confirm the exact SSH user first; try once; ask on failure — never loop candidate usernames (trips fail2ban → self-inflicted IP ban). Enforced by the `ssh-guard` hook |
 | [`root-cause-before-fix`](rules/root-cause-before-fix/RULE.md) | personal | Before fixing any bug: git log/blame + compare with baseline branch + "why now?" (regression vs latent) — never patch-first |
 | [`fallback-discipline`](rules/fallback-discipline/RULE.md) | personal | Fallback/pass judged by scenario: deploy allows but must log detail; test/dev must fix-on-spot or raise, never silently hide a bug |
 | [`phased-planning`](rules/phased-planning/RULE.md) | universal | Break tasks (3+ files OR > ~5 tool calls OR multi-step) into numbered phases with per-phase pause |
@@ -105,6 +106,7 @@ See [`skills/README.md`](skills/README.md) for usage details.
 | [`jq-validate-json`](hooks/jq-validate-json/README.md) | `PostToolUse` | `Write\|Edit` | static-site / JSON-config | Block next tool call if Claude wrote invalid JSON to configured paths |
 | [`typecheck-on-edit`](hooks/typecheck-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | frontend / TypeScript | After a `.ts(x)` edit: prettier + `tsc --noEmit`; **type errors exit 2 and block the turn** (Figma→code quality spine) |
 | [`block-env-read`](hooks/block-env-read/README.md) | `PreToolUse` | `Read` | any repo with secrets | Deny reading `.env*` so secrets never enter the transcript (exit 2) |
+| [`ssh-guard`](hooks/ssh-guard/README.md) | `PreToolUse` | `Bash` | any project with SSH access | Block SSH username-probing (2nd distinct `user@host` in a burst) — the fail2ban-tripping pattern that IP-bans you; enforces `no-ssh-username-probing` (exit 2) |
 
 See [`hooks/README.md`](hooks/README.md) for install instructions.
 

@@ -25,6 +25,7 @@ The `setup/init-agent-harness` skill (P8) does this composition automatically ba
 |---|---|---|
 | [`chinese-output`](chinese-output/RULE.md) | personal | User's final-output language preference is Chinese |
 | [`pre-edit-confirmation`](pre-edit-confirmation/RULE.md) | universal | Before any Edit / Write / NotebookEdit / MultiEdit |
+| [`no-ssh-username-probing`](no-ssh-username-probing/RULE.md) | universal | Before SSH: confirm the exact username, try once, ask on failure — never loop candidate usernames (trips fail2ban → IP ban). Enforced by the `ssh-guard` hook |
 | [`phased-planning`](phased-planning/RULE.md) | universal | Tasks touching 3+ files / >5 tool calls / multi-step |
 | [`plugin-preflight`](plugin-preflight/RULE.md) | universal | Before invoking unfamiliar plugin / MCP / skill |
 | [`ui-iteration-loop`](ui-iteration-loop/RULE.md) | ui-project | When user provides a visual reference for UI work |

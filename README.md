@@ -136,6 +136,7 @@ Each ships as `RULE.md` (full content, rationale, examples, exceptions) + `snipp
 | Rule | Scope | When applies |
 |---|---|---|
 | [`pre-edit-confirmation`](rules/pre-edit-confirmation/RULE.md) | universal | List targets + plan + wait for explicit "go" before any Edit/Write |
+| [`no-ssh-username-probing`](rules/no-ssh-username-probing/RULE.md) | universal | Confirm the exact SSH user; try once; ask on failure — never loop usernames (trips fail2ban → IP ban). Enforced by `ssh-guard` |
 | [`phased-planning`](rules/phased-planning/RULE.md) | universal | Tasks touching 3+ files / >5 tool calls → numbered phases with pause |
 | [`plugin-preflight`](rules/plugin-preflight/RULE.md) | universal | Verify plugin/skill/command installed before invoking |
 | [`ui-iteration-loop`](rules/ui-iteration-loop/RULE.md) | ui-project | Visual reference → 8-iteration loop with screenshots + self-critique |
@@ -186,6 +187,7 @@ The first three have both Claude Code and Codex implementations; the two fronten
 | | Codex | Stop | Same — checks git status, recent destructive ops, protected branches, always emits summary |
 | **typecheck-on-edit** | Claude | PostToolUse (Write|Edit) | After a `.ts(x)` edit: prettier + `tsc --noEmit`; type errors **exit 2** and block the turn (Figma→code spine) |
 | **block-env-read** | Claude | PreToolUse (Read) | Deny reading `.env` / `.env.*` so secrets never enter the transcript (exit 2) |
+| **ssh-guard** | Claude | PreToolUse (Bash) | Block SSH username-probing — a 2nd distinct `user@host` in a burst — the pattern that trips fail2ban and IP-bans you (exit 2) |
 
 **How review-gate works:** On session end (Stop event), the hook checks for uncommitted changes, recent destructive git operations, and whether you're on a protected branch. It always emits a status message — even when clean. This ensures you never end a session without knowing what's pending.
 
