@@ -1,0 +1,60 @@
+# Reusable check suite. Called by ci.yml (depth: fast) and heavy.yml (depth: full).
+#
+# One job runs lint, types, and tests in sequence rather than three parallel jobs.
+# GitHub rounds every job up to a whole billable minute, so three 20-second jobs
+# bill 3 minutes while one 60-second job bills 1. Split a job out only when the
+# wall clock saving is worth the extra rounded-up minute, which in practice means
+# a step longer than about two minutes.
+# https://docs.github.com/en/billing/reference/actions-runner-pricing
+name: Checks (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      depth:
+        description: "fast = lint + unit tests. full = adds the slow suite."
+        type: string
+        default: fast
+      runner:
+        description: "Runner label. Keep this on Linux unless the job cannot run there."
+        type: string
+        default: ubuntu-latest
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: checks (${{ inputs.depth }})
+    runs-on: ${{ inputs.runner }}
+    # Without this a hung job bills up to the 6 hour GitHub-hosted ceiling.
+    # https://docs.github.com/en/actions/reference/limits
+    timeout-minutes: <FAST_TIMEOUT_MINUTES>
+    steps:
+      - uses: actions/checkout@v5
+
+      # Restoring the dependency cache is normally the largest single saving in a
+      # short job. Most setup-* actions cache for you when given a `cache:` input.
+      # https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "<NODE_VERSION>"
+          cache: npm
+
+      - name: Install
+        run: <INSTALL_CMD>
+
+      - name: Lint
+        run: <LINT_CMD>
+
+      - name: Unit tests
+        run: <UNIT_TEST_CMD>
+
+      # Everything below runs only for depth: full, so the PR tier stays cheap.
+      - name: Integration tests
+        if: inputs.depth == 'full'
+        run: <INTEGRATION_TEST_CMD>
+
+      - name: End to end tests
+        if: inputs.depth == 'full'
+        run: <E2E_TEST_CMD>

@@ -91,7 +91,7 @@ This project follows the workflow rules from the author's [agent-harness](https:
 <!-- (rules are auto-loaded via the plugin) -->
 ```
 
-The `setup/init-agent-harness` skill picks one option and uncomments.
+The `setup/init-agent-config` skill picks one option and uncomments.
 
 ## Authoritative references
 

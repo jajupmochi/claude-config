@@ -1,7 +1,7 @@
 {
   "name": "agent-harness",
   "version": "0.1.0",
-  "description": "Curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Run /init-agent-harness in any project to scaffold it.",
+  "description": "Curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Run /init-agent-config in any project to scaffold it.",
   "bin": {
     "agent-harness": "./bin/install.js",
     "agent-harness-init": "./bin/install.js"
@@ -64,13 +64,22 @@
     "test:projection": "node adapters/test-projection.mjs",
     "test:opencode-review": "node .opencode/plugin/review-gate.test.mjs",
     "test:deploy-skills": "node bin/deploy-skills.test.mjs",
+    "test:rule-activation": "node bin/rule-activation.test.mjs",
     "test:models": "node scripts/test_resolve_model.mjs",
+    "test:actions-budget": "node scripts/actions-budget.test.mjs",
+    "test:actions-frugal-ci": "node scripts/actions-frugal-ci.test.mjs",
+    "actions-budget": "node scripts/actions-budget.mjs",
     "test:codex-install": "node scripts/install-codex-local.test.js",
     "deploy:skills": "node bin/deploy-skills.mjs",
     "install:codex": "node scripts/install-codex-local.js",
     "verify:codex": "node scripts/verify-codex-adapter.js && node scripts/test_resolve_model.mjs && node scripts/install-codex-local.test.js && bash scripts/test_codex_ruff_format_on_edit.sh && bash scripts/test_codex_review_gate.sh",
     "activate:codex": "node scripts/install-codex-local.js",
     "update:codex": "node scripts/codex-update-safe.js",
-    "repair:codex-update": "node scripts/codex-update-safe.js --repair-cache"
+    "repair:codex-update": "node scripts/codex-update-safe.js --repair-cache",
+    "test:harness-feedback": "node bin/harness-feedback.test.mjs",
+    "test:task-ledger": "python3 hooks/task-ledger/scripts/test_ledger.py && bash hooks/task-ledger/scripts/test_hooks.sh",
+    "test:review-gate-core": "bash hooks/review-gate/scripts/test_core.sh",
+    "test:capability-receipt": "node bin/capability-receipt.test.mjs",
+    "test:statsbar": "bash hooks/review-gate/scripts/test_statsbar.sh"
   }
 }

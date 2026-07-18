@@ -3,10 +3,16 @@
   "shared": {
     "name": "agent-harness",
     "version": "0.1.0",
-    "author": { "name": "Linlin Jia", "github": "jajupmochi" },
+    "author": {
+      "name": "Linlin Jia",
+      "github": "jajupmochi"
+    },
     "license": "MIT",
     "homepage": "https://github.com/jajupmochi/agent-harness",
-    "repository": { "type": "git", "url": "https://github.com/jajupmochi/agent-harness" }
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/jajupmochi/agent-harness"
+    }
   },
   "inventory": {
     "skills": [
@@ -28,7 +34,12 @@
       "skills/task-relationship-analysis",
       "skills/prompt-library",
       "skills/agent-update-watcher",
-      "skills/tui-installer"
+      "skills/tui-installer",
+      "skills/doc-writing",
+      "skills/task-orchestrator",
+      "skills/agent-config-adapter",
+      "skills/init-codex-config",
+      "skills/end-of-turn-marker"
     ],
     "rules": [
       "rules/chinese-output",
@@ -57,7 +68,8 @@
       "rules/commit-discipline",
       "rules/root-cause-before-fix",
       "rules/fallback-discipline",
-      "rules/no-ssh-username-probing"
+      "rules/no-ssh-username-probing",
+      "rules/native-capability-first"
     ],
     "hooks": [
       "hooks/ruff-format-on-edit",
@@ -65,11 +77,13 @@
       "hooks/review-gate",
       "hooks/typecheck-on-edit",
       "hooks/block-env-read",
-      "hooks/ssh-guard"
+      "hooks/ssh-guard",
+      "hooks/task-ledger"
     ],
     "templates": [
       "templates/research-package-py",
-      "templates/personal-cite-static"
+      "templates/personal-cite-static",
+      "templates/actions-frugal-ci"
     ],
     "recommendations": [
       "recommendations/cc-plugins.md",
@@ -88,7 +102,11 @@
       "recommendations/cluster-hpc.md",
       "recommendations/reference-projects.md",
       "recommendations/reference/apt-packages.md",
-      "recommendations/reference/vscode-extensions.md"
+      "recommendations/reference/vscode-extensions.md",
+      "recommendations/github-actions-frugality.md",
+      "recommendations/tui-for-agents.md",
+      "recommendations/codex-marketplaces.md",
+      "recommendations/codex-plugins.md"
     ],
     "tooling": [
       "tooling/python-uv-ruff",
@@ -118,7 +136,10 @@
   "codex": {
     "version": "0.1.0+codex.20260708120738",
     "description": "Codex adapter for Linlin's agent-harness workflows, reusable skills, project setup guidance, hooks, recommendations, tooling preferences, templates, and safe Codex update repair.",
-    "author": { "name": "Linlin Jia", "url": "https://github.com/jajupmochi" },
+    "author": {
+      "name": "Linlin Jia",
+      "url": "https://github.com/jajupmochi"
+    },
     "repository": "https://github.com/jajupmochi/agent-harness",
     "keywords": [
       "codex",

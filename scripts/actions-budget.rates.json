@@ -1,0 +1,64 @@
+{
+  "_comment": "Rate card + tunables for scripts/actions-budget.mjs. Edit this file when GitHub changes prices; the script hard-codes no rates. Every class listed under billing.usdPerMinute is reachable by the classifier in the script, so there are no unused knobs here.",
+  "_sources": {
+    "runner_rates": "https://docs.github.com/en/billing/reference/actions-runner-pricing",
+    "plan_allowances": "https://docs.github.com/en/billing/concepts/product-billing/github-actions",
+    "per_job_rounding": "https://docs.github.com/en/billing/reference/actions-runner-pricing",
+    "repricing_2026": "https://github.blog/changelog/2025-12-16-coming-soon-simpler-pricing-and-a-better-experience-for-github-actions/",
+    "usage_limits": "https://docs.github.com/en/actions/reference/limits",
+    "arm64_public_only": "https://github.blog/changelog/2025-08-07-arm64-hosted-runners-for-public-repositories-are-now-generally-available/"
+  },
+  "_asOf": "2026-07-18",
+  "billing": {
+    "roundUpPerJobMinutes": 1,
+    "baselineClass": "linux",
+    "usdPerMinute": {
+      "linux": 0.006,
+      "linux-arm": 0.005,
+      "windows": 0.01,
+      "windows-arm": 0.008,
+      "macos": 0.062,
+      "macos-large": 0.102,
+      "self-hosted": 0.0,
+      "unknown": 0.006
+    }
+  },
+  "plans": {
+    "free": { "includedMinutes": 2000, "concurrentJobs": 20, "concurrentMacos": 5 },
+    "pro": { "includedMinutes": 3000, "concurrentJobs": 40, "concurrentMacos": 5 },
+    "team": { "includedMinutes": 3000, "concurrentJobs": 60, "concurrentMacos": 5 },
+    "enterprise": { "includedMinutes": 50000, "concurrentJobs": 500, "concurrentMacos": 50 }
+  },
+  "assumptions": {
+    "_comment": "These drive the ESTIMATE column only. The FLOOR column uses no duration assumption at all: it is jobs x roundUpPerJobMinutes, which GitHub bills even for a job that finishes in one second. Override on the CLI with --minutes-per-job / --pushes-per-day / --merges-per-day, or per workflow file in perWorkflowMinutesPerJob.",
+    "defaultMinutesPerJob": 2,
+    "pushesPerDay": 10,
+    "mergesPerDay": 1,
+    "daysPerMonth": 30,
+    "perWorkflowMinutesPerJob": {}
+  },
+  "thresholds": {
+    "largeMatrixJobs": 6,
+    "manyJobsPerEvent": 8,
+    "matrixExpansionCap": 256
+  },
+  "runnerClassification": {
+    "_comment": "Drives classifyRunner(). basePrefixes is longest-prefix-wins. A label that matches nothing here is reported as 'unknown' and priced at the unknown rate, never silently priced as Linux.",
+    "selfHostedLabel": "self-hosted",
+    "basePrefixes": {
+      "ubuntu": "linux",
+      "linux": "linux",
+      "windows": "windows",
+      "macos": "macos"
+    },
+    "variantSuffixes": {
+      "-arm": "arm",
+      "-xlarge": "large"
+    },
+    "variantClass": {
+      "linux+arm": "linux-arm",
+      "windows+arm": "windows-arm",
+      "macos+large": "macos-large"
+    }
+  }
+}

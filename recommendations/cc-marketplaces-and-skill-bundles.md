@@ -86,4 +86,4 @@ For a fresh setup:
 2. **`/plugin install` workflow plugins** (see [cc-plugins.md](cc-plugins.md)).
 3. **`npx skills add` bundles** based on project type — UI projects get GSAP + shadcn + impeccable + huashu; ML projects skip these.
 
-The `setup/init-agent-harness` skill (P8) decides which bundles fit a new project's selected context tags.
+The `setup/init-agent-config` skill (P8) decides which bundles fit a new project's selected context tags.

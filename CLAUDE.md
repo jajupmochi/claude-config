@@ -31,7 +31,7 @@ Read these first rather than re-deriving:
 - **Top-level docs** (`README`, `INVENTORY`, `docs/PHILOSOPHY`, `docs/CONSUMPTION`) ship as `NAME.md` (English, canonical) + `NAME.zh.md` (Chinese mirror), with a header line: `> **Language:** English | [中文](NAME.zh.md)` (or the mirror).
 - **Content modules** (`RULE.md`, `SKILL.md`, `hooks/*/README.md`, `docs/CONTRIBUTING.md`, etc.) stay **English only** — Claude is the primary reader.
 - Adding a new top-level doc → MUST add both files in the same edit batch.
-- This library does NOT enforce bilingual policy on consumer projects. That's the `rules/bilingual-docs/` rule, opted-in per project at `setup/init-agent-harness` time.
+- This library does NOT enforce bilingual policy on consumer projects. That's the `rules/bilingual-docs/` rule, opted-in per project at `setup/init-agent-config` time.
 
 ## Structural conventions
 

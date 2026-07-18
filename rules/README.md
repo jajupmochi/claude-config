@@ -17,12 +17,15 @@ In a downstream project's `CLAUDE.md`, add `@<path-to-rule>/snippet.md` lines fo
 - **Local clone** — `@~/.claude/agent-harness/rules/<name>/snippet.md`
 - **Plugin** (P10+) — `/plugin install jajupmochi/agent-harness` exposes these via the setup skill.
 
-The `setup/init-agent-harness` skill (P8) does this composition automatically based on project type.
+The `setup/init-agent-config` skill (P8) does this composition automatically based on project type.
 
 ## Rule index
 
+28 rules, matching `inventory.rules` in [`adapters/manifest.source.json`](../adapters/manifest.source.json).
+
 | Rule | Scope | When applies |
 |---|---|---|
+| [`native-capability-first`](native-capability-first/RULE.md) | universal | Highest precedence, before invoking any other harness feature. Judge whether the feature fits this task and whether following it would produce a worse result than your own unaided ability. Never exempt: the verification gates, the enforcement hooks, privacy, destructive-action confirmations, and the user's own instructions |
 | [`chinese-output`](chinese-output/RULE.md) | personal | User's final-output language preference is Chinese |
 | [`pre-edit-confirmation`](pre-edit-confirmation/RULE.md) | universal | Before any Edit / Write / NotebookEdit / MultiEdit |
 | [`no-ssh-username-probing`](no-ssh-username-probing/RULE.md) | universal | Before SSH: confirm the exact username, try once, ask on failure — never loop candidate usernames (trips fail2ban → IP ban). Enforced by the `ssh-guard` hook |
@@ -60,7 +63,7 @@ The `setup/init-agent-harness` skill (P8) does this composition automatically ba
 | `ui-project` | Apply only to frontend / UI work |
 | `optional` | Don't auto-apply; the setup skill asks per project |
 
-The `setup/init-agent-harness` skill (P8) reads each rule's frontmatter `scope:` and offers it based on project type.
+The `setup/init-agent-config` skill (P8) reads each rule's frontmatter `scope:` and offers it based on project type.
 
 ## Adding a new rule
 

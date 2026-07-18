@@ -13,7 +13,7 @@
 In a new (or existing) project where you want to apply the `agent-harness` conventions:
 
 ```
-/init-agent-harness
+/init-agent-config
 ```
 
 The skill will ask about the project's type, language preferences, and which categories of tools to install, then compose the right subset of rules / hooks / skills / templates / tooling into the project.
@@ -24,8 +24,8 @@ For a fresh / empty directory, this fully scaffolds the project. For an existing
 
 | Skill | Purpose |
 |---|---|
-| [`init-agent-harness`](init-agent-harness/SKILL.md) | Compose a project's `CLAUDE.md` + `.claude/settings.json` + skills from selected categories. Asks about project type, language, context tags. |
+| [`init-agent-config`](init-agent-config/SKILL.md) | Compose a project's `CLAUDE.md` + `.claude/settings.json` + skills from selected categories. Asks about project type, language, context tags. |
 
 ## Adding a new setup skill
 
-If you build alternative setup flows (e.g., a custom-template-based variant), add them here under `setup/<skill-name>/SKILL.md`. Keep the core `init-agent-harness` skill intact — it's the canonical entry point.
+If you build alternative setup flows (e.g., a custom-template-based variant), add them here under `setup/<skill-name>/SKILL.md`. Keep the core `init-agent-config` skill intact — it's the canonical entry point.

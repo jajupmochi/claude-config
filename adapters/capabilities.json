@@ -1,0 +1,207 @@
+{
+  "_comment": [
+    "Detection signatures for harness capabilities: how to tell, from a session transcript, that a",
+    "capability ACTUALLY FIRED rather than merely being registered and deployed.",
+    "",
+    "Why this file exists. Three states get conflated and each one hides a different failure:",
+    "  registered  listed in manifest.source.json — means nothing at runtime",
+    "  deployed    the file is where the agent would look for it",
+    "  fired       something actually caused it to run",
+    "Rules sat registered and deployed for months without ever loading. code-verifier is deployed and",
+    "named in review-gate form 4, and unverified claims still went out repeatedly. A capability nothing",
+    "observes is a capability nobody can tell is broken.",
+    "",
+    "Signature kinds:",
+    "  skill    a Skill tool_use whose skill name matches `match`",
+    "  bash     a Bash tool_use whose command matches the `match` regex",
+    "  text     assistant output matching the `match` regex (proves a RESULT was produced, not just that",
+    "           a tool ran — the strongest evidence, and the only kind available for prompt-level rules)",
+    "  state    a file on disk whose presence proves the capability ran (hooks leave these)",
+    "",
+    "`enforcement` records how the capability is compelled to run, which is what decides whether a miss is",
+    "a defect or a judgment call:",
+    "  hook      a hook blocks or acts; a miss is a defect",
+    "  advisory  the model chooses; a miss may be legitimate under rules/native-capability-first",
+    "",
+    "Adding a capability is an edit here, not a code change.",
+    "Signature precision matters more than coverage. A pattern that matches a file being COMPILED, LINTED or merely NAMED reports a capability as fired when it never ran, which is worse than no detector at all: it manufactures confidence. Require the subcommand to follow the script, anchor with \\b, and remember that alternation binds the WHOLE pattern — 'a b|c' means '(a b)' or '(c)', not 'a (b|c)'."
+  ],
+  "capabilities": [
+    {
+      "id": "review-gate",
+      "label": "Enforced code review",
+      "enforcement": "hook",
+      "expect_when": "any turn that changed a code file",
+      "signatures": [
+        {
+          "kind": "text",
+          "match": "review-gate 审查"
+        },
+        {
+          "kind": "state",
+          "match": "~/.claude/review-state/{sid}.reviewed"
+        }
+      ]
+    },
+    {
+      "id": "task-ledger",
+      "label": "Round task document + Stop gate",
+      "enforcement": "hook",
+      "expect_when": "a round with more than about ten sub-tasks is open",
+      "signatures": [
+        {
+          "kind": "bash",
+          "match": "\\bledger\\.py\\s+(open|add|done|block|drop|triage|check|close|approvals|view|brief|status)\\b"
+        },
+        {
+          "kind": "state",
+          "match": ".agent/ledger/ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "code-verifier",
+      "label": "Fake-run detection before a completion claim",
+      "enforcement": "advisory",
+      "expect_when": "the turn claims tests pass, code works, or a result was produced",
+      "signatures": [
+        {
+          "kind": "skill",
+          "match": "code-verifier"
+        },
+        {
+          "kind": "text",
+          "match": "FAKE-RUN DETECTED|\\[FAKE-RUN"
+        }
+      ]
+    },
+    {
+      "id": "research-critic",
+      "label": "Six-question audit of a research claim",
+      "enforcement": "advisory",
+      "expect_when": "the turn states a comparative or empirical result",
+      "signatures": [
+        {
+          "kind": "skill",
+          "match": "research-critic"
+        },
+        {
+          "kind": "text",
+          "match": "RESEARCH CRITIC — FLAG|\\[RESEARCH CRITIC"
+        }
+      ]
+    },
+    {
+      "id": "doc-writing",
+      "label": "Document preferences + doccheck linter",
+      "enforcement": "advisory",
+      "expect_when": "the turn writes or edits a human-facing document",
+      "signatures": [
+        {
+          "kind": "skill",
+          "match": "doc-writing"
+        },
+        {
+          "kind": "bash",
+          "match": "\\bdoccheck\\.py\\s+\\S"
+        }
+      ]
+    },
+    {
+      "id": "prompt-library",
+      "label": "Reusable prompt corpus",
+      "enforcement": "advisory",
+      "expect_when": "a request resembles a scenario already in the library",
+      "signatures": [
+        {
+          "kind": "skill",
+          "match": "prompt-library"
+        },
+        {
+          "kind": "bash",
+          "match": "\\bplib\\.py\\s+(add|index|find|scan|mine)\\b"
+        }
+      ]
+    },
+    {
+      "id": "memory-flywheel",
+      "label": "Cross-session memory",
+      "enforcement": "advisory",
+      "expect_when": "a long or multi-session project",
+      "signatures": [
+        {
+          "kind": "skill",
+          "match": "memory-flywheel"
+        },
+        {
+          "kind": "bash",
+          "match": "\\bmem\\.py\\s+(record|recall|index|link)\\b"
+        }
+      ]
+    },
+    {
+      "id": "privacy-redact",
+      "label": "Privacy scan before publishing",
+      "enforcement": "advisory",
+      "expect_when": "the turn publishes, commits, or shares a document",
+      "signatures": [
+        {
+          "kind": "skill",
+          "match": "privacy-redact"
+        },
+        {
+          "kind": "bash",
+          "match": "plib\\.py\\s+scan\\b|privacy-redact"
+        }
+      ]
+    },
+    {
+      "id": "harness-feedback",
+      "label": "Harness mismatch filed for later repair",
+      "enforcement": "advisory",
+      "expect_when": "a harness feature was skipped because native ability was better",
+      "signatures": [
+        {
+          "kind": "bash",
+          "match": "\\bharness-feedback\\.mjs\\s+--\\S"
+        }
+      ]
+    },
+    {
+      "id": "rule-activation",
+      "label": "Registered rules verified reachable",
+      "enforcement": "advisory",
+      "expect_when": "rules were added, or a new agent was set up",
+      "signatures": [
+        {
+          "kind": "bash",
+          "match": "\\brule-activation\\.mjs\\s+--\\S"
+        }
+      ]
+    },
+    {
+      "id": "end-of-turn-marker",
+      "label": "Turn ends with an explicit state marker",
+      "enforcement": "advisory",
+      "expect_when": "every turn",
+      "signatures": [
+        {
+          "kind": "text",
+          "match": "\\[END:(FINAL|WAIT|NEEDS_USER)\\]"
+        }
+      ]
+    },
+    {
+      "id": "chinese-output",
+      "label": "Final user-facing output is Chinese",
+      "enforcement": "advisory",
+      "expect_when": "every turn",
+      "signatures": [
+        {
+          "kind": "text",
+          "match": "[\\u4e00-\\u9fff]"
+        }
+      ]
+    }
+  ]
+}

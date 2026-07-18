@@ -69,7 +69,7 @@ Add resource: agent-harness
 
 ### Description
 
-Curated Claude Code config library: 9 workflow rules (pre-edit confirmation, phased planning, plugin preflight, autonomous UI iteration loop with chrome-devtools, output brevity, tool proactivity, no-reread-files, chinese-output, bilingual-docs), 5 skills (verify-template, preview-template, long-running-tasks, verify-visual, privacy-redact), 2 hooks (ruff format-on-edit + jq JSON validity), 12 plugin/tool recommendation lists, and 2 project templates (Python research package + static personal site). Run `/init-agent-harness` post-install to scaffold any project with the matching subset.
+Curated Claude Code config library: 9 workflow rules (pre-edit confirmation, phased planning, plugin preflight, autonomous UI iteration loop with chrome-devtools, output brevity, tool proactivity, no-reread-files, chinese-output, bilingual-docs), 5 skills (verify-template, preview-template, long-running-tasks, verify-visual, privacy-redact), 2 hooks (ruff format-on-edit + jq JSON validity), 12 plugin/tool recommendation lists, and 2 project templates (Python research package + static personal site). Run `/init-agent-config` post-install to scaffold any project with the matching subset.
 
 Six install methods verified by a GitHub Actions install matrix: npx, /plugin interactive, /plugin install direct, local clone, raw URL @imports, copy-paste prompt. Privacy/secret scan workflow with gitleaks + custom patterns. Bilingual top-level docs, 4 meta-skills for self-extension.
 
@@ -109,7 +109,7 @@ The form fields (based on the official docs and example submissions) are typical
 | **License** | `MIT` |
 | **Category** | `Skills` (primary) — or `Tooling` if "Skills" doesn't fit |
 | **Tags / keywords** | `claude-code`, `skills`, `hooks`, `scaffold`, `config`, `workflow`, `rules`, `templates` |
-| **Short description** (one-liner) | `Curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Run /init-agent-harness to scaffold any project.` |
+| **Short description** (one-liner) | `Curated Claude Code configuration: workflow rules, skills, hooks, plugin recommendations, tooling preferences, and project templates. Run /init-agent-config to scaffold any project.` |
 | **Long description** | (Use the awesome-claude-code description from §1 above — it covers the same ground) |
 | **Documentation URL** | `https://github.com/jajupmochi/agent-harness#readme` |
 | **Issue tracker URL** | `https://github.com/jajupmochi/agent-harness/issues` |
@@ -196,7 +196,7 @@ npx github:jajupmochi/agent-harness
 npx agent-harness
 ```
 
-You should update `README.md` / `USAGE.md` to mention the new npm-registry path as preferred. (Or run `/init-agent-harness` in `~/.claude/agent-harness` and let CC do it for you.)
+You should update `README.md` / `USAGE.md` to mention the new npm-registry path as preferred. (Or run `/init-agent-config` in `~/.claude/agent-harness` and let CC do it for you.)
 
 ### Versioning going forward
 

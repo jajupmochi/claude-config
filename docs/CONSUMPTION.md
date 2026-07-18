@@ -1,6 +1,6 @@
 # Consumption
 
-> Three ways to use this library in a downstream project. Choose at `setup/init-agent-harness` time, or mix.
+> Three ways to use this library in a downstream project. Choose at `setup/init-agent-config` time, or mix.
 
 > **Language:** English | [中文](CONSUMPTION.zh.md)
 
@@ -51,7 +51,7 @@ Once Phase 10 ships `.claude-plugin/plugin.json`:
 /plugin install jajupmochi/agent-harness
 ```
 
-**Pros:** most native — exposes the setup skill as `/init-agent-harness` slash command, registers selected rules / hooks / skills automatically, marketplace-managed updates.
+**Pros:** most native — exposes the setup skill as `/init-agent-config` slash command, registers selected rules / hooks / skills automatically, marketplace-managed updates.
 
 **Cons:** only works after Phase 10. Adds an indirection; debugging "where does this rule come from" is one step harder.
 
@@ -74,4 +74,4 @@ You can combine. Common pattern:
 - **Per-project** `CLAUDE.md` uses **Option A** (raw URL) to import only the project-relevant subset (e.g. just the static-site rules).
 - **Once C ships**, swap one or both to plugin form for slash-command UX.
 
-The `setup/init-agent-harness` skill (Phase 8) writes the right form into a new project's `CLAUDE.md` based on the user's preference.
+The `setup/init-agent-config` skill (Phase 8) writes the right form into a new project's `CLAUDE.md` based on the user's preference.

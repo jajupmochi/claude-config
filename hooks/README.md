@@ -23,6 +23,8 @@ Verify the merge with `cat .claude/settings.json | jq .` (any error → fix synt
 
 ## Hook index
 
+7 hooks, matching `inventory.hooks` in [`adapters/manifest.source.json`](../adapters/manifest.source.json).
+
 | Hook | Event | Matcher | Context | Why |
 |---|---|---|---|---|
 | [`ruff-format-on-edit`](ruff-format-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | research-pkg / any Python project | Auto-format Python files after Claude edits them |
@@ -30,6 +32,8 @@ Verify the merge with `cat .claude/settings.json | jq .` (any error → fix synt
 | [`typecheck-on-edit`](typecheck-on-edit/README.md) | `PostToolUse` | `Write\|Edit` | frontend / any TypeScript project | After a `.ts(x)` edit: `prettier --write` then `tsc --noEmit`; type errors **exit 2** and block the turn. Ships `typecheck.sh` + tests |
 | [`block-env-read`](block-env-read/README.md) | `PreToolUse` | `Read` | any repo carrying secrets | Deny reading `.env` / `.env.*` / `*.env` so secrets stay out of the transcript (exit 2). Ships `block-env.sh` + tests |
 | [`ssh-guard`](ssh-guard/README.md) | `PreToolUse` | `Bash` | any project with SSH access to hosts | Block SSH username-probing — a 2nd distinct `user@host` in a short burst — the pattern that trips fail2ban and IP-bans you (and your human, via the shared egress IP). Same-user retries pass. Exit 2. Ships `ssh-guard.sh` + 13 tests |
+| [`review-gate`](review-gate/README.md) | `PostToolUse` + `Stop` + `PreToolUse` | `Write\|Edit`, `Bash` | any repo where an agent writes code | Un-skippable review of every code-changing turn, the layer skills and rules cannot cover because they are model discretion. T0 logs each changed file, T1 blocks the `Stop` until linters are clean and one review round has produced a Markdown report, T2 leaves `git commit` free but blocks remote publishing unless the project is on `push-whitelist.txt`. Every block is exit 2, so the agent keeps working on everything else |
+| [`task-ledger`](task-ledger/README.md) | `Stop` + `UserPromptSubmit` | — | any round with more than about ten sub-tasks | One task document per round, since the failure being fixed is the model's memory rather than its care. The `Stop` gate refuses to end the round while a task is open, a task is marked done without evidence, or a mid-run requirement is untriaged; the `UserPromptSubmit` capture records mid-round requirements before they can be forgotten |
 
 ## Adding a new hook
 

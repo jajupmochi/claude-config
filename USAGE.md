@@ -39,7 +39,7 @@ npx github:jajupmochi/agent-harness
 
 This runs [`bin/install.js`](https://github.com/jajupmochi/agent-harness/blob/main/bin/install.js) which:
 1. Clones the lib to `~/.claude/agent-harness/`
-2. Symlinks the `init-agent-harness` skill into `~/.claude/skills/` so `/init-agent-harness` becomes available globally
+2. Symlinks the `init-agent-config` skill into `~/.claude/skills/` so `/init-agent-config` becomes available globally
 3. Prints next steps
 
 To update later: `npx github:jajupmochi/agent-harness` again (it detects existing install and prints `git pull` instructions).
@@ -54,7 +54,7 @@ Browse the plugin marketplace and pick agent-harness:
 # Browse and install agent-harness
 ```
 
-After install, `/init-agent-harness` is available in any project.
+After install, `/init-agent-config` is available in any project.
 
 ### C) `/plugin install` direct (inside Claude Code)
 
@@ -73,8 +73,8 @@ For full manual control:
 ```bash
 git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness
 
-# Symlink the init skill so /init-agent-harness is available globally:
-ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness
+# Symlink the init skill so /init-agent-config is available globally:
+ln -s ~/.claude/agent-harness/setup/init-agent-config ~/.claude/skills/init-agent-config
 ```
 
 Update with `cd ~/.claude/agent-harness && git pull`.
@@ -87,7 +87,7 @@ You don't install anything. Instead, your project's `CLAUDE.md` has `@import` li
 @https://raw.githubusercontent.com/jajupmochi/agent-harness/main/rules/pre-edit-confirmation/snippet.md
 ```
 
-Always live, but requires network on session start. The `/init-agent-harness` slash command won't be available globally — you'd manually compose `CLAUDE.md` rather than using the scaffold skill.
+Always live, but requires network on session start. The `/init-agent-config` slash command won't be available globally — you'd manually compose `CLAUDE.md` rather than using the scaffold skill.
 
 ### F) Copy-paste prompt to Claude Code
 
@@ -96,16 +96,16 @@ Open Claude Code in any directory (no install needed). Paste this prompt verbati
 > Please install agent-harness from https://github.com/jajupmochi/agent-harness:
 >
 > 1. Run: `git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness`
-> 2. Run: `mkdir -p ~/.claude/skills && ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness`
-> 3. Confirm done and tell me to run `/init-agent-harness` in my project.
+> 2. Run: `mkdir -p ~/.claude/skills && ln -s ~/.claude/agent-harness/setup/init-agent-config ~/.claude/skills/init-agent-config`
+> 3. Confirm done and tell me to run `/init-agent-config` in my project.
 
 Or in Chinese:
 
 > 请帮我从 https://github.com/jajupmochi/agent-harness 安装 agent-harness：
 >
 > 1. 跑：`git clone https://github.com/jajupmochi/agent-harness.git ~/.claude/agent-harness`
-> 2. 跑：`mkdir -p ~/.claude/skills && ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness`
-> 3. 确认完成后告诉我在项目里跑 `/init-agent-harness`。
+> 2. 跑：`mkdir -p ~/.claude/skills && ln -s ~/.claude/agent-harness/setup/init-agent-config ~/.claude/skills/init-agent-config`
+> 3. 确认完成后告诉我在项目里跑 `/init-agent-config`。
 
 This works because Claude Code can execute shell commands and reads the GitHub URL from the prompt.
 
@@ -155,7 +155,7 @@ cd my-research-pkg
 claude
 
 # 3. Run the scaffold skill
-/init-agent-harness
+/init-agent-config
 ```
 
 When prompted, answer:
@@ -232,7 +232,7 @@ cd myhandle.github.io
 
 # 2. Open Claude Code + run scaffold
 claude
-/init-agent-harness
+/init-agent-config
 ```
 
 Answer:
@@ -306,7 +306,7 @@ You already have a working project. You want to retrofit it with `agent-harness`
 ```bash
 cd my-existing-project
 claude
-/init-agent-harness
+/init-agent-config
 ```
 
 The skill detects the existing project (has manifest files / has CLAUDE.md / has .git):
@@ -456,7 +456,7 @@ The `/publish` skill (under `.claude/skills/publish/SKILL.md`):
 
 ## Troubleshooting
 
-### `/init-agent-harness` not found
+### `/init-agent-config` not found
 
 The setup skill isn't in your CC environment yet:
 
@@ -464,7 +464,7 @@ The setup skill isn't in your CC environment yet:
 - **Local clone**: symlink the skill into `~/.claude/skills/`:
 
   ```bash
-  ln -s ~/.claude/agent-harness/setup/init-agent-harness ~/.claude/skills/init-agent-harness
+  ln -s ~/.claude/agent-harness/setup/init-agent-config ~/.claude/skills/init-agent-config
   ```
 
 - **Raw URL** (advanced): manual since SKILL.md isn't auto-loaded. Easier to clone or install the plugin.

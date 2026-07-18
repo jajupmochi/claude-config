@@ -10,7 +10,13 @@ IN="$(cat 2>/dev/null)"
 sid="$(printf '%s' "$IN" | jq -r '.session_id // empty' 2>/dev/null)"; [ -n "$sid" ] || sid="nosess"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
-reason="$(RG_STATE_DIR="$HOME/.claude/review-state" RG_SID="$sid" bash "$HERE/core.sh")"
+# RG_BRIEF_FILE keeps the ~3KB review brief OUT of the user's transcript. Claude Code renders a Stop
+# hook's reason string verbatim to the user, so the brief — which is instructions for the model, not a
+# message for the user — used to be dumped into their terminal on every code-changing turn. core.sh now
+# writes it to this file and returns a short pointer, which is what gets displayed.
+reason="$(RG_STATE_DIR="$HOME/.claude/review-state" RG_SID="$sid" \
+          RG_BRIEF_FILE="$HOME/.claude/review-state/$sid.brief.md" \
+          bash "$HERE/core.sh")"
 [ -n "$reason" ] || exit 0   # core decided no review is needed this turn => allow stop
 
 # Deliver the review. DEFAULT (stop_mode=block): `decision:"block"` — BLOCKS the stop to FORCE one review

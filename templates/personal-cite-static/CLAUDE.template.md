@@ -91,4 +91,4 @@ This project follows the workflow rules from [agent-harness](https://github.com/
 <!-- Option 3: Plugin install (P10+) — /plugin install jajupmochi/agent-harness -->
 ```
 
-The `setup/init-agent-harness` skill picks one option and uncomments.
+The `setup/init-agent-config` skill picks one option and uncomments.

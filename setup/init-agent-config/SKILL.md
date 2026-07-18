@@ -1,9 +1,9 @@
 ---
-name: init-agent-harness
+name: init-agent-config
 description: Scaffold a new project with the relevant subset of agent-harness rules, hooks, skills, recommendations, and templates. Asks about project type, language preferences, and context tags, then composes a project-specific CLAUDE.md, .claude/settings.json, and starter files. Use in a fresh or existing project to apply agent-harness conventions.
 ---
 
-# /init-agent-harness
+# /init-agent-config
 
 Compose `agent-harness` into a project — interactive scaffold that asks about project type and selects the right subset.
 
@@ -223,7 +223,7 @@ If anything fails, surface the error and ask the user how to proceed.
 Output something like:
 
 ```
-✓ /init-agent-harness complete
+✓ /init-agent-config complete
 
 Composed:
 - Project type: <selected>
@@ -241,7 +241,7 @@ Next steps:
 
 ## Idempotency
 
-If `/init-agent-harness` is run a second time in the same project:
+If `/init-agent-config` is run a second time in the same project:
 
 - Detect existing `CLAUDE.md` and `.claude/settings.json`
 - Ask: "merge new selections / overwrite / skip"

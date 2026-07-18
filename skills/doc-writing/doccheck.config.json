@@ -1,0 +1,137 @@
+{
+  "_about": "Config for scripts/doccheck.py (skills/doc-writing). Edit this file instead of the script: per-type required sections, the acronym stoplist, staleness markers, and type inference all live here so a non-coder can tune them. The 'rule' fields are consolidated-rule ids from the mined preference set and are quoted back in every finding. Secret patterns are deliberately NOT here - a document must not be able to weaken its own leak check by editing a config file.",
+
+  "acronym_stoplist": [
+    "API", "HTTP", "HTTPS", "JSON", "JSONL", "SQL", "CPU", "GPU", "RAM", "SSD", "URL", "URI",
+    "CLI", "GUI", "UI", "UX", "ID", "IDE", "PR", "CI", "CD", "HTML", "CSS", "XML", "YAML",
+    "CSV", "TSV", "PDF", "PNG", "JPG", "JPEG", "SVG", "GIF", "README", "SSH", "TLS", "SSL",
+    "DNS", "TCP", "UDP", "REST", "RPC", "CRUD", "ORM", "SDK", "MCP", "LLM", "OS", "VM",
+    "ENV", "DEV", "QA", "MVP", "ETA", "FAQ", "TOC", "EOF", "UTC", "ISO", "UUID", "JWT",
+    "CORS", "CDN", "NPM", "PYPI", "GIT", "ZIP", "TAR", "RFC", "SLA", "KPI", "ROI",
+    "CEO", "CTO", "AWS", "GCP",
+    "TODO", "TBD", "FIXME", "XXX", "WIP",
+    "NOT", "ALL", "ANY", "ONLY", "NEVER", "ALWAYS", "MUST", "AND", "THE", "NEW", "OLD",
+    "YES", "WARN", "INFO", "ERROR", "DEBUG", "PASS", "FAIL", "DONE", "NOTE", "TIP", "ETC"
+  ],
+
+  "secret_allowlist": [
+    "example.com",
+    "example.org",
+    "example.net",
+    "example.invalid",
+    "@example.",
+    "noreply@",
+    "user@host"
+  ],
+
+  "staleness_markers": [
+    "\\bTODO\\b",
+    "\\bTBD\\b",
+    "\\bFIXME\\b",
+    "\\bXXX\\b",
+    "(?i)\\bplaceholder\\b",
+    "待补充"
+  ],
+
+  "list_numbering": {
+    "max_dash_items": 3,
+    "exempt_under_headings": [
+      "master toc",
+      "toc",
+      "table of contents",
+      "contents",
+      "目录"
+    ]
+  },
+
+  "sections": {
+    "verification": {
+      "label": "verification (how each claim was proven, and how a tester re-proves it)",
+      "rule": "B2",
+      "rank": "#3",
+      "patterns": [
+        "(?i)verif",
+        "(?i)validat",
+        "(?i)how (to|do i|do you|do we) (re-?)?(test|check|prove)",
+        "(?i)self-?check",
+        "(?i)evidence",
+        "(?i)acceptance",
+        "验证",
+        "测试"
+      ]
+    },
+    "remaining-tasks": {
+      "label": "remaining tasks / future work (highlighted, each deferred item carrying its risk)",
+      "rule": "B18",
+      "rank": "#9",
+      "patterns": [
+        "(?i)remaining",
+        "(?i)future",
+        "(?i)next steps?",
+        "(?i)open (items?|questions?)",
+        "(?i)follow[- ]?ups?",
+        "(?i)backlog",
+        "(?i)known (gaps?|issues?|limitations?)",
+        "(?i)not (yet )?done",
+        "剩余",
+        "后续",
+        "未来",
+        "待办",
+        "下一步"
+      ]
+    }
+  },
+
+  "types": {
+    "spec": {
+      "about": "design / architecture document",
+      "require_mermaid": true,
+      "required_sections": ["verification", "remaining-tasks"]
+    },
+    "manual": {
+      "about": "feature manual plus the in-app guide it pairs with",
+      "require_mermaid": true,
+      "required_sections": ["verification"]
+    },
+    "report": {
+      "about": "audit, bug fix, or test results",
+      "require_mermaid": false,
+      "required_sections": ["verification", "remaining-tasks"]
+    },
+    "plan": {
+      "about": "plan written before execution",
+      "require_mermaid": true,
+      "required_sections": ["remaining-tasks"]
+    },
+    "readme": {
+      "about": "repository entry point",
+      "require_mermaid": false,
+      "required_sections": []
+    },
+    "release-notes": {
+      "about": "what shipped in a batch",
+      "require_mermaid": false,
+      "required_sections": []
+    },
+    "handoff": {
+      "about": "session handoff for the next agent or person",
+      "require_mermaid": false,
+      "required_sections": []
+    },
+    "generic": {
+      "about": "fallback when the type is unknown - universal checks only",
+      "require_mermaid": false,
+      "required_sections": []
+    }
+  },
+
+  "type_inference": [
+    { "pattern": "(?i)^handoff", "type": "handoff" },
+    { "pattern": "(?i)^readme", "type": "readme" },
+    { "pattern": "(?i)(release[-_ ]?notes|changelog)", "type": "release-notes" },
+    { "pattern": "(?i)(report|audit|bugfix|bug[-_ ]?fix|test[-_ ]?results)", "type": "report" },
+    { "pattern": "(?i)(manual|guide|tutorial|手册|引导)", "type": "manual" },
+    { "pattern": "(?i)(^|[-_ ])(plan|roadmap)", "type": "plan" },
+    { "pattern": "(?i)(spec|design|architecture)", "type": "spec" }
+  ]
+}

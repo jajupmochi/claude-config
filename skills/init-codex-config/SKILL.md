@@ -6,7 +6,7 @@ description: Scaffold or migrate a project to use agent-harness from Codex. Use 
 # init-codex-config
 
 Apply `agent-harness` to a project for Codex. This is the Codex counterpart to
-`setup/init-agent-harness/SKILL.md`; read that source skill before adapting a
+`setup/init-agent-config/SKILL.md`; read that source skill before adapting a
 project, then translate only the selected pieces into Codex surfaces.
 
 ## Preflight
@@ -17,7 +17,7 @@ project, then translate only the selected pieces into Codex surfaces.
    - `../../docs/CODEX_ADAPTATION_PLAN.md`
    - `../../INVENTORY.md`
    - `../../rules/README.md`
-   - `../../setup/init-agent-harness/SKILL.md`
+   - `../../setup/init-agent-config/SKILL.md`
 3. Inspect the target project for existing `AGENTS.md`, `.codex/`,
    `.agents/skills`, `.claude/`, `CLAUDE.md`, package manifests, and Git
    status.

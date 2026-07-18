@@ -50,6 +50,59 @@ out="$(run_core "$T" s5)"
 out="$(RG_SID=x bash "$CORE" 2>/dev/null)"; rc=$?
 chk "missing RG_STATE_DIR -> non-zero, empty stdout" "${rc}:${out:-EMPTY}" "1:EMPTY"
 
+# 7. REGRESSION: RG_BRIEF_FILE keeps the brief OUT of the reason.
+#    Before the fix the whole ~3KB brief was the Stop reason, and Claude Code renders that verbatim into
+#    the user's terminal, so every code-changing turn dumped the internal review forms into their
+#    transcript. The brief must now go to a file and stdout must carry only a short pointer.
+T="$(mktemp -d)"; mkdir -p "$T/state" "$T/work"
+printf 'package p\nfunc H() {}\n' > "$T/work/c.go"; echo "$T/work/c.go" > "$T/state/s7.changed"
+brief="$T/state/s7.brief.md"
+out="$(RG_STATE_DIR="$T/state" RG_SID=s7 RG_BRIEF_FILE="$brief" bash "$CORE")"
+[ -n "$out" ] && r=yes || r=no; chk "brief mode: still blocks (non-empty stdout)" "$r" "yes"
+[ "$(printf '%s' "$out" | wc -c)" -lt 600 ] && r=yes || r=no
+chk "brief mode: reason is short (<600 bytes)" "$r" "yes"
+printf '%s' "$out" | grep -q "Review forms and tools" && r=no || r=yes
+chk "brief mode: the forms list is NOT in the reason" "$r" "yes"
+printf '%s' "$out" | grep -q "Present your review IN CHINESE" && r=no || r=yes
+chk "brief mode: the presentation boilerplate is NOT in the reason" "$r" "yes"
+printf '%s' "$out" | grep -qF "$brief" && r=yes || r=no
+chk "brief mode: reason names the brief file" "$r" "yes"
+[ -s "$brief" ] && r=yes || r=no; chk "brief mode: brief file written and non-empty" "$r" "yes"
+grep -q "Review forms and tools" "$brief" && r=yes || r=no
+chk "brief mode: the full forms survive in the file" "$r" "yes"
+grep -q "Per-function/module AI review" "$brief" && r=yes || r=no
+chk "brief mode: form 12 survives in the file" "$r" "yes"
+
+# 8. Backward compatibility: with RG_BRIEF_FILE unset the output must be unchanged, because core.sh is
+#    shared with the Codex and opencode shims which have not opted in.
+T="$(mktemp -d)"; mkdir -p "$T/state" "$T/work"
+printf 'package p\nfunc I() {}\n' > "$T/work/d.go"; echo "$T/work/d.go" > "$T/state/s8.changed"
+out="$(run_core "$T" s8)"
+printf '%s' "$out" | grep -q "Review forms and tools" && r=yes || r=no
+chk "no RG_BRIEF_FILE -> full inline brief (unchanged behaviour)" "$r" "yes"
+
+# 9. Fail-safe: an unwritable brief path must fall back to the FULL inline brief, never to silence.
+#    Degrading toward more enforcement is correct; losing the review would not be.
+T="$(mktemp -d)"; mkdir -p "$T/state" "$T/work"
+printf 'package p\nfunc J() {}\n' > "$T/work/e.go"; echo "$T/work/e.go" > "$T/state/s9.changed"
+out="$(RG_STATE_DIR="$T/state" RG_SID=s9 RG_BRIEF_FILE=/proc/nope/nope/brief.md bash "$CORE" 2>/dev/null)"
+printf '%s' "$out" | grep -q "Review forms and tools" && r=yes || r=no
+chk "unwritable brief path -> falls back to full inline brief" "$r" "yes"
+
+# 10. REGRESSION: a path containing a space must stay splittable in the changed-files list.
+#     It used to be space-joined (`tr '\n' ' '`), so the reader could not tell where one path ended and
+#     the next began. This harness's own checkout lives under "New Volume1", so the bug was live here.
+T="$(mktemp -d)"; mkdir -p "$T/state" "$T/work dir"
+printf 'package p\nfunc L() {}\n' > "$T/work dir/f.go"
+printf 'package p\nfunc M() {}\n' > "$T/work/plain.go" 2>/dev/null || mkdir -p "$T/work" && printf 'package p\nfunc M() {}\n' > "$T/work/plain.go"
+printf '%s\n' "$T/work dir/f.go" "$T/work/plain.go" > "$T/state/s10.changed"
+out="$(run_core "$T" s10)"
+# `--` is required: the pattern starts with "- ", and grep (ugrep here) otherwise parses it as an option.
+printf '%s' "$out" | grep -qF -- "- $T/work dir/f.go" && r=yes || r=no
+chk "space-containing path is listed on its own line" "$r" "yes"
+n="$(printf '%s' "$out" | sed -n '/^\*\*Changed files:\*\*/,/^\*\*Review forms/p' | grep -c '^- ')"
+chk "  exactly 2 changed-file entries, not 3 from a split path" "$n" "2"
+
 echo
 if [ "$fail" -eq 0 ]; then echo "core.sh: all $pass checks PASS"; else echo "core.sh: $fail FAIL / $pass pass"; fi
 [ "$fail" -eq 0 ]

@@ -1,0 +1,41 @@
+{
+  "_comment": [
+    "Per-agent and per-model behaviour for the task ledger. Copy to <project>/.agent/ledger/profiles.json.",
+    "Keys here override the built-in defaults in ledger.py; anything you omit falls back to the built-in.",
+    "This file is the evolution point: a new agent or a new model tier is an edit here, not a code change.",
+    "",
+    "view          'full' renders the whole ledger; 'compact' renders only open work plus a settled roll-up.",
+    "enforce       whether the Stop gate blocks for this profile.",
+    "brief_includes  which sections a sub-agent brief carries. Ordered by how much context the model can",
+    "              afford: 'verbatim' (the user's own words) and 'acceptance' are the two that should",
+    "              survive every budget; 'detail' and 'siblings' are what you drop first."
+  ],
+
+  "claude-code": {
+    "view": "full",
+    "enforce": true,
+    "brief_includes": ["verbatim", "detail", "acceptance", "siblings"],
+    "note": "Large context: the whole ledger fits, and sub-agent briefs can afford sibling context."
+  },
+
+  "codex": {
+    "view": "full",
+    "enforce": true,
+    "brief_includes": ["verbatim", "detail", "acceptance"],
+    "note": "Codex Stop hooks use the {continue,stopReason,systemMessage} schema, not {decision}. See scripts/codex_task_ledger.sh."
+  },
+
+  "opencode": {
+    "view": "compact",
+    "enforce": true,
+    "brief_includes": ["verbatim", "detail", "acceptance"],
+    "note": "Enforced through the opencode plugin API rather than a shell hook."
+  },
+
+  "small-context": {
+    "view": "compact",
+    "enforce": true,
+    "brief_includes": ["verbatim", "acceptance"],
+    "note": "For models where the full ledger would crowd out the work. Open tasks only; briefs keep the user's words and the acceptance bar and drop everything else."
+  }
+}

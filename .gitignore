@@ -39,3 +39,6 @@ __pycache__/
 # Node (in case templates are exercised in-repo)
 node_modules/
 .npm/
+
+# task-ledger round state — per-project runtime, not source
+.agent/

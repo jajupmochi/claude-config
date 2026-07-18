@@ -47,11 +47,14 @@
     "rules/parity-restoration",
     "rules/commit-discipline",
     "rules/root-cause-before-fix",
-    "rules/fallback-discipline"
+    "rules/fallback-discipline",
+    "rules/no-ssh-username-probing",
+    "rules/native-capability-first"
   ],
   "templates": [
     "templates/research-package-py",
-    "templates/personal-cite-static"
+    "templates/personal-cite-static",
+    "templates/actions-frugal-ci"
   ],
   "recommendations": [
     "recommendations/cc-plugins.md",
@@ -70,7 +73,11 @@
     "recommendations/cluster-hpc.md",
     "recommendations/reference-projects.md",
     "recommendations/reference/apt-packages.md",
-    "recommendations/reference/vscode-extensions.md"
+    "recommendations/reference/vscode-extensions.md",
+    "recommendations/github-actions-frugality.md",
+    "recommendations/tui-for-agents.md",
+    "recommendations/codex-marketplaces.md",
+    "recommendations/codex-plugins.md"
   ],
   "tooling": [
     "tooling/python-uv-ruff",

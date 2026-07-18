@@ -1,0 +1,16 @@
+# task-ledger configuration.
+#
+# Lookup order (first file that defines a key wins):
+#   1. <project>/.agent/ledger/task-ledger.conf     — per project
+#   2. $HOME/.claude/hooks/task-ledger/task-ledger.conf — machine default
+#
+# Copy this file to one of those paths and edit.
+
+# Master switch. 0 disables the Stop gate without uninstalling the hook. Capture keeps running, so
+# mid-round requirements are still recorded even while enforcement is off.
+enabled=1
+
+# Consecutive blocks before the gate degrades from a hard block to a warning. The honest escape is always
+# available (`ledger.py block <TID> --reason '...'`), so a run of blocks means the agent is stuck rather
+# than working. When the guard trips, the round is reported as NOT complete — it is never reported as done.
+max_rounds=6

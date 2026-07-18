@@ -1,0 +1,45 @@
+# lefthook — the same two local tiers, but managed in the repository rather than
+# in each developer's .git/hooks. A fresh clone gets them from `lefthook install`,
+# which is the difference between a policy and a suggestion.
+#
+# lefthook is a single Go binary with no Node or Python requirement, which matters
+# in a repository that mixes languages. Install:
+#   npm i -D lefthook && npx lefthook install
+#   # or: brew install lefthook / go install github.com/evilmartians/lefthook@latest
+#   # then: lefthook install
+#
+# Alternatives, both fine:
+#   pre-commit (Python, the widest catalogue of ready-made hooks, isolates each
+#     hook's runtime) — https://pre-commit.com
+#   husky + lint-staged (Node only, the most common setup in JS repositories)
+#     — https://typicode.github.io/husky/
+
+# Commit tier: seconds, staged files only.
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "<FORMATTABLE_GLOB>"
+      run: <FORMAT_CMD> {staged_files}
+      stage_fixed: true # restage whatever the formatter rewrote
+    lint-staged:
+      glob: "<LINTABLE_GLOB>"
+      run: <LINT_STAGED_CMD> {staged_files}
+
+# Push tier: the checks the remote fast tier would run. Keep it under 90 seconds.
+pre-push:
+  parallel: false # a failure should be readable, not interleaved
+  commands:
+    lint:
+      run: <LINT_CMD>
+    types:
+      run: <TYPECHECK_CMD>
+    unit-tests:
+      run: <UNIT_TEST_CMD>
+    actions-budget:
+      # Advisory. Swap in `--fail-on warn` once the workflows are clean, so a
+      # regression in workflow configuration cannot land unnoticed.
+      run: node scripts/actions-budget.mjs .
+      skip:
+        - merge
+        - rebase

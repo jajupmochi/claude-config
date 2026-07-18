@@ -1,0 +1,88 @@
+# Tier 2 — the minimum that has to run on GitHub's runners.
+#
+# Design notes, each one a lever the budget check looks for:
+#   * push is filtered to the default branch. Without a branch filter, every push
+#     to a PR branch starts this workflow twice, once for push and once for
+#     pull_request.
+#   * concurrency cancels superseded PR runs but never cancels a run on the
+#     default branch, which may be publishing something.
+#   * there is no workflow-level paths filter. GitHub is explicit that a workflow
+#     skipped by a paths filter leaves its required check Pending forever, which
+#     blocks the merge. A job skipped by an `if:` reports Success instead, so the
+#     docs-only skip below is done with a job gate rather than a paths filter.
+#     https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks
+#   * every runner is Linux. macOS bills roughly 10x and Windows roughly 1.7x per
+#     minute. https://docs.github.com/en/billing/reference/actions-runner-pricing
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [<DEFAULT_BRANCH>]
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Cancel superseded pull request runs. Never cancel a default-branch run.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # Roughly ten seconds of work, billed as one minute, that lets a docs-only pull
+  # request skip the suite while still reporting Success on the required check.
+  # Delete this job and the `needs`/`if` on `fast` if you would rather always run.
+  changes:
+    name: detect source changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      src: ${{ steps.filter.outputs.src }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - id: filter
+        # Context values go through env rather than straight into the script.
+        # Interpolating ${{ }} into a run block is a script injection surface.
+        # https://docs.github.com/en/actions/reference/security/secure-use
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+          SRC_PATTERN: <SOURCE_PATH_REGEX>
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZERO=0000000000000000000000000000000000000000
+          if [ "$EVENT" = "pull_request" ] && [ -n "$BASE_SHA" ]; then
+            changed=$(git diff --name-only "$BASE_SHA...$HEAD_SHA")
+          elif [ -n "${BEFORE_SHA:-}" ] && [ "$BEFORE_SHA" != "$ZERO" ]; then
+            changed=$(git diff --name-only "$BEFORE_SHA" "$HEAD_SHA")
+          else
+            # New branch, merge group, or manual run: no usable base, so run everything.
+            changed=$(git ls-files)
+          fi
+          echo "changed files:"
+          printf '%s\n' "$changed" | sed 's/^/  /'
+          if printf '%s\n' "$changed" | grep -Eq "$SRC_PATTERN"; then
+            echo "src=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "src=false" >> "$GITHUB_OUTPUT"
+            echo "no source paths touched, skipping the check suite"
+          fi
+
+  fast:
+    name: fast checks
+    needs: [changes]
+    # A skipped job reports Success, so a required check on `fast` stays satisfied.
+    if: >-
+      needs.changes.outputs.src == 'true' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
+    uses: ./.github/workflows/_checks.reusable.yml
+    with:
+      depth: fast
+      runner: ubuntu-latest

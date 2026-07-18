@@ -17,7 +17,7 @@ Branch: `fix/codex-runtime-adapter`
 | Area | Current items | Claude-specific behavior | Codex adaptation |
 |---|---:|---|---|
 | Plugin manifest | `.claude-plugin/plugin.json` | Claude Code plugin manifest | Add separate `.codex-plugin/plugin.json`; do not change Claude manifest semantics. |
-| Setup skill | `setup/init-agent-harness` | Generates `CLAUDE.md`, `.claude/settings.json`, `.claude/skills` | Add `init-codex-config` wrapper that generates `AGENTS.md`, `.codex/hooks.json`, and `.agents/skills` guidance. |
+| Setup skill | `setup/init-agent-config` | Generates `CLAUDE.md`, `.claude/settings.json`, `.claude/skills` | Add `init-codex-config` wrapper that generates `AGENTS.md`, `.codex/hooks.json`, and `.agents/skills` guidance. |
 | General skills | 20 tested user links | Some tool names and workflows assume Claude Code | Install an explicit name-to-source map under `~/.agents/skills`; keep plugin skills as an additional discovery surface. |
 | Workflow rules | 16 in inventory | Rules target `CLAUDE.md` imports and Claude Code editing conventions | Keep source rules; expose through Codex setup as AGENTS.md guidance and through `agent-config-adapter`. |
 | Hook recipes | 3 commands | `.claude/settings.json`, matcher `Write|Edit`, Claude hook stdin fields | Keep root `hooks.json` as a source template and render absolute commands into user or project Codex hooks. |
@@ -52,7 +52,7 @@ Local validator findings:
 
 Use one branch and one repository, with agent-specific entrypoints:
 
-- Claude Code keeps `.claude-plugin/`, `CLAUDE.md`, `setup/init-agent-harness`, `.claude/skills`, and Claude hook snippets.
+- Claude Code keeps `.claude-plugin/`, `CLAUDE.md`, `setup/init-agent-config`, `.claude/skills`, and Claude hook snippets.
 - Codex gets `.codex-plugin/` for policy-installed plugin skills; an explicit 20-skill user set; `codex/` user guidance and custom Agents; and root `hooks.json` rendered to absolute user/project commands.
 - Shared knowledge stays in `rules/`, `recommendations/`, `tooling/`, `templates/`, and source skill bodies.
 

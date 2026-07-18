@@ -1,0 +1,70 @@
+# Tier 3 — the expensive suite. It does not run on an ordinary pull request.
+#
+# It runs when one of these is true:
+#   * someone adds the <HEAVY_LABEL> label to a pull request,
+#   * the change lands on the default branch,
+#   * the weekly schedule fires,
+#   * someone dispatches it by hand.
+#
+# Do NOT mark these jobs as required checks. They are deliberately skippable, and
+# a required check that is skipped by a paths filter blocks the merge.
+#
+# The label trigger works because the workflow starts on every `labeled` event and
+# then the job-level `if:` skips the work when the label is not the one we want.
+# A skipped job never gets a runner, so the non-matching case costs nothing.
+name: Heavy suite
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
+    paths:
+      - "<SOURCE_PATHS>"
+  push:
+    branches: [<DEFAULT_BRANCH>]
+    paths:
+      - "<SOURCE_PATHS>"
+  schedule:
+    # Weekly, not nightly. A nightly full suite costs about 4x a weekly one and
+    # on a repository with few merges it mostly re-tests an unchanged tree.
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "Runner label. Only leave Linux when the change is platform specific."
+        type: choice
+        default: ubuntu-latest
+        options: [ubuntu-latest, macos-latest, windows-latest]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  full:
+    name: full suite
+    if: >-
+      github.event_name != 'pull_request' ||
+      contains(github.event.pull_request.labels.*.name, '<HEAVY_LABEL>')
+    uses: ./.github/workflows/_checks.reusable.yml
+    with:
+      depth: full
+      runner: ${{ inputs.runner || 'ubuntu-latest' }}
+
+  # Cross-platform coverage, on the default branch and the schedule only. Running
+  # this matrix on every pull request is the single most expensive mistake in a
+  # small repository: one macOS job bills about 10 Linux minutes per minute.
+  # https://docs.github.com/en/billing/reference/actions-runner-pricing
+  platforms:
+    name: platforms (${{ matrix.os }})
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    strategy:
+      fail-fast: true # stop the siblings as soon as one fails, rather than paying for all of them
+      matrix:
+        os: [macos-latest, windows-latest]
+    uses: ./.github/workflows/_checks.reusable.yml
+    with:
+      depth: fast
+      runner: ${{ matrix.os }}

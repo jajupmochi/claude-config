@@ -34,8 +34,8 @@ done)"
 
 rounds="$(cat "$rnd" 2>/dev/null)"; case "$rounds" in ''|*[!0-9]*) rounds=0;; esac
 if [ "$rounds" -ge "$MAX_ROUNDS" ]; then
-  printf '[review-gate] max review rounds (%s) reached; allowing stop. Review manually: %s\n' \
-    "$MAX_ROUNDS" "$(printf '%s' "$files" | tr '\n' ' ')" >&2
+  printf '[review-gate] max review rounds (%s) reached; allowing stop. Review these manually:\n%s\n' \
+    "$MAX_ROUNDS" "$(printf '%s' "$files" | sed 's/^/  /')" >&2
   : > "$log"; rm -f "$rnd" "$rev"; exit 0
 fi
 
@@ -85,12 +85,17 @@ done <<EOF
 $files
 EOF
 
-flist="$(printf '%s' "$files" | tr '\n' ' ')"
+# One path per line, not space-joined. A space-joined list is unsplittable the moment a path contains a
+# space, and this harness's own checkout lives under "New Volume1" — so the reader could not tell where
+# one changed file ended and the next began. Newlines are the only separator a path cannot contain.
+flist="$(printf '%s' "$files" | sed 's/^/- /')"
 rounds=$((rounds + 1)); printf '%s' "$rounds" > "$rnd"; touch "$rev"
 
 reason="## review-gate: automatic review of this turn's code
 
-**Changed files:** $flist
+**Changed files:**
+
+$flist
 
 **Review forms and tools** (numbered so each is identifiable):
 
@@ -106,7 +111,9 @@ reason="## review-gate: automatic review of this turn's code
 10. **Robustness / adversarial inputs** (form: edge cases — a GitHub-Copilot-recurring miss) — quoting & embedded spaces, regex metacharacters in interpolated values, path assumptions (trailing slash, un-escaped names), boundary/empty inputs, and stale state an early-exit or error branch leaves behind for other components.
 11. **Bug fix → regression test** (rule: \`regression-test-on-bugfix\`) — if this turn FIXES a bug, is there a NEW test that REPRODUCES it (would fail on the pre-fix code, passes now)? A behavioral bug fix without a red→green regression test that locks the bug out is NOT done — add one or state why it's genuinely untestable."
 
+nforms=11
 if [ "$has_module" = "yes" ]; then
+  nforms=12
   reason="$reason
 12. **Per-function/module AI review** (DEFAULT ON) — a minimal function/module changed this turn; review EACH changed function/module individually (correctness, contract/inputs-outputs, side effects)."
 fi
@@ -120,20 +127,67 @@ fi
 reason="$reason
 
 **Present your review IN CHINESE** (unless the project is English-language), in its OWN block fenced by a
-THICK \`━\` bar — a bounded \`━\` bar on its own line, then \`**review-gate 审查**\` on its own line, then a
-\`━\` bar, then the bullets, then a closing \`━\` bar — NOT inline \`━━━ kw ━━━\` (wraps badly on a phone),
-NOT raw text sprawling after your summary. Use **bold-keyed bullets**, one per changed function/module
-(the file + unit in **bold**, then \`维度 — 结论\`); if there are **more than 3**, NUMBER them \`1. 2. 3. …\`
-so each is identifiable. e.g.:
+THICK \`━\` bar. Open it with a markdown HEADING, not a bold line: a terminal markdown renderer colours
+headings, and colour is what makes the block findable when scrolling back through a long turn. So: a
+bounded \`━\` bar on its own line, then \`## 🔍 review-gate 审查\` on its own line, then a \`━\` bar, then
+the body, then a closing \`━\` bar. NOT inline \`━━━ kw ━━━\` (wraps badly on a phone), NOT raw text
+sprawling after your summary.
+
+**The body is a MARKDOWN TABLE, one row per changed function/module — never prose bullets.** Prose at this
+density is unreadable. Keep every cell to one short clause and push anything longer into the numbered
+notes under the table, referenced by row number. Blank line before and after the table, and keep the
+\`|---|\` separator row, or it will not render.
+
+Lead with the counts as a bar, generated (do not hand-draw it):
+\`\`\`bash
+bash \"\$HOME/.claude/hooks/review-gate/statsbar.sh\" --format md --title '本回合审查' --unit 项 \\
+  --stat '无问题:N:green' --stat '已修:N:yellow' --stat '待修:N:red'
+\`\`\`
+
+Full shape:
 \`\`\`md
 ━━━━━━━━━━━━━━━━
-**review-gate 审查**
+## 🔍 review-gate 审查
+
 ━━━━━━━━━━━━━━━━
-- **track.sh / parse_input()**：logic — OK
-- **foo.py / load()**：test-gap — 问题:空输入无测试 → 待修
+
+<statsbar output here>
+
+| # | 文件 / 单元 | 维度 | 结论 |
+|---|---|---|---|
+| 1 | \`track.sh\` / \`parse_input()\` | logic | ✅ OK |
+| 2 | \`foo.py\` / \`load()\` | test-gap | ⚠️ 待修 — 空输入无测试 |
+| 3 | \`bar.sh\` / \`flist\` | robustness | 🔧 已修 — 空格路径不可切分 |
+
+详注(仅展开需要解释的行):
+
+2. …
+3. …
 ━━━━━━━━━━━━━━━━
 \`\`\`
 先修真实问题再收尾。(review-gate 每个改代码的回合都跑,不可跳过。)"
+
+# Delivery split. The brief above is INSTRUCTIONS FOR THE MODEL, but a Stop hook's reason string is
+# rendered verbatim into the user's terminal, so sending the whole thing that way dumps ~3KB of internal
+# review forms into their transcript on every code-changing turn. Long blocks also re-render badly in the
+# CLI, splicing one form's tail into the next, which is what makes the dump look corrupted.
+#
+# With RG_BRIEF_FILE set, the brief goes to that file and stdout carries a short pointer to it. Enforcement
+# is untouched: the caller still blocks on non-empty stdout. With it unset the previous behaviour is byte
+# for byte identical, so the Codex and opencode shims keep working until they opt in.
+#
+# If the write fails we fall back to the full inline brief. Losing the review would be a worse outcome
+# than a noisy transcript, so the failure mode degrades toward MORE enforcement, not less.
+if [ -n "${RG_BRIEF_FILE:-}" ] \
+   && mkdir -p "$(dirname "$RG_BRIEF_FILE")" 2>/dev/null \
+   && printf '%s\n' "$reason" > "$RG_BRIEF_FILE" 2>/dev/null; then
+  nfiles="$(printf '%s' "$files" | grep -c . 2>/dev/null || echo 0)"
+  printf '## review-gate: review required — %s changed file(s)\n\n' "$nfiles"
+  printf 'Read the full brief and follow it:\n\n    %s\n\n' "$RG_BRIEF_FILE"
+  printf 'It lists the changed files, the %s review forms, and the required output format.\n' "$nforms"
+  printf 'Present the review in Chinese in its own `━`-fenced block. Fix real problems before finishing.\n'
+  exit 0
+fi
 
 printf '%s' "$reason"
 exit 0
