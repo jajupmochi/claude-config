@@ -133,6 +133,9 @@ Autorun is a loop that recovers, not a script that halts on the first non-zero e
 
 ## Reporting
 
+- **Any report carrying task counts links the round document.** Print the absolute path from
+  `ledger.py path` as a clickable link. Numbers the reader cannot open are numbers they have to trust,
+  and a tracker nobody opens looks broken even when it is working.
 - **Progress reports at natural breakpoints** — every five to eight substantive tool calls, at a phase
   boundary, or after an audit. Each says what got done, what is next, and what got parked.
 - **Parked items appear in progress reports but never pause the run.** Mark them plainly so the user can

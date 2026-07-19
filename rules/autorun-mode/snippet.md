@@ -29,7 +29,7 @@ Only three things still stop you mid-run: an irreversible destructive action you
 - Audit reports go to disk under `docs/strategy/AUDIT_REPORT_<date>.md` — findings kept only in chat are lost at the next compaction.
 - Verify before any "done" / "passing" / "shipping" claim.
 
-**Reporting**: progress report every 5-8 substantive tool calls — done / next / parked. Parked items appear in reports but never pause the run. The final report carries the approval batch: completed with evidence, parked and awaiting you, dropped with reasons, suggested next passes.
+**Reporting**: any report with task counts links the round document (`ledger.py path`, absolute + clickable). Progress report every 5-8 substantive tool calls — done / next / parked. Parked items appear in reports but never pause the run. The final report carries the approval batch: completed with evidence, parked and awaiting you, dropped with reasons, suggested next passes.
 
 **Self-resilience**: runs beyond ~30 min arm `ScheduleWakeup` or the `loop` skill (default 1800s). Long commands go background (`run_in_background: true`) paired with `Monitor`. Work on `feat/<topic>-<date>`, never `main`. Write memories as insights land, not at the end.
 

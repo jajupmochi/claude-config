@@ -631,8 +631,20 @@ def cmd_status(a):
         }, ensure_ascii=False, indent=2))
     else:
         print(f"{led.title} — {led.status_line().replace('**', '')}")
+        print(f"  {led.path.resolve()}")
         for b in led.blockers():
             print(f"  open: {b}")
+    return 0
+
+
+def cmd_path(a):
+    """Absolute path of the active round document, for embedding as a clickable link in a summary."""
+    try:
+        led = load_active()
+    except NoActiveRound:
+        print("no active round", file=sys.stderr)
+        return 1
+    print(led.path.resolve())
     return 0
 
 
@@ -651,7 +663,7 @@ def cmd_check(a):
         print(f"round '{led.title}' is complete: {led.status_line().replace('**', '')}")
         return 0
     print(f"ROUND NOT COMPLETE — {led.title}")
-    print(f"Ledger: {led.path}")
+    print(f"Ledger: {led.path.resolve()}")
     print("")
     print("These must be settled before this round can end:")
     for b in blockers:
@@ -758,6 +770,9 @@ def build_parser():
     st = sub.add_parser("status", help="summary of the active round")
     st.add_argument("--json", action="store_true")
     st.set_defaults(fn=cmd_status)
+
+    pa = sub.add_parser("path", help="absolute path of the active round document")
+    pa.set_defaults(fn=cmd_path)
 
     ck = sub.add_parser("check", help="exit 2 if the round cannot close yet")
     ck.set_defaults(fn=cmd_check)

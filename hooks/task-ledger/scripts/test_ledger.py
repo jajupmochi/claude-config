@@ -213,5 +213,19 @@ pb = run(root, "brief", "T1", expect=0).stdout
 assert "## Acceptance" in pb and "Sibling" not in pb, "profiles.json narrowed the brief"
 ok("profiles.json: overrides the built-in profile without a code change")
 
+# 19. `path` gives an absolute path a summary can link to, and says so plainly when there is no round.
+run(root, "open", "--title", "Path test", "--task", "a|b", expect=0)
+out = run(root, "path", expect=0).stdout.strip()
+assert out.startswith("/"), f"path must be absolute, got {out!r}"
+assert out.endswith(".md") and "path-test" in out, out
+assert Path(out).exists(), "the path must point at a file that exists"
+assert out in run(root, "status", expect=0).stdout, "status must show the same path"
+run(root, "done", "T1", "--evidence", "x", expect=0)
+run(root, "close", expect=0)
+p2 = run(root, "path")
+assert p2.returncode == 1 and "no active round" in p2.stderr
+ok("path: absolute, real, shown in status, and errors cleanly with no round")
+
+
 shutil.rmtree(root, ignore_errors=True)
 print(f"\nledger.py: all {n} tests PASS")

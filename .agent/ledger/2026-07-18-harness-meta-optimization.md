@@ -5,7 +5,7 @@
 > Generated and maintained by `hooks/task-ledger/scripts/ledger.py`. This file is the source of
 > truth for the round. A Stop hook refuses to end the round while anything below is unfinished.
 
-> **21/23 settled** · 2 blocked
+> **23/25 settled** · 2 blocked
 
 ## Meta
 
@@ -16,6 +16,8 @@
 | agent | claude-code |
 | model | opus-4.8 |
 | profile | auto |
+| revision | 4 |
+| updated | 2026-07-19T12:53:48Z |
 
 ## Inbox
 
@@ -229,6 +231,20 @@
 - **evidence**: (blocked: needs-user: deleting session history is irreversible. Steps 1-4 free 2.76 GB and are verified safe, but the go is yours.)
 - **owner**: —
 
+### `T24` Emoji rules: heuristic title matching + bar closer
+
+- **status**: `done`
+- **acceptance**: any title infers a type by multi-keyword scoring; unmatched exits 3 asking for a deliberate pick; blocks open with emoji and close with a bar; 66 tests
+- **evidence**: blockrule.sh 66/66 incl. CJK-lowercase regression, tie-break order, and the exit-3 path; core.sh 22/22; deployed and verified end to end
+- **owner**: —
+
+### `T25` Surface the ledger link in every task-count report
+
+- **status**: `done`
+- **acceptance**: ledger.py path returns an absolute path; status shows it; core.sh and autorun-mode both require the link
+- **evidence**: ledger.py path added + test 19; requirement written into core.sh, rules/autorun-mode/RULE.md and its snippet; deployed
+- **owner**: —
+
 ## Log
 
 - 2026-07-18T15:02:51Z opened round with 10 task(s)
@@ -277,3 +293,7 @@
 - 2026-07-18T17:23:37Z T22 -> done
 - 2026-07-18T17:23:37Z added T23 Execute the storage cleanup
 - 2026-07-18T17:23:37Z T23 -> blocked
+- 2026-07-19T12:53:47Z r1 added T24 Emoji rules: heuristic title matching + bar closer
+- 2026-07-19T12:53:47Z r2 T24 -> done
+- 2026-07-19T12:53:47Z r3 added T25 Surface the ledger link in every task-count report
+- 2026-07-19T12:53:48Z r4 T25 -> done

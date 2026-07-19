@@ -78,7 +78,8 @@
       "hooks/typecheck-on-edit",
       "hooks/block-env-read",
       "hooks/ssh-guard",
-      "hooks/task-ledger"
+      "hooks/task-ledger",
+      "hooks/memory-supervisor"
     ],
     "templates": [
       "templates/research-package-py",

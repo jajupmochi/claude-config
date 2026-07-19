@@ -40,6 +40,7 @@ case "${1:-}" in
   *) type_name="$1"; shift ;;
 esac
 heading=0
+closing=0
 title_override=""
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -47,28 +48,80 @@ while [ $# -gt 0 ]; do
     --title)
       if [ $# -lt 2 ]; then printf 'blockrule: --title needs a value\n' >&2; exit 1; fi
       title_override="$2"; shift 2 ;;
-    # Accepted and ignored: the closing rule is identical to the opening one, so callers that still
-    # pass --close keep working instead of failing for asking about a distinction that no longer exists.
-    --close) shift ;;
+    --close) closing=1; shift ;;
     *) printf 'blockrule: unknown argument: %s\n' "$1" >&2; exit 1 ;;
   esac
 done
 
-# Infer the block type from the title when no type was given. Keyword sets cover the Chinese and the
-# English an agent actually writes; anything unmatched falls through to a neutral pair rather than an
-# error, because refusing a title the agent legitimately invented would just push the drift elsewhere.
+# A closing separator is a heavy bar, not emoji. Emoji open a block and carry its title; a bar ends it.
+# Making the two ends visually different is what stops one block's tail reading as the next block's head.
+# The bar is sized to match the emoji rule's rendered width: emoji are two columns each, bars are one.
+if [ "$closing" -eq 1 ]; then
+  case "$WIDTH" in ''|*[!0-9]*) printf 'blockrule: BR_WIDTH must be a number\n' >&2; exit 1 ;; esac
+  [ "$WIDTH" -lt 1 ] && { printf 'blockrule: BR_WIDTH must be at least 1\n' >&2; exit 1; }
+  b=""; k=0
+  while [ "$k" -lt $((WIDTH * 2)) ]; do b="$b━"; k=$((k + 1)); done
+  printf '%s\n' "$b"
+  exit 0
+fi
+
+# Infer the block type from the title. Heuristic and multi-keyword: the title is split on the separators
+# an agent actually writes (spaces, ·, dashes, slashes, colons, brackets, commas), every keyword is
+# matched against both the whole title and each token, and the type with the most hits wins. Accumulating
+# hits rather than taking the first match means "第三轮复审结果与后续进度" lands on the type it mentions
+# most, not on whichever keyword the case statement happened to list first.
+#
+# When NOTHING matches, this does NOT invent a neutral block. It exits 3 and asks the caller to pick one
+# of the four by the title's nature. A neutral fallback would quietly turn every unrecognised title into a
+# fifth visual category, which is the opposite of what the emoji are for.
+_score_type() {
+  # $1 = haystack (title, lowercased), $2.. = keywords. Prints the number of keywords present.
+  local hay="$1"; shift
+  local n=0 kw
+  for kw in "$@"; do
+    case "$hay" in *"$kw"*) n=$((n + 1)) ;; esac
+  done
+  printf '%s' "$n"
+}
+
 infer_type() {
-  case "$1" in
-    *审查*|*复审*|*评审*|*检查*|*review*|*Review*|*REVIEW*|*audit*|*Audit*) printf 'review' ;;
-    *进度*|*进展*|*状态*|*进程*|*progress*|*Progress*|*status*|*Status*|*update*|*Update*) printf 'progress' ;;
-    *决策*|*需要你*|*待你*|*确认*|*批准*|*授权*|*等待*|*decision*|*Decision*|*approval*|*Approval*|*needs*|*Needs*) printf 'decision' ;;
-    *完成*|*收尾*|*小结*|*总结*|*结束*|*交付*|*done*|*Done*|*complete*|*Complete*|*summary*|*Summary*|*finished*) printf 'done' ;;
-    *) printf 'note' ;;
-  esac
+  local raw="$1"
+  # Lowercase for the ASCII keywords; CJK is unaffected. Separators become spaces so tokens are visible
+  # to the same substring matching, which is what makes a compound title like "进展 · 数据基础" work.
+  # Lowercase with ${,,} rather than tr: tr operates on BYTES, so it corrupts any CJK character whose
+  # UTF-8 bytes fall in the A-Z range. That silently broke 状态, which then matched nothing at all.
+  local hay="${raw,,}"
+  hay="$(printf '%s' "$hay" | sed 's/[·—–\/:,;()[]{}<>|_]/ /g')"
+
+  local s_review s_progress s_decision s_done
+  s_review=$(_score_type "$hay"   审查 复审 评审 审阅 核查 检查 走查 校验 质检 复核 review audit inspect lint)
+  s_progress=$(_score_type "$hay" 进度 进展 状态 进程 阶段 现状 情况 目前 当前 报告 progress status update ongoing report)
+  s_decision=$(_score_type "$hay" 决策 需要你 待你 确认 批准 授权 等待 待定 待批 请示 抉择 选择 阻塞 decision approval approve confirm needs blocked pending)
+  s_done=$(_score_type "$hay"     完成 收尾 小结 总结 结束 交付 完毕 搞定 落地 上线 done complete completed finished summary wrap delivered)
+
+  local best=0 pick=""
+  # Order breaks ties deliberately: a title naming both a review and progress is more useful filed as a
+  # review, and a decision outranks a summary because it is the one that needs the reader to act.
+  if [ "$s_review" -gt "$best" ];   then best="$s_review";   pick=review;   fi
+  if [ "$s_decision" -gt "$best" ]; then best="$s_decision"; pick=decision; fi
+  if [ "$s_progress" -gt "$best" ]; then best="$s_progress"; pick=progress; fi
+  if [ "$s_done" -gt "$best" ];     then best="$s_done";     pick=done;     fi
+
+  [ -n "$pick" ] || return 1
+  printf '%s' "$pick"
 }
 
 if [ -z "$type_name" ] && [ -n "$title_override" ]; then
-  type_name="$(infer_type "$title_override")"
+  if ! type_name="$(infer_type "$title_override")"; then
+    printf 'blockrule: cannot infer a block type from %s\n' "$title_override" >&2
+    printf '  Pick the closest of the four by what the block is FOR, and pass it explicitly:\n' >&2
+    printf '    review    👨🏻‍⚕️🔍👩🏻‍⚕️  examining work for defects\n' >&2
+    printf '    progress  🚀🏎️      where things stand mid-flight\n' >&2
+    printf '    decision  🔔⏰      something needs the reader to act\n' >&2
+    printf '    done      🎉🥳      a round or deliverable finished\n' >&2
+    printf '  e.g. blockrule.sh progress --title %s\n' "$title_override" >&2
+    exit 3
+  fi
 fi
 
 case "$type_name" in
@@ -76,9 +129,8 @@ case "$type_name" in
   progress) set -- "🚀" "🏎️";             title="进度报告" ;;
   decision) set -- "🔔" "⏰";              title="需要你决策" ;;
   done)     set -- "🎉" "🥳";              title="本轮完成" ;;
-  note)     set -- "📌" "📎";              title="说明" ;;
-  "")       printf 'blockrule: give a type (review|progress|decision|done|note) or a --title to infer one from\n' >&2; exit 1 ;;
-  *)        printf 'blockrule: unknown block type %s (have: review, progress, decision, done, note)\n' "$type_name" >&2; exit 1 ;;
+  "")       printf 'blockrule: give a type (review|progress|decision|done) or a --title to infer one from\n' >&2; exit 1 ;;
+  *)        printf 'blockrule: unknown block type %s (have: review, progress, decision, done)\n' "$type_name" >&2; exit 1 ;;
 esac
 
 [ -n "$title_override" ] && title="$title_override"

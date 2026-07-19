@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "python3 \"$HOME/.claude/skills/memory-flywheel/scripts/supervise.py\"", "timeout": 20 }
+        ]
+      }
+    ]
+  }
+}

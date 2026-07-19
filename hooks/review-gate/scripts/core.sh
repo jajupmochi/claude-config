@@ -147,23 +147,37 @@ five shapes, every one of them seen in real output:
     eg5  one block closing rule butted straight against the next block opening rule
 
 Run this instead. Pass the TITLE you actually want; the emoji are chosen from it, so you never have to
-decide which bucket a block belongs in. The SAME command produces the opening and the closing rule, so a
-mismatched or orphaned pair is not something an argument can get wrong:
+decide which bucket a block belongs in.
 
     BR=\$HOME/.claude/hooks/review-gate/blockrule.sh
-    bash \$BR --title 本轮完成 --heading      # rule, blank, heading line, blank, rule
+    bash \$BR --title 本轮完成 --heading      # opening: emoji rule, blank, heading, blank, emoji rule
     ... the block body ...
-    bash \$BR --title 本轮完成                # the closing rule: identical string, same command
+    bash \$BR --close                        # closing: a heavy bar, NOT emoji
 
-Any title works. 审查/复审/review map to 👨🏻‍⚕️🔍👩🏻‍⚕️, 进度/进展/状态/progress to 🚀🏎️,
-决策/需要你/授权/decision to 🔔⏰, 完成/小结/总结/summary to 🎉🥳, and a title matching none of those
-gets a neutral 📌📎 rather than an error. Pass an explicit type first when you want to override the
-inference: bash \$BR review --title 部署清单
+A block OPENS with emoji and CLOSES with a bar. Making the two ends look different is deliberate: it is
+what stops one block trailing edge from reading as the next block leading edge, and it tells the reader
+at a glance whether they are entering a block or leaving one.
+
+Title matching is heuristic and multi-keyword. Separators (space, middle dot, dash, slash, colon,
+bracket) are split, every keyword is scored, and the type mentioned MOST wins. 审查/复审/review map to
+👨🏻‍⚕️🔍👩🏻‍⚕️, 进度/进展/状态/progress to 🚀🏎️, 决策/需要你/授权/decision to 🔔⏰,
+完成/小结/总结/summary to 🎉🥳.
+
+If NOTHING matches, blockrule exits 3 and asks you to choose. Do NOT invent a fifth style: pick whichever
+of the four fits what the block is FOR and pass it explicitly, e.g. bash \$BR progress --title 部署清单
 
 Three hard rules, one per observed failure:
-1. NEVER put a bar (the U+2501 heavy line) anywhere near an emoji rule. Pick one; the emoji rule is it.
+1. NEVER put a bar in an OPENING rule, and never open a block with a bar. Emoji open, bars close.
 2. NEVER write a rule line with no block content under it.
 3. ALWAYS leave a blank line between one block closing rule and the next block opening rule.
+
+**Whenever you report task counts, link the round document.** Print its absolute path and make it a
+clickable link, so the reader can open the tracker rather than take the numbers on trust:
+
+    python3 \$HOME/.claude/hooks/task-ledger/ledger.py path
+
+A tracker nobody can open is indistinguishable from one that is not running, which is exactly how this
+feature managed to look broken while working.
 
 **The body is a MARKDOWN TABLE, one row per changed function/module, never prose bullets.** Prose at this
 density is unreadable. Keep every cell to one short clause and push anything longer into numbered notes

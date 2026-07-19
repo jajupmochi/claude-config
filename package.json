@@ -80,6 +80,8 @@
     "test:task-ledger": "python3 hooks/task-ledger/scripts/test_ledger.py && bash hooks/task-ledger/scripts/test_hooks.sh",
     "test:review-gate-core": "bash hooks/review-gate/scripts/test_core.sh",
     "test:capability-receipt": "node bin/capability-receipt.test.mjs",
-    "test:statsbar": "bash hooks/review-gate/scripts/test_statsbar.sh"
+    "test:statsbar": "bash hooks/review-gate/scripts/test_statsbar.sh",
+    "test:deploy-hooks": "node bin/deploy-hooks.test.mjs",
+    "deploy:hooks": "node bin/deploy-hooks.mjs"
   }
 }
