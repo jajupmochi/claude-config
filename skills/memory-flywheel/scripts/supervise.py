@@ -205,14 +205,28 @@ def _project_name(cwd):
     return re.sub(r"[^A-Za-z0-9._-]", "-", name)
 
 
+def default_mem_root(payload=None):
+    """Where a project's memory lives: inside the project, not in a home directory.
+
+    The memory of a project belongs with that project — it should survive being copied to another
+    machine, be visible in a diff, and not accumulate in a hidden home folder no one looks at. This
+    mirrors task-ledger, which keeps its round documents in the same `.agent/` folder. Falls back to
+    the old ~/.agent-harness/memory only when the payload carries no usable cwd.
+    """
+    cwd = (payload or {}).get("cwd")
+    if cwd and os.path.isdir(cwd):
+        return os.path.join(cwd, ".agent", "memory")
+    return os.path.join(os.path.expanduser("~"), ".agent-harness", "memory")
+
+
 def run(payload, mem_root=None, mem=None):
     """Core entry: given a parsed Stop payload, record the latest round. Returns a status string.
 
-    mem_root defaults to ~/.agent-harness/memory. mem is injectable for tests.
+    mem_root defaults to <project>/.agent/memory. mem is injectable for tests.
     """
     if not enabled():
         return "disabled"
-    root = mem_root or os.path.join(os.path.expanduser("~"), ".agent-harness", "memory")
+    root = mem_root or default_mem_root(payload)
     state_dir = os.path.join(root, ".supervise-state")
     sid = str(payload.get("session_id") or "nosess")
     tpath = payload.get("transcript_path")
@@ -260,7 +274,7 @@ def main():
             raise RuntimeError(status)
     except Exception as e:  # deploy fallback: record WHY it fired, never crash the turn
         try:
-            root = os.path.join(os.path.expanduser("~"), ".agent-harness", "memory")
+            root = default_mem_root(payload if isinstance(payload, dict) else None)
             os.makedirs(root, exist_ok=True)
             with open(os.path.join(root, "supervise-errors.log"), "a", encoding="utf-8") as f:
                 f.write(f"{datetime.datetime.now().isoformat()}\t{type(e).__name__}\t{e}\n")

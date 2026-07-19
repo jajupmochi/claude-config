@@ -65,7 +65,10 @@ fi
 # Loop guard. The honest escape is always available (mark an item blocked or dropped with a reason), so a
 # run of consecutive blocks means the agent is stuck rather than working. Degrade to a warning instead of
 # looping forever, and say plainly that the round did NOT complete.
-state_dir="${TL_STATE_DIR:-$HOME/.claude/task-ledger-state}"
+# Loop-guard counter. Project-local, next to the ledger it guards, rather than under ~/.claude:
+# everything task-ledger knows about a project should live with that project. It is transient,
+# so .agent/ledger/.state is gitignored while the round documents beside it are committed.
+state_dir="${TL_STATE_DIR:-.agent/ledger/.state}"
 mkdir -p "$state_dir" 2>/dev/null || true
 rounds_file="$state_dir/${sid}.rounds"
 rounds=$(( $(cat "$rounds_file" 2>/dev/null || echo 0) + 1 ))

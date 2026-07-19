@@ -40,5 +40,8 @@ __pycache__/
 node_modules/
 .npm/
 
-# task-ledger round state — per-project runtime, not source
-.agent/
+# task-ledger. The round DOCUMENTS are committed on purpose: a task ledger with no history is
+# just a scratch file, and reconstructing what a round contained three weeks later is exactly
+# what it exists to prevent. Only the pointer to the current round is transient.
+.agent/ledger/ACTIVE
+.agent/ledger/.state/

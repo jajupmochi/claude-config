@@ -465,8 +465,21 @@ def load_active(root: Path | None = None) -> Ledger:
 
 
 def save(led: Ledger, entry: str | None = None):
+    """Persist the ledger, bumping its revision.
+
+    The document does NOT depend on git for history. Its name carries the date, `revision` counts every
+    mutation, and the Log section below records what each one was and when. Git adds diffable prior
+    states, which is a convenience; a project with no repository still gets a complete, ordered account
+    of how the round evolved, which is the thing the ledger exists to preserve.
+    """
+    try:
+        rev = int(led.meta.get("revision", 0)) + 1
+    except (TypeError, ValueError):
+        rev = 1
+    led.meta["revision"] = str(rev)
+    led.meta["updated"] = now()
     if entry:
-        led.log.append(f"{now()} {entry}")
+        led.log.append(f"{now()} r{rev} {entry}")
     led.path.parent.mkdir(parents=True, exist_ok=True)
     led.path.write_text(led.render(), encoding="utf-8")
 

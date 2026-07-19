@@ -126,45 +126,67 @@ fi
 
 reason="$reason
 
-**Present your review IN CHINESE** (unless the project is English-language), in its OWN block fenced by a
-THICK \`━\` bar. Open it with a markdown HEADING, not a bold line: a terminal markdown renderer colours
-headings, and colour is what makes the block findable when scrolling back through a long turn. So: a
-bounded \`━\` bar on its own line, then \`## 🔍 review-gate 审查\` on its own line, then a \`━\` bar, then
-the body, then a closing \`━\` bar. NOT inline \`━━━ kw ━━━\` (wraps badly on a phone), NOT raw text
-sprawling after your summary.
+**ORDER MATTERS. When this gate fires, the review comes BEFORE the turn summary.**
 
-**The body is a MARKDOWN TABLE, one row per changed function/module — never prose bullets.** Prose at this
-density is unreadable. Keep every cell to one short clause and push anything longer into the numbered
-notes under the table, referenced by row number. Blank line before and after the table, and keep the
-\`|---|\` separator row, or it will not render.
+Do not write a turn summary in the message that triggers this gate. Say what you did in a line or two and
+leave the summary for afterwards. Then in THIS message: present the review first, and follow it with the
+FULL turn summary, the complete one, not a shortened recap of a summary already given. The old shape
+(summary, then review, then a thinner summary) makes the reader read the turn twice.
 
-Lead with the counts as a bar, generated (do not hand-draw it):
-\`\`\`bash
-bash \"\$HOME/.claude/hooks/review-gate/statsbar.sh\" --format md --title '本回合审查' --unit 项 \\
-  --stat '无问题:N:green' --stat '已修:N:yellow' --stat '待修:N:red'
-\`\`\`
+You can tell in advance that this gate will fire: it fires on any turn that wrote or edited a code file.
 
-Full shape:
-\`\`\`md
-━━━━━━━━━━━━━━━━
-## 🔍 review-gate 审查
+**Present your review IN CHINESE** (unless the project is English-language), in its own block.
 
-━━━━━━━━━━━━━━━━
+**Generate every block rule, do NOT type it.** Retyped formatting drifts, and the drift is always one of
+five shapes, every one of them seen in real output:
 
-<statsbar output here>
+    eg1  a heading with no rule above or below it
+    eg2  an emoji rule on top and a bar underneath, both present
+    eg3  the title line missing its ## marker, so it renders as body text
+    eg4  a stray rule line with nothing under it
+    eg5  one block closing rule butted straight against the next block opening rule
 
-| # | 文件 / 单元 | 维度 | 结论 |
-|---|---|---|---|
-| 1 | \`track.sh\` / \`parse_input()\` | logic | ✅ OK |
-| 2 | \`foo.py\` / \`load()\` | test-gap | ⚠️ 待修 — 空输入无测试 |
-| 3 | \`bar.sh\` / \`flist\` | robustness | 🔧 已修 — 空格路径不可切分 |
+Run this instead. Pass the TITLE you actually want; the emoji are chosen from it, so you never have to
+decide which bucket a block belongs in. The SAME command produces the opening and the closing rule, so a
+mismatched or orphaned pair is not something an argument can get wrong:
 
-详注(仅展开需要解释的行):
+    BR=\$HOME/.claude/hooks/review-gate/blockrule.sh
+    bash \$BR --title 本轮完成 --heading      # rule, blank, heading line, blank, rule
+    ... the block body ...
+    bash \$BR --title 本轮完成                # the closing rule: identical string, same command
 
-2. …
-3. …
-━━━━━━━━━━━━━━━━
-\`\`\`
+Any title works. 审查/复审/review map to 👨🏻‍⚕️🔍👩🏻‍⚕️, 进度/进展/状态/progress to 🚀🏎️,
+决策/需要你/授权/decision to 🔔⏰, 完成/小结/总结/summary to 🎉🥳, and a title matching none of those
+gets a neutral 📌📎 rather than an error. Pass an explicit type first when you want to override the
+inference: bash \$BR review --title 部署清单
+
+Three hard rules, one per observed failure:
+1. NEVER put a bar (the U+2501 heavy line) anywhere near an emoji rule. Pick one; the emoji rule is it.
+2. NEVER write a rule line with no block content under it.
+3. ALWAYS leave a blank line between one block closing rule and the next block opening rule.
+
+**The body is a MARKDOWN TABLE, one row per changed function/module, never prose bullets.** Prose at this
+density is unreadable. Keep every cell to one short clause and push anything longer into numbered notes
+under the table, referenced by row number. Blank line before and after the table, and keep the separator
+row, or it will not render.
+
+Lead with the counts as a bar, also generated:
+
+    bash \$HOME/.claude/hooks/review-gate/statsbar.sh --format md --title 本回合审查 --unit 项 --stat 无问题:N:green --stat 已修:N:yellow --stat 待修:N:red
+
+Body shape between the generated rules:
+
+    <statsbar output>
+
+    | # | 文件 / 单元 | 维度 | 结论 |
+    |---|---|---|---|
+    | 1 | track.sh / parse_input() | logic | OK |
+    | 2 | foo.py / load() | test-gap | 待修 — 空输入无测试 |
+
+    详注(仅展开需要解释的行):
+
+    2. …
+
 先修真实问题再收尾。(review-gate 每个改代码的回合都跑,不可跳过。)"
 
 # Delivery split. The brief above is INSTRUCTIONS FOR THE MODEL, but a Stop hook's reason string is
