@@ -6,6 +6,11 @@ switch silently. Both begin identically: local modify → test → commit → on
 interdependent tasks) is FULLY clean locally, review that task's commits and squash/merge the noise
 (a fix→bug→refix chain, throwaway commits) before it goes anywhere.
 
+**Before ANY server-touching operation — in BOTH processes, no exceptions:** take a FULL backup first —
+code, data (databases + files), config (env + overrides), the running services' state, and anything else
+state lives in. Verify the backup exists and is readable BEFORE the first server write (deploy, restart,
+migration, config edit). No server mutation without a verified backup to roll back to.
+
 - **Standard:** reconcile server + github diffs (merge/resolve), push to github, deploy **entirely via
   CICD**, ensure every Action is green, verify multi-method **including a visual screenshot**; then fold
   whatever CICD genuinely cannot do (usually only `sudo`) into the project's unified deploy doc.

@@ -40,6 +40,24 @@ switch it back — do not revert on your own, and do not silently switch mid-ses
 
 Only after the shared prefix does the process diverge.
 
+## Before any server operation (mandatory, both processes)
+
+**No server write without a verified full backup first.** Before the FIRST operation that touches a server
+— deploy, `git pull`/`reset`, build, service restart, schema migration, config edit, anything — take a
+**full backup** of that server and confirm it is readable:
+
+- **Code** — the deployed checkout / built artifacts (or a git ref that reproduces them).
+- **Data** — databases (dump), plus any file/object state (uploads, caches that are not reproducible).
+- **Config** — env files, per-environment overrides, secrets locations (record, do not exfiltrate),
+  service unit files, reverse-proxy config.
+- **Services** — what is running and how (unit list + status + the exact start commands / container
+  images), so the pre-change runtime can be restored, not just the files.
+- **Anything else state lives in** — cron, queues, feature flags, on-disk migrations already applied.
+
+Prefer the project's own backup script if it has one; verify its output exists and is non-empty before
+proceeding. The backup is the rollback path for an emergency deploy and the safety net for a standard one —
+it is not optional and not deferrable to "after I check one thing".
+
 ## Standard process
 
 1. Investigate what changed on the **server** and on **github**; merge and resolve conflicts so the
