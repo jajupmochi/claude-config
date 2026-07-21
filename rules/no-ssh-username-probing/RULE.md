@@ -22,7 +22,7 @@ rationale: A wrong-username SSH loop is indistinguishable from a brute-force att
 
 Before SSHing (or `scp`/`sftp`) to a host:
 
-1. **Get the exact username from a source of truth** — deploy config (`deploy.yml` `DEPLOY_USER`, CI secrets doc), the project's runbook, or **ask the human**. Do not infer it from the hostname or try "likely" names.
+1. **Get the exact username, port, and key from a source of truth** — deploy config (`deploy.yml` `DEPLOY_USER`, CI secrets doc), the project's runbook, a prior session's memory, or **ask the human**. Do not infer any of them from the hostname or try "likely" values. (This host's answer, recorded: `deploy-user@…` on port `2222`, key-based.)
 2. **Try exactly once** with that user (`-o BatchMode=yes` so a wrong key fails fast instead of hanging on a password prompt).
 3. **On failure, STOP and ask.** Read the actual error (`Permission denied (publickey)` = wrong key/user; `Connection refused`/timeout on only the SSH port = you may already be banned — see below). Do **not** try a second, third, … username.
 4. **Never run a loop** (`for u in root admin ubuntu …; do ssh $u@host; done`) against a real host. That is the exact brute-force signature fail2ban bans.
