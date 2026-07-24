@@ -29,6 +29,16 @@ Whenever you mention a commit, a file, a line, a PR/issue, a doc, or an external
   - In chat / any in-session summary (terminal OR phone app): an **absolute** path from `/`, optionally `path:line` (the harness makes an absolute `file:line` clickable). **NEVER a relative path** like `scripts/x.py`, and **never a markdown link with a relative target** like `[doc.md](sub/dir/doc.md)` — the app has no cwd to resolve it against, so it does NOT click. This holds even when the thing you're linking is a doc: the in-session summary is chat, not the committed doc, so its links must be absolute.
   - In a committed Markdown doc (a file that lives in the repo): a real markdown link with a **repo-relative** target `[x.py](relative/path)` is fine there — it resolves on GitHub / in the repo; for a specific line use `path#L42`.
   - Pushed code: `https://github.com/<org>/<repo>/blob/<branch-or-sha>/<path>#L42` when you want the reader to see it on the web.
+  - **Path contains a SPACE (or any of `()<>` )** — a bare absolute path **breaks at the first
+    space** and dies, and writing `%20` inside a bare path is worse: it is taken LITERALLY, so the
+    target does not exist. Emit a proper file URI with percent-encoded spaces instead:
+    `file:///media/linlin/New%20Volume1/projects/x/README.md`. Markdown-native alternative when you
+    must keep the literal space: wrap the destination in angle brackets,
+    `[README](</media/linlin/New Volume1/projects/x/README.md>)` — CommonMark permits spaces inside
+    `<…>`. Pick ONE and use it consistently; never emit a bare path with a raw space.
+    This bites on every machine whose disk is mounted at a name like `New Volume1`, `Google Drive`,
+    `My Documents`, or `Program Files` — i.e. constantly, and silently, because the text still
+    *looks* like a link.
 - **Line / range** — append `#L42` (or `#L42-L60`) to a file link; in chat use `path:42`.
 - **PR / issue** — full URL: `https://github.com/<org>/<repo>/pull/<n>` (not just "PR #5").
 - **Doc you wrote / a plan** — a clickable link to the doc, plus a deep link to the exact section/heading when relevant (`doc.md#section-anchor`).
@@ -45,6 +55,8 @@ References are only useful if the reader can ACT on them. A bare hash, a non-lin
 | `commit c6141ac` | `` `c6141ac` (local, not pushed — in `/abs/repo`) `` or `https://github.com/org/repo/commit/c6141ac…` |
 | `scripts/validate_config.py` (plain text) | `[validate_config.py](…/scripts/validate_config.py)` or `/abs/.../scripts/validate_config.py:1` |
 | `[daily-runs/2026-06-29.md](<repo>/docs/…/daily-runs/2026-06-29.md)` (relative target — dead in chat / on phone) | `[daily-runs/2026-06-29.md](/media/…/<repo>/docs/…/daily-runs/2026-06-29.md)` (absolute target — clicks) |
+| `[doc](/media/linlin/New Volume1/x/doc.md)` (raw space — link breaks at `New`) | `[doc](file:///media/linlin/New%20Volume1/x/doc.md)` or `[doc](</media/linlin/New Volume1/x/doc.md>)` |
+| `[doc](/media/linlin/New%20Volume1/x/doc.md)` (percent-encoding in a BARE path — read literally, target doesn't exist) | same two fixes as above — `%20` is only valid inside a `file://` URI |
 | "PR #5" | `https://github.com/org/repo/pull/5` |
 | "see their careers page" | the full posting URL |
 | a URL cut to fit a line | the whole URL, even if long |
