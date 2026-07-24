@@ -46,6 +46,7 @@
     "rules/incremental-delivery",
     "rules/parity-restoration",
     "rules/commit-discipline",
+    "rules/deploy-process",
     "rules/root-cause-before-fix",
     "rules/fallback-discipline",
     "rules/no-ssh-username-probing",
